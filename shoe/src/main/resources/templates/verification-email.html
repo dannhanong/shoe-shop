@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Email Verification</title>
+</head>
+
+<body>
+<p style="font-weight: 600; font-size: 20px;">Dear <span th:text="${name}">Name</span>,</p>
+<p style="font-size: 18px">Please click the link below to verify your registration:</p>
+<div style="display: flex; gap: 4px;">
+    <p style="font-weight: 600; font-size: 20px;"><a th:href="${verifyURL}">Verify</a></p>
+</div>
+<p style="font-size: 18px">Thank you!!!!</p>
+</body>
+
+</html>
