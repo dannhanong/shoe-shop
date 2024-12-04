@@ -153,7 +153,7 @@ const OrderDetails: React.FC = () => {
             )
           }
           {
-            activeStep !== 5 && (
+            (activeStep !== 5 && activeStep !== 4 && activeStep !== 3) && (
               <Button 
                 variant="contained" color="error"
                 onClick={handleCancelOrder}

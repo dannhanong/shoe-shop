@@ -26,7 +26,7 @@ public class SeasonalDiscount {
     @Column(columnDefinition = "NVARCHAR(MAX)")
     String description;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "seasonal_discount_products",
             joinColumns = @JoinColumn(name = "seasonal_discount_id"),

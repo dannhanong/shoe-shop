@@ -396,6 +396,13 @@ const SalesCounter: React.FC = () => {
           const r = await createOrderByStaff(orderCreationByStaff);
           console.log('Order creation:', r);
           printReceipt(r);
+          setInvoices((prevInvoices) =>
+            prevInvoices.map((invoice, index) =>
+              index === currentTab
+                ? { ...invoice, products: [], account: null, address: null, voucher: null, paymentType: '', orderType: 'POS' }
+                : invoice
+            )
+          );
           Swal.fire('Thành công', 'Đã xác nhận đơn hàng', 'success');
         } else {
           try {

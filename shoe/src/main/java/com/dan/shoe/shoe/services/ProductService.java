@@ -10,7 +10,6 @@ import com.dan.shoe.shoe.models.Product;
 import com.dan.shoe.shoe.models.ProductVariant;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.parameters.P;
 
 import java.util.List;
 

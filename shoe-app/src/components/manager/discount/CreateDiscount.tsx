@@ -23,6 +23,7 @@ import { Variant } from "../../../models/Variant";
 import { set } from "lodash";
 import { createDiscount } from "../../../services/discount.service";
 import { toast, ToastContainer } from "react-toastify";
+import Swal from "sweetalert2";
 
 const CreateDiscount: React.FC = () => {
     const navigate = useNavigate();
@@ -40,36 +41,47 @@ const CreateDiscount: React.FC = () => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
 
-    const handleSubmit = () => {
-        const seasonalDiscountCreation = {
-            name,
-            discountRate,
-            startDate,
-            endDate,
-            description: description,
-            applicableProductIds: selectedVariantIds,
-        }
-        
-        createDiscount(seasonalDiscountCreation).then(response => {
-            if(response) {
-                toast.success("Thêm khuyến mại thành công", {
-                    autoClose: 3000,
-                });
+    const handleSubmit = async () => {
+        Swal.fire({
+            title: 'Bạn có chắc chắn muốn thêm khuyến mại này không?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Đồng ý',
+            cancelButtonText: 'Hủy'
+        }).then( async (result) => {
+            if (result.isConfirmed) {
+                const seasonalDiscountCreation = {
+                    name,
+                    discountRate,
+                    startDate,
+                    endDate,
+                    description: description,
+                    applicableProductIds: selectedVariantIds,
+                }
+                const response = await createDiscount(seasonalDiscountCreation);
+                if(response) {
+                    Swal.fire({
+                        title: 'Thêm khuyến mại thành công',
+                        icon: 'success',
+                    })
 
-                setName('');
-                setDiscountRate(0);
-                setDescription('');
-                setStartDate('');
-                setEndDate('');
-                setSelectedProductIds([]);
-                setSelectedVariantIds([]);
-                setVariants(null);
+                    setName('');
+                    setDiscountRate(0);
+                    setDescription('');
+                    setStartDate('');
+                    setEndDate('');
+                    setSelectedProductIds([]);
+                    setSelectedVariantIds([]);
+                    setVariants(null);
+                } else {
+                    toast.error("Thêm khuyến mại thất bại", {
+                        autoClose: 3000,
+                    });
+                }
             }
-        }).catch(error => {
-            toast.error("Thêm khuyến mại thất bại", {
-                autoClose: 3000,
-            });
-        });
+        })
     }
 
     const fetchAllProducts = async (page: number) => {
