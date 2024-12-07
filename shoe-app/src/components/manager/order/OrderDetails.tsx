@@ -197,7 +197,11 @@ const OrderDetails: React.FC = () => {
                       order.paymentType === "CASH" ? (
                         <Chip label="Tiền mặt" color="primary" />
                       ) : (
-                        <Chip label="Chuyển khoản" color="secondary" />
+                        order.paymentType === "TRANSFER" ? (
+                          <Chip label="Chuyển khoản" color="secondary" />
+                        ) : (
+                          <Chip label="Thanh toán khi nhận hàng" color="success" />
+                        )
                       )
                     }
                     {/* <Chip
@@ -246,6 +250,8 @@ const OrderDetails: React.FC = () => {
               <TableRow>
                 <TableCell align="center">STT</TableCell>
                 <TableCell align="center">Sản phẩm</TableCell>
+                <TableCell align="center">Màu sắc</TableCell>
+                <TableCell align="center">Kích cỡ</TableCell>
                 <TableCell align="center">Số lượng</TableCell>
                 <TableCell align="center">Thành tiền</TableCell>
                 <TableCell align="center"></TableCell>
@@ -267,7 +273,11 @@ const OrderDetails: React.FC = () => {
                           {item.productVariant.product.name}
                           </Typography>
                       </div>
-                  </TableCell>
+                    </TableCell>
+                    <TableCell align="center">
+                      <div style={{width: 20, height: 20, backgroundColor: item.productVariant.color, borderRadius: '50%', marginLeft: "36%"}}></div>
+                    </TableCell>
+                    <TableCell align="center">{item.productVariant.size}</TableCell>
                     <TableCell align="center">{item.quantity}</TableCell>
                     <TableCell align="center">{item.itemPrice}</TableCell>
                     <TableCell onClick={() => navigate(`/product-detail/${item.productVariant.id}`)}>

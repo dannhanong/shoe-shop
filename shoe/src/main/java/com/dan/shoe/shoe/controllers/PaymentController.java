@@ -34,7 +34,9 @@ public class PaymentController {
 //
             if (paymentStatus == 1) {
                 Long orderId = Long.parseLong(orderInfo);
-                orderService.updateOrderStatus(orderId, "CREATED");
+                // orderService.updateOrderStatus(orderId, "CREATED");
+                System.out.println("orderId: " + orderId);
+                System.out.println("updated order status");
                 orderService.updateOrderPaid(orderId);
 
                 return "ordersuccess";

@@ -62,7 +62,7 @@ const Login: React.FC = () => {
     }, [location]);
 
     return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: '#f4f6f8', padding: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh', backgroundColor: '#f4f6f8', padding: 3 }}>
             <CssBaseline enableColorScheme />
             <Card sx={{ maxWidth: 400, width: '100%', padding: 4, borderRadius: 2, boxShadow: 3 }}>
                 <Typography

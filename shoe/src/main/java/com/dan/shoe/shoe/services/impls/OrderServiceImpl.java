@@ -53,12 +53,13 @@ public class OrderServiceImpl implements OrderService {
     private VoucherRepository voucherRepository;
 
     @Override
-    public Order createOrder(String username, String voucherCode) {
+    public Order createOrder(String username, String voucherCode, PaymentType paymentType) {
         User user = userRepository.findByUsername(username);
         Order order = new Order();
         order.setUser(user);
         order.setOrderType(OrderType.ONLINE);
         order.setStatus(OrderStatus.CREATED);
+        order.setPaymentType(paymentType);
         Cart cart = cartRepository.findByUser(user);
 
         // Sao chép các CartItem thành OrderItem và thiết lập Order cho mỗi OrderItem
@@ -248,6 +249,8 @@ public class OrderServiceImpl implements OrderService {
             newOrder.setStatus(OrderStatus.CREATED);
         }
 
+        newOrder.setTotalPrice(newOrder.getTotalPrice() < 0 ? 0 : newOrder.getTotalPrice());
+
         orderRepository.save(newOrder);
         return newOrder;
     }
@@ -277,7 +280,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = new Order();
         order.setUser(user);
         order.setOrderType(OrderType.ONLINE);
-        order.setPaymentType(PaymentType.TRANSFER);
+        order.setPaymentType(PaymentType.valueOf(orderNowCreation.getPaymentType().toUpperCase()));
         order.setStatus(OrderStatus.CREATED);
         OrderItem orderItem = new OrderItem(productVariant, orderNowCreation.getQuantity(), productVariant.getPrice() * orderNowCreation.getQuantity());
         orderItem.setOrder(order); // Set the Order reference in OrderItem
@@ -456,5 +459,26 @@ public class OrderServiceImpl implements OrderService {
         return voucher.getDiscountAmount() < 100
                 ? (int) (totalPrice * (1 - voucher.getDiscountAmount() / 100.0))
                 : (totalPrice - voucher.getDiscountAmount());
+    }
+
+    @Override
+    public Map<String, Object> getDailyRevenueData(LocalDate startDate, LocalDate endDate) {
+        // TODO Auto-generated method stub
+        List<Object[]> results = orderRepository.getDailyRevenueAndOrders(startDate.atStartOfDay(), endDate.atTime(23, 59, 59));
+        Map<String, Object> data = new HashMap<>();
+        List<String> labels = new ArrayList<>();
+        List<Integer> revenues = new ArrayList<>();
+        List<Integer> orders = new ArrayList<>();
+        for (Object[] result : results) {
+            labels.add(result[0].toString());
+        }
+        for (Object[] result : results) {
+            revenues.add(((Number) result[1]).intValue());
+            orders.add(((Number) result[2]).intValue());
+        }
+        data.put("labels", labels);
+        data.put("revenue", revenues);
+        data.put("orders", orders);
+        return data;
     }
 }

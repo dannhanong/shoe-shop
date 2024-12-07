@@ -10,13 +10,10 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-
 public interface ProductVariantRepository extends JpaRepository<ProductVariant, Long> {
-//    Set<ProductVariant> findByProduct(Product product);
     ProductVariant findByProductAndSize(Product product, int size);
     void deleteByProduct(Product product);
-    Page<ProductVariant> findByProduct_NameContainingAndDefaultVariantTrueAndProduct_StatusTrue(String productName, Pageable pageable);
+    Page<ProductVariant> findByDeletedFalseAndProduct_NameContainingAndDefaultVariantTrueAndProduct_StatusTrue(String productName, Pageable pageable);
     Page<ProductVariant> findByProduct_NameContaining(String productName, Pageable pageable);
     @Query("SELECT DISTINCT pv.color FROM ProductVariant pv WHERE pv.product = :product")
     List<String> findDistinctColorByProduct(@Param("product") Product product);
@@ -39,6 +36,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     p.status = true
     AND pv.price BETWEEN :minPrice AND :maxPrice
     AND pv.defaultVariant = true
+    AND pv.deleted = false
     AND (:brandIds IS NULL OR p.brand.id IN :brandIds)
     """)
     Page<ProductVariant> findByPriceRangeAndBrands(
@@ -56,6 +54,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     p.status = true
     AND pv.price BETWEEN :minPrice AND :maxPrice 
     AND pv.defaultVariant = true
+    AND pv.deleted = false
     """)
     Page<ProductVariant> findByPriceRange(
             @Param("minPrice") int minPrice,
@@ -65,4 +64,6 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     Page<ProductVariant> findByProduct_Brand_IdAndIdNotAndDefaultVariantTrue(Long categoryId, Long variantId, Pageable pageable);
     Page<ProductVariant> findByProduct_IdIn(List<Long> productIds, Pageable pageable);
     List<ProductVariant> findByProduct(Product product);
+    void deleteByProduct_Id(Long id);
+    List<ProductVariant> findByProduct_Id(Long id);
 }

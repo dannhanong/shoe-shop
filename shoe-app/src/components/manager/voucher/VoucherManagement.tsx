@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { Voucher } from '../../../models/Voucher';
 import { createVoucher, deleteVoucher, getAllVouchers, getVoucherById, updateVoucher } from '../../../services/voucher.service';
 import { set } from 'lodash';
+import * as yup from 'yup';
 
 const VoucherManagement: React.FC = () => {
     const navigate = useNavigate();
@@ -36,6 +37,42 @@ const VoucherManagement: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
 
+    const [errors, setErrors] = useState<{[key: string]: string}>({});
+
+    const voucherSchema = yup.object().shape({
+        code: yup
+            .string()
+            .required('Mã giảm giá không được để trống')
+            .min(3, 'Mã giảm giá phải có ít nhất 3 ký tự'),
+        discountAmount: yup
+            .number()
+            .transform((value) => (isNaN(value) ? undefined : value))
+            .required('Giá trị giảm không được để trống')
+            .positive('Giá trị giảm phải là số dương')
+            .max(100, 'Nếu là phần trăm thì không được vượt quá 100%'),
+        maxUsage: yup
+            .number()
+            .transform((value) => (isNaN(value) ? undefined : value))
+            .required('Số lần sử dụng không được để trống')
+            .positive('Số lần sử dụng phải là số dương')
+            .integer('Số lần sử dụng phải là số nguyên'),
+        startDate: yup
+            .date()
+            .transform((value, originalValue) => {
+                return originalValue ? new Date(originalValue) : null;
+            })
+            .required('Ngày bắt đầu không được để trống')
+            .nullable(),
+        endDate: yup
+            .date()
+            .transform((value, originalValue) => {
+                return originalValue ? new Date(originalValue) : null;
+            })
+            .required('Ngày kết thúc không được để trống')
+            .nullable()
+            .min(yup.ref('startDate'), 'Ngày kết thúc phải sau ngày bắt đầu')
+    });
+
     const getVoucher = async (id: number) => {
         const response = await getVoucherById(id);
         setSelectedVoucher(response.data);
@@ -47,18 +84,42 @@ const VoucherManagement: React.FC = () => {
     };
 
     const handleSave = async () => {
-        const response = await createVoucher(newCode, Number(newDiscountAmount), Number(newMaxUsage), newStartDate, newEndDate);
-        if (response) {
-            toast.success('Thêm mã giảm giá thành công!');
-            setNewCode('');
-            setNewDiscountAmount('');
-            setNewMaxUsage('');
-            setNewStartDate('');
-            setNewEndDate('');
-        } else {
-            toast.error('Thêm mã giảm giá thất bại!');
+        try {
+            const formData = {
+                code: newCode,
+                discountAmount: newDiscountAmount,
+                maxUsage: newMaxUsage,
+                startDate: newStartDate,
+                endDate: newEndDate
+            };
+
+            await voucherSchema.validate(formData, { abortEarly: false });
+            setErrors({});
+
+            const response = await createVoucher(newCode, Number(newDiscountAmount), Number(newMaxUsage), newStartDate, newEndDate);
+            if (response) {
+                toast.success('Thêm mã giảm giá thành công!');
+                setOpen(false);
+                setNewCode('');
+                setNewDiscountAmount('');
+                setNewMaxUsage('');
+                setNewStartDate('');
+                setNewEndDate('');
+            } else {
+                toast.error('Thêm mã giảm giá thất bại!');
+            }
+            fetchAllVouchers(currentPage);
+        } catch (err) {
+            if (err instanceof yup.ValidationError) {
+                const newErrors: {[key: string]: string} = {};
+                err.inner.forEach((error) => {
+                    if (error.path) {
+                        newErrors[error.path] = error.message;
+                    }
+                });
+                setErrors(newErrors);
+            }
         }
-        fetchAllVouchers(currentPage);
     };
 
     const handleSaveEdit = async () => {
@@ -174,10 +235,11 @@ const VoucherManagement: React.FC = () => {
                                 variant="outlined"
                                 value={newCode}
                                 onChange={(e) => setNewCode(e.target.value)}
+                                error={!!errors.code}
+                                helperText={errors.code}
                             />
 
                             <TextField
-                                autoFocus
                                 margin="dense"
                                 label="Giá trị giảm"
                                 type="number"
@@ -185,10 +247,11 @@ const VoucherManagement: React.FC = () => {
                                 variant="outlined"
                                 value={newDiscountAmount}
                                 onChange={(e) => setNewDiscountAmount(Number(e.target.value))}
+                                error={!!errors.discountAmount}
+                                helperText={errors.discountAmount}
                             />
 
                             <TextField
-                                autoFocus
                                 margin="dense"
                                 label="Số lần sử dụng"
                                 type="number"
@@ -196,10 +259,11 @@ const VoucherManagement: React.FC = () => {
                                 variant="outlined"
                                 value={newMaxUsage}
                                 onChange={(e) => setNewMaxUsage(Number(e.target.value))}
+                                error={!!errors.maxUsage}
+                                helperText={errors.maxUsage}
                             />
 
                             <TextField
-                                autoFocus
                                 margin="dense"
                                 label="Ngày bắt đầu"
                                 type="date"
@@ -208,10 +272,11 @@ const VoucherManagement: React.FC = () => {
                                 variant="outlined"
                                 value={newStartDate}
                                 onChange={(e) => setNewStartDate(e.target.value)}
+                                error={!!errors.startDate}
+                                helperText={errors.startDate}
                             />
 
                             <TextField
-                                autoFocus
                                 margin="dense"
                                 label="Ngày kết thúc"
                                 type="date"
@@ -220,6 +285,8 @@ const VoucherManagement: React.FC = () => {
                                 variant="outlined"
                                 value={newEndDate}
                                 onChange={(e) => setNewEndDate(e.target.value)}
+                                error={!!errors.endDate}
+                                helperText={errors.endDate}
                             />
                         </DialogContent>
                         <DialogActions>

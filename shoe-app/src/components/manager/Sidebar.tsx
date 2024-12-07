@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FaHome, FaBox, FaUsers, FaClipboardList, FaChevronDown, FaChevronUp, FaStore } from 'react-icons/fa';
 import { BiSolidOffer } from "react-icons/bi";
 import { TbReportAnalytics } from 'react-icons/tb';
+import { isAdmin } from '../../services/auth.service';
 
 interface SidebarProps {
     isOpen: boolean;
@@ -32,7 +33,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
             <div className="p-4">
                 <h2 className="text-lg font-bold mb-4">Menu</h2>
                 <img
-                    src="https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1tJ6G7.img?w=660&h=440&m=6&x=290&y=195&s=59&d=59"
+                    src="https://pendecor.vn/uploads/files/2023/08/15/thiet-ke-logo-shop-giay-3.jpg"
                     alt=""
                     className="w-64 h-64 object-cover mx-auto"
                 />
@@ -78,10 +79,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                         )}
                     </li>
                     <li>
-                        <div onClick={toggleDropdownAccount} className="flex items-center px-4 py-2 hover:bg-gray-700 rounded cursor-pointer">
-                            <FaUsers className="mr-2" /> Quản lý tài khoản
-                            {isDropdownAccountOpen ? <FaChevronUp className="ml-auto" /> : <FaChevronDown className="ml-auto" />}
-                        </div>
+                        {
+                            isAdmin() && (
+                                <div onClick={toggleDropdownAccount} className="flex items-center px-4 py-2 hover:bg-gray-700 rounded cursor-pointer">
+                                    <FaUsers className="mr-2" /> Quản lý tài khoản
+                                    {isDropdownAccountOpen ? <FaChevronUp className="ml-auto" /> : <FaChevronDown className="ml-auto" />}
+                                </div>
+                            )
+                        }
                         {isDropdownAccountOpen && (
                             <ul className="ml-10 mt-2 space-y-1">
                                 <li>
@@ -98,10 +103,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                         )}
                     </li>
                     <li>
-                        <div onClick={toggleDropdownDiscount} className="flex items-center px-4 py-2 hover:bg-gray-700 rounded cursor-pointer">
-                        <BiSolidOffer className="mr-2" /> Quản lý giảm giá
-                            {isDropdownDiscountOpen ? <FaChevronUp className="ml-auto" /> : <FaChevronDown className="ml-auto" />}
-                        </div>
+                        {
+                            isAdmin() && (
+                                <div onClick={toggleDropdownDiscount} className="flex items-center px-4 py-2 hover:bg-gray-700 rounded cursor-pointer">
+                                    <BiSolidOffer className="mr-2" /> Quản lý giảm giá
+                                    {isDropdownDiscountOpen ? <FaChevronUp className="ml-auto" /> : <FaChevronDown className="ml-auto" />}
+                                </div>
+                            )
+                        }
                         {isDropdownDiscountOpen && (
                             <ul className="ml-10 mt-2 space-y-1">
                                 <li>

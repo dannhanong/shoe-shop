@@ -48,7 +48,7 @@ const Header: React.FC = () => {
                 </div>
 
                 {/* Icons */}
-                <div className="flex space-x-4 relative">
+                <div className="flex space-x-4 relative mt-2">
                     {/* Cart Icon */}
                     <div className="hover:cursor-pointer">
                         <Link to={'/cart'}>

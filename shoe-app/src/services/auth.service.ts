@@ -121,6 +121,11 @@ export const hasManagement = (): boolean => {
     return roles.includes('ADMIN') || roles.includes('STAFF');
 };
 
+export const isAdmin = (): boolean => {
+    const roles = getUserRolesFromToken();
+    return roles.includes('ADMIN');
+};
+
 export const verifyAccount = async (code: string) => {
     try {
         const response = await axios.get(`${BASE_URL}/auth/verify?code=${code}`);

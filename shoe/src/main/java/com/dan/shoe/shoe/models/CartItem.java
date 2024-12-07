@@ -1,5 +1,8 @@
 package com.dan.shoe.shoe.models;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
@@ -24,6 +27,7 @@ public class CartItem {
     Cart cart;
     @ManyToOne
     @JoinColumn(name = "product_variant_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     ProductVariant productVariant;
     int quantity;
     int price;

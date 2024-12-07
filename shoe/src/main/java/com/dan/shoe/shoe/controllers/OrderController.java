@@ -40,17 +40,21 @@ public class OrderController {
     private VNPayService vnPayService;
 
     @PostMapping("/create")
-    public ResponseEntity<VNPayMessage> createOrder(HttpServletRequest request,
-                                                    @RequestParam(value = "voucherCode", defaultValue = "") String voucherCode) {
+    public ResponseEntity<?> createOrder(HttpServletRequest request,
+                                                    @RequestParam(value = "voucherCode", defaultValue = "") String voucherCode,
+                                                    @RequestParam(value = "paymentType", defaultValue = "TRANSFER") String paymentType) {
         String token = getTokenFromRequest(request);
         String username = jwtService.extractUsername(token);
-        Order order = orderService.createOrder(username, voucherCode);
+        Order order = orderService.createOrder(username, voucherCode, PaymentType.valueOf(paymentType.toUpperCase()));
 
-        String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
-        String vnpayUrl = vnPayService.createOrder(order.getTotalPrice(), order.getId().toString(), baseUrl);
+        if (order.getPaymentType() == PaymentType.TRANSFER) {
+            String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
+            String vnpayUrl = vnPayService.createOrder(order.getTotalPrice(), order.getId().toString(), baseUrl);
 
-        VNPayMessage VNPayMessage = new VNPayMessage("payment", vnpayUrl);
-        return ResponseEntity.ok(VNPayMessage);
+            VNPayMessage VNPayMessage = new VNPayMessage("payment", vnpayUrl);
+            return ResponseEntity.ok(VNPayMessage);
+        }
+        return ResponseEntity.ok(order);
     }
 
     @PostMapping("/staff/create")
@@ -74,10 +78,14 @@ public class OrderController {
         String username = jwtService.extractUsername(token);
         Order order = orderService.createOrderNow(username, orderNowCreation);
 
-        String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
-        String vnpayUrl = vnPayService.createOrder(order.getTotalPrice(), order.getId().toString(), baseUrl);
-        VNPayMessage VNPayMessage = new VNPayMessage("payment", vnpayUrl);
-        return ResponseEntity.ok(VNPayMessage);
+        if (order.getPaymentType() == PaymentType.TRANSFER) {
+            String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
+            String vnpayUrl = vnPayService.createOrder(order.getTotalPrice(), order.getId().toString(), baseUrl);
+            System.out.println("id" + order.getId());
+            VNPayMessage VNPayMessage = new VNPayMessage("payment", vnpayUrl);
+            return ResponseEntity.ok(VNPayMessage);
+        }
+        return ResponseEntity.ok(order);
     }
 
     // API để lấy thông tin đơn hàng theo ID
@@ -210,6 +218,14 @@ public class OrderController {
     @GetMapping("/statistics")
     public ResponseEntity<Map<String, Object>> getStatistics() {
         Map<String, Object> data = orderService.getRevenueAndOrderData();
+        return ResponseEntity.ok(data);
+    }
+
+    @GetMapping("/daily-statistics")
+    public ResponseEntity<Map<String, Object>> getDailyStatistics(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        Map<String, Object> data = orderService.getDailyRevenueData(startDate, endDate);
         return ResponseEntity.ok(data);
     }
 

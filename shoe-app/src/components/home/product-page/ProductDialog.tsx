@@ -38,6 +38,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose,
   const [voucherDialogOpen, setVoucherDialogOpen] = useState(false);
   const [isShowVoucherDialog, setIsShowVoucherDialog] = useState<boolean>(false);
   const [voucher, setVoucher] = useState<Voucher | null>(null);
+  const [paymentType, setPaymentType] = useState<string>('transfer');
 
   const handleSubmitByNow = async () => {
     handleVoucherDialogClose();
@@ -57,19 +58,29 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose,
           size: selectedSize || 0,
           quantity,
           voucherCode: voucher?.code || '',
+          paymentType,
         };
-        console.log('NowCreation:', nowCreation);
         if (!selectedColor || !selectedSize) {
           toast.error('Vui lòng chọn màu sắc và kích thước');
           return;
         } else {
-          const response = await createOrderNow(nowCreation);
-          if (response) {
-            addItemToCart();
-            handleCloseProductDialog();
-            window.location.href = response.vnpayUrl;
+          if (paymentType === 'transfer') {
+            const response = await createOrderNow(nowCreation);
+            if (response) {
+              addItemToCart();
+              handleCloseProductDialog();
+              window.location.href = response.vnpayUrl;
+            } else {
+              toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
+            } 
           } else {
-            toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
+            const response = await createOrderNow(nowCreation);
+            if (response) {
+              addItemToCart();
+              handleCloseProductDialog();
+            } else {
+              toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
+            }
           }
         }
       }
@@ -93,6 +104,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose,
           color: selectedColor || '',
           size: selectedSize || 0,
           quantity,
+          paymentType,
         };
         console.log('NowCreation:', nowCreation);
         if (!selectedColor || !selectedSize) {
@@ -158,6 +170,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose,
       color: selectedColor || '',
       size: selectedSize || 0,
       quantity,
+      paymentType,
     };
     console.log('NowCreation:', NowCreation);
     if (!selectedColor || !selectedSize) {
@@ -344,6 +357,34 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose,
               Chọn
             </Button>
           </Box>
+          
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>Phương thức thanh toán:</Typography>
+            <Box className="space-y-2">
+                <Box className="flex items-center space-x-2">
+                    <input
+                        type="radio"
+                        id="transfer"
+                        name="paymentType"
+                        value="transfer"
+                        checked={paymentType === 'transfer'}
+                        onChange={(e) => setPaymentType(e.target.value)}
+                    />
+                    <label htmlFor="transfer">Thanh toán trực tuyến</label>
+                </Box>
+                <Box className="flex items-center space-x-2">
+                    <input
+                        type="radio"
+                        id="card"
+                        name="paymentType"
+                        value="card"
+                        checked={paymentType === 'card'}
+                        onChange={(e) => setPaymentType(e.target.value)}
+                    />
+                    <label htmlFor="card">Thanh toán khi nhận hàng</label>
+                </Box>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleVoucherDialogClose} color="info">
@@ -358,7 +399,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose,
           <Button
             onClick={handleSubmitByNow}
             color="primary"
-            disabled={!voucher}
+            disabled={!voucher || !paymentType}
           >
             Áp dụng
           </Button>

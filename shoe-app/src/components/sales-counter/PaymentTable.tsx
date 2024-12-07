@@ -96,7 +96,11 @@ const PaymentTable: React.FC<PaymentTableProps> = ({ invoice, isShipping, handle
                                     </Box>
                                     <Box display="flex" justifyContent="space-between" mx={5}>
                                         <Typography variant="body1" fontWeight="bold">Thanh toán:</Typography>
-                                        <Typography color="error" fontWeight="bold">{paymentAmount.toLocaleString()}  VNĐ</Typography>
+                                        <Typography color="error" fontWeight="bold">
+                                            {
+                                                paymentAmount > 0 ? paymentAmount.toLocaleString() : '0'
+                                            }  VNĐ
+                                        </Typography>
                                     </Box>
                                 </Box>
                             </TableCell>

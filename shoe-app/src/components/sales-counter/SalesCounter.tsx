@@ -503,7 +503,7 @@ const SalesCounter: React.FC = () => {
                         <tbody>
                             ${order.orderItems.map((detail: any) => `
                                 <tr>
-                                    <td>${detail.productVariant.product.name} - ${detail.productVariant.size}</td>
+                                    <td>${detail.productVariant.product.name} - ${detail.productVariant.size} - ${detail.productVariant.color}</td>
                                     <td>${detail.productVariant.price.toLocaleString()}  VNĐ</td>
                                     <td>${detail.quantity}</td>
                                     <td>${detail.itemPrice.toLocaleString()}  VNĐ</td>

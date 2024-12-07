@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface OrderService {
-    Order createOrder(String username, String voucherCode);
+    Order createOrder(String username, String voucherCode, PaymentType paymentType);
     Order getOrderById(Long id);
     Page<Order> getOrdersByUser(Pageable pageable, String username);
     void updateOrderStatus(Long orderId, String status);
@@ -38,4 +38,5 @@ public interface OrderService {
     Page<Order> getOrdersByUserAndStatus(String username, OrderStatus status, Pageable pageable);
     ResponseMessage cancelOrder(Long orderId);
     Map<String, Object> getRevenueAndOrderData();
+    Map<String, Object> getDailyRevenueData(LocalDate startDate, LocalDate endDate);
 }

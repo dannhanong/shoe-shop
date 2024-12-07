@@ -35,6 +35,7 @@ public class Product {
     LocalDateTime updatedAt;
     boolean status = true;
     Gender gender;
+    boolean deleted = false;
 
     @OneToMany(mappedBy = "product", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore

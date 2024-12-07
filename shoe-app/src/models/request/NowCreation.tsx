@@ -4,4 +4,5 @@ export interface NowCreation {
     size: number;
     quantity: number;
     voucherCode?: string;
+    paymentType: string;
 }

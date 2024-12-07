@@ -4,9 +4,9 @@ import { NowCreation } from '../models/request/NowCreation';
 
 const BASE_URL = process.env.REACT_APP_BASE_URL
 
-export const createOrder = async (voucherCode: string) => {
+export const createOrder = async (voucherCode: string, paymentType: string) => {
     try {
-        const response = await axios.post(`${BASE_URL}/orders/create?voucherCode=${voucherCode}`,
+        const response = await axios.post(`${BASE_URL}/orders/create?voucherCode=${voucherCode}&paymentType=${paymentType}`,
             {},
             {
                 headers: {
@@ -195,3 +195,15 @@ export const getStatistics = async () => {
         throw error;
     }
 }
+
+export const getDailyStatistics = async ( startDate: string, endDate: string ) => {
+    return axios.get(`${BASE_URL}/orders/daily-statistics`, {
+        params: {
+            startDate,
+            endDate
+        },
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        }
+    });
+};

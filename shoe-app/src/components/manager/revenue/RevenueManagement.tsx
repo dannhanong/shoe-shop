@@ -11,7 +11,12 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import { getStatistics } from '../../../services/order.service';
+import { getDailyStatistics, getStatistics } from '../../../services/order.service';
+import { DatePicker } from '@mui/x-date-pickers';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { Button } from '@mui/material';
+import { format } from 'date-fns';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const options = {
@@ -32,10 +37,15 @@ const options = {
 const RevenueManagement: React.FC = () => {
     const [revenueData, setRevenueData] = useState<any>(null);
     const [orderData, setOrderData] = useState<any>(null);
+    const [startDate, setStartDate] = useState<Date | null>(new Date());
+    const [endDate, setEndDate] = useState<Date | null>(new Date());
 
     const fetchRevenueData = async () => {
         try {
-            const response = await getStatistics();
+            const formattedStartDate = startDate ? format(startDate, 'yyyy-MM-dd') : '';
+            const formattedEndDate = endDate ? format(endDate, 'yyyy-MM-dd') : '';
+            
+            const response = await getDailyStatistics(formattedStartDate, formattedEndDate);
             console.log('Response:', response.data);
 
             setRevenueData({
@@ -68,6 +78,10 @@ const RevenueManagement: React.FC = () => {
         }
     };
 
+    const handleFetchData = () => {
+        fetchRevenueData();
+    };
+
     useEffect(() => {
         fetchRevenueData();
     }, []);
@@ -77,6 +91,38 @@ const RevenueManagement: React.FC = () => {
             <Typography variant="h4" sx={{ marginBottom: 3 }}>
                 Quản lý Doanh Thu và Đơn Hàng
             </Typography>
+
+            <Grid container spacing={2} sx={{ marginBottom: 3 }}>
+                <Grid item xs={12} md={4}>
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <DatePicker
+                            label="Từ ngày"
+                            value={startDate}
+                            onChange={(newValue: Date | null) => setStartDate(newValue)}
+                            sx={{ width: '100%' }}
+                        />
+                    </LocalizationProvider>
+                </Grid>
+                <Grid item xs={12} md={4}>
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <DatePicker
+                            label="Đến ngày"
+                            value={endDate}
+                            onChange={(newValue: Date | null) => setEndDate(newValue)}
+                            sx={{ width: '100%' }}
+                        />
+                    </LocalizationProvider>
+                </Grid>
+                <Grid item xs={12} md={2}>
+                    <Button 
+                        variant="contained" 
+                        onClick={handleFetchData}
+                        sx={{ height: '56px', width: '100%' }}
+                    >
+                        Xem thống kê
+                    </Button>
+                </Grid>
+            </Grid>
 
             <Grid container spacing={3}>
                 {/* Doanh thu */}
@@ -107,11 +153,11 @@ const RevenueManagement: React.FC = () => {
             </Grid>
 
             {/* Tổng doanh thu và tổng đơn hàng */}
-            <Grid container spacing={3} sx={{ marginTop: 3 }}>
-                <Grid item xs={12} sm={6} md={3}>
+            <Grid container spacing={2} sx={{ marginTop: 3 }}>
+                <Grid item xs={12} sm={6} md={5}>
                     <Card sx={{ padding: 2, textAlign: 'center' }}>
                         <Typography variant="h6" color="textSecondary">
-                            Tổng Doanh Thu
+                            Tổng doanh thu
                         </Typography>
                         <Typography variant="h5" color="primary">
                             {
@@ -121,10 +167,10 @@ const RevenueManagement: React.FC = () => {
                     </Card>
                 </Grid>
 
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} md={5}>
                     <Card sx={{ padding: 2, textAlign: 'center' }}>
                         <Typography variant="h6" color="textSecondary">
-                            Tổng Số Đơn Hàng Thành Công
+                            Tổng số đơn hàng thành công
                         </Typography>
                         <Typography variant="h5" color="primary">
                             {

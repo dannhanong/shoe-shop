@@ -116,12 +116,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<Product> getProductByKeyword(String keyword, Pageable pageable) {
-        return productRepository.findByNameContaining(keyword, pageable);
+        return productRepository.findByNameContainingAndDeletedFalse(keyword, pageable);
     }
 
     @Override
     public Page<ProductVariantDetailsResponse> getProductVariantByKeyword(String keyword, Pageable pageable) {
-        return productVariantRepository.findByProduct_NameContainingAndDefaultVariantTrueAndProduct_StatusTrue(keyword, pageable)
+        return productVariantRepository.findByDeletedFalseAndProduct_NameContainingAndDefaultVariantTrueAndProduct_StatusTrue(keyword, pageable)
                 .map(this::fromProductVariantToProductVariantDetailsResponse);
     }
 
@@ -225,7 +225,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<ProductVariantDetailsResponse> getProductVariantsByProductIds(List<Long> productIds, Pageable pageable) {
         if (productIds.isEmpty()) {
-            return Page.empty(pageable);
+            return null;
         }
         Page<ProductVariant> productVariants = productVariantRepository.findByProduct_IdIn(productIds, pageable);
         List<ProductVariantDetailsResponse> productVariantDetailsResponses = productVariants.getContent().stream()
@@ -235,15 +235,22 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseMessage deleteProduct(Long id) {
-        try {
-            productRepository.deleteById(id);
-            System.out.println("okla r");
-            return new ResponseMessage(200, "Xóa sản phẩm thành công");
-        } catch (Exception e) {
-            e.printStackTrace();
+    @Transactional
+    public ResponseMessage deleteProduct(Long productId) {
+        Product product = productRepository.findById(productId)
+            .orElseThrow(() -> new RuntimeException("Product not found"));
+        
+        // Đánh dấu product là đã xóa
+        product.setDeleted(true);
+        
+        List<ProductVariant> variants = productVariantRepository.findByProduct(product);
+        for (ProductVariant variant : variants) {
+            variant.setDeleted(true);
+            productVariantRepository.save(variant);
         }
-        return new ResponseMessage(500, "Lỗi");
+        
+        productRepository.save(product);
+        return new ResponseMessage(200, "Product deleted successfully");
     }
 
     @Override
@@ -254,14 +261,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseMessage deleteVariant(Long id) {
-        try {
-            productVariantRepository.deleteById(id);
-            return new ResponseMessage(200, "Xóa sản phẩm thành công");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return new ResponseMessage(500, "Lỗi");
+    @Transactional
+    public ResponseMessage deleteVariant(Long variantId) {
+        ProductVariant variant = productVariantRepository.findById(variantId)
+            .orElseThrow(() -> new RuntimeException("Variant not found"));
+        
+        // Đánh dấu variant là đã xóa
+        variant.setDeleted(true);
+        productVariantRepository.save(variant);
+        
+        return new ResponseMessage(200, "Variant deleted successfully");
     }
 
     @Override

@@ -102,6 +102,15 @@ const CreateProductWithVariants: React.FC = () => {
                 try {
                     const response = await createProduct(productCreationRequest);
                     toast.success(response.data.message, { autoClose: 3000 });
+                    setName('');
+                    setDescription('');
+                    setPrice('');
+                    setSelectedBrand('');
+                    setSelectedCategory('');
+                    setSelectedGender('');
+                    setVariants([]);
+                    setSelectedSizes([]);
+                    setSelectedColors([]);
                 } catch (error) {
                     console.error('Error creating product:', error);
                     toast.error('Có lỗi xảy ra khi tạo sản phẩm', { autoClose: 3000 });

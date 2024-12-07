@@ -13,6 +13,8 @@ import { Variant } from '../../../models/Variant';
 import DiscountLabel from '../../common/DiscountLabel';
 import { CgDetailsMore } from 'react-icons/cg';
 import ProductDialog from './ProductDialog';
+import Swal from 'sweetalert2';
+import { createOrderNow } from '../../../services/order.service';
 
 const ProductDetail: React.FC = () => {
     const navigate = useNavigate();
@@ -31,6 +33,7 @@ const ProductDetail: React.FC = () => {
     const [hoveredProductId, setHoveredProductId] = useState<number | null>(null);
     const [isOpenProductDialog, setOpenProductDialog] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
+    const [paymentType, setPaymentType] = useState<string>('transfer');
 
     const addProductToCart = async (productVariantId: number) => {
         const response = await addToCart(productVariantId, 1);
@@ -38,6 +41,81 @@ const ProductDetail: React.FC = () => {
             await addItemToCart();
             toast.success('Thêm vào giỏ hàng thành công');
         }
+    }
+
+    const handleSubmitByNowNoVoucher = () => {
+        handleVoucherDialogClose();
+        handleCloseProductDialog();
+        Swal.fire({
+        title: 'Xác nhận mua hàng',
+        text: 'Bạn có chắc chắn muốn mua sản phẩm này không?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Đồng ý',
+        cancelButtonText: 'Hủy',
+        }).then(async (res) => {
+        if (res.isConfirmed) {
+            const nowCreation = {
+            productId: productDetail?.product.id,
+            color: selectedColor || '',
+            size: selectedSize || 0,
+            quantity,
+            paymentType: paymentType,
+            };
+            console.log('NowCreation:', nowCreation);
+            if (!selectedColor || !selectedSize) {
+            toast.error('Vui lòng chọn màu sắc và kích thước');
+            return;
+            } else {
+            const response = await createOrderNow(nowCreation);
+            if (response) {
+                addItemToCart();
+                handleCloseProductDialog();
+                window.location.href = response.vnpayUrl;
+            } else {
+                toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
+            }
+            }
+        }
+        });
+    }
+
+    const handleSubmitByNow = () => {
+        handleVoucherDialogClose();
+        handleCloseProductDialog();
+        Swal.fire({
+        title: 'Xác nhận mua hàng',
+        text: 'Bạn có chắc chắn muốn mua sản phẩm này không?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Đồng ý',
+        cancelButtonText: 'Hủy',
+        }).then(async (res) => {
+        if (res.isConfirmed) {
+            const nowCreation = {
+            productId: productDetail?.product.id,
+            color: selectedColor || '',
+            size: selectedSize || 0,
+            quantity,
+            voucherCode: voucher?.code || '',
+            paymentType: paymentType,
+            };
+            console.log('NowCreation:', nowCreation);
+            if (!selectedColor || !selectedSize) {
+            toast.error('Vui lòng chọn màu sắc và kích thước');
+            return;
+            } else {
+            const response = await createOrderNow(nowCreation);
+            if (response) {
+                addItemToCart();
+                handleCloseProductDialog();
+                window.location.href = response.vnpayUrl;
+            } else {
+                toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
+            }
+            }
+        }
+        });
     }
 
     const handleOpenProductDialog = () => {
@@ -65,7 +143,8 @@ const ProductDetail: React.FC = () => {
             color: selectedColor || '',
             size: selectedSize || 0,
             quantity: quantity,
-            voucherCode: ""
+            voucherCode: "",
+            paymentType: paymentType,
         };
         console.log('NowCreation:', nowCreation);
         if (!selectedColor || !selectedSize) {
@@ -354,14 +433,27 @@ const ProductDetail: React.FC = () => {
                             aria-readonly={true}
                             value={voucher?.code || ''}
                         />
-                        <Button
-                            variant="outlined"
-                            color="primary"
-                            sx={{ mt: 2, ml: 2 }}
-                            onClick={() => setIsShowVoucherDialog(true)}
-                        >
-                            Chọn
-                        </Button>
+                        {
+                            !voucher ? (
+                                <Button
+                                    variant="outlined"
+                                    color="primary"
+                                    sx={{ mt: 2, ml: 2 }}
+                                    onClick={() => setIsShowVoucherDialog(true)}
+                                >
+                                    Chọn
+                                </Button>
+                            ) : (
+                                <Button
+                                    variant="outlined"
+                                    color="error"
+                                    sx={{ mt: 2, ml: 2 }}
+                                    onClick={() => setVoucher(null)}
+                                >
+                                    Hủy
+                                </Button>
+                            )
+                        }
                     </Box>
                 </DialogContent>
                 <DialogActions>
@@ -369,13 +461,13 @@ const ProductDetail: React.FC = () => {
                         Đóng
                     </Button>
                     <Button
-                        // onClick={handleSubmitByNowNoVoucher}
+                        onClick={handleSubmitByNowNoVoucher}
                         color="error"
                     >
-                        Từ chối
+                        Không áp dụng
                     </Button>
                     <Button
-                        // onClick={handleSubmitByNow}
+                        onClick={handleSubmitByNow}
                         color="primary"
                         disabled={!voucher}
                     >

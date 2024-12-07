@@ -6,5 +6,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public enum PaymentType {
     CASH,
     CARD,
-    TRANSFER
+    TRANSFER,
+    COD
 }

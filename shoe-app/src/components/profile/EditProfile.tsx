@@ -6,6 +6,9 @@ import { toast, ToastContainer } from 'react-toastify';
 import { addAddress, changePrimaryAddress, deleteAddress, getMyAddress, getMyPrimaryAddress } from '../../services/address.service';
 import { Address } from '../../models/Address';
 import axios from 'axios';
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from "yup";
 
 const EditProfile: React.FC = () => {
     const { profile, setProfile, reloadProfile } = useProfile();
@@ -21,6 +24,42 @@ const EditProfile: React.FC = () => {
     const [selectedProvince, setSelectedProvince] = useState<number | null>(null);
     const [selectedDistrict, setSelectedDistrict] = useState<number | null>(null);
     const [selectedWard, setSelectedWard] = useState<number | null>(null);
+
+    const schema = yup.object().shape({
+        name: yup.string()
+            .required("Họ và tên không được để trống")
+            .min(5, "Họ và tên phải có ít nhất 5 ký tự"),
+        phoneNumber: yup.string()
+            .required("Số điện thoại không được để trống")
+            .matches(/^[0-9]{10}$/, "Số điện thoại phải có 10 chữ số")
+    }).required();
+
+    const { handleSubmit, control, formState: { errors }, setValue } = useForm({
+        defaultValues: {
+            name: profile.name || '',
+            phoneNumber: profile.phoneNumber || ''
+        },
+        mode: 'onBlur',
+        resolver: yupResolver(schema)
+    });
+
+    // Cập nhật form khi profile thay đổi
+    useEffect(() => {
+        setValue('name', profile.name);
+        setValue('phoneNumber', profile.phoneNumber);
+    }, [profile, setValue]);
+
+    const onSubmit = async (data: { name: string; phoneNumber: string }) => {
+        try {
+            const response = await updateProfile(data.name, data.phoneNumber, selectedFile);
+            toast.success(response.message, {
+                autoClose: 3000,
+            });
+            reloadProfile();
+        } catch (error) {
+            toast.error('Cập nhật thất bại');
+        }
+    };
 
     const handleCloseAddressDialog = () => {
         setIsWantChange(false);
@@ -42,19 +81,6 @@ const EditProfile: React.FC = () => {
             // Tạo URL để xem trước ảnh
             const fileUrl = URL.createObjectURL(file);
             setPreviewUrl(fileUrl);
-        }
-    };
-
-    const handleSubmit = async () => {
-        try {
-            const response = await updateProfile(profile.name, profile.phoneNumber, selectedFile);
-            toast.success(response.message, {
-                autoClose: 3000,
-            });
-            // Gọi reloadProfile để cập nhật dữ liệu profile
-            reloadProfile();
-        } catch (error) {
-            toast.error('Cập nhật thất bại');
         }
     };
 
@@ -202,37 +228,55 @@ const EditProfile: React.FC = () => {
                 <Typography variant="h5" sx={{ marginBottom: 2 }}>
                     Chỉnh sửa thông tin cá nhân
                 </Typography>
-                <Box display="flex" flexDirection="row" gap={2}>
-                    <Box display="flex" alignItems="center" gap={2}>
-                        <Button variant="contained" component="label" sx={{ borderRadius: "100%", width: 100, height: 100 }}>
-                            <Avatar
-                                src={previewUrl || profile.avatarUrl || '/default-avatar.png'}
-                                alt="Avatar"
-                                sx={{ width: 100, height: 100 }}
+                <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+                    <Box display="flex" flexDirection="row" gap={2}>
+                        <Box display="flex" alignItems="center" gap={2}>
+                            <Button variant="contained" component="label" sx={{ borderRadius: "100%", width: 100, height: 100 }}>
+                                <Avatar
+                                    src={previewUrl || profile.avatarUrl || '/default-avatar.png'}
+                                    alt="Avatar"
+                                    sx={{ width: 100, height: 100 }}
+                                />
+                                <input type="file" hidden onChange={handleFileChange} />
+                            </Button>
+                        </Box>
+                        <Box>
+                            <Controller
+                                name="name"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField
+                                        {...field}
+                                        label="Họ và tên"
+                                        fullWidth
+                                        margin="normal"
+                                        error={!!errors.name}
+                                        helperText={errors.name?.message}
+                                    />
+                                )}
                             />
-                            <input type="file" hidden onChange={handleFileChange} />
-                        </Button>
-                    </Box>
-                    <Box>
-                        <TextField
-                            label="Họ và tên"
-                            name="name"
-                            value={profile.name}
-                            onChange={handleInputChange}
-                            fullWidth
-                            margin="normal"
-                        />
-                        <TextField
-                            label="Số điện thoại"
-                            name="phoneNumber"
-                            value={profile.phoneNumber}
-                            onChange={handleInputChange}
-                            fullWidth
-                            margin="normal"
-                        />
-                        <Button variant="contained" color="primary" onClick={handleSubmit}>
-                            Lưu thay đổi
-                        </Button>
+                            <Controller
+                                name="phoneNumber"
+                                control={control}
+                                render={({ field }) => (
+                                    <TextField
+                                        {...field}
+                                        label="Số điện thoại"
+                                        fullWidth
+                                        margin="normal"
+                                        error={!!errors.phoneNumber}
+                                        helperText={errors.phoneNumber?.message}
+                                    />
+                                )}
+                            />
+                            <Button 
+                                variant="contained" 
+                                color="primary" 
+                                type="submit"
+                            >
+                                Lưu thay đổi
+                            </Button>
+                        </Box>
                     </Box>
                 </Box>
                 <ToastContainer />

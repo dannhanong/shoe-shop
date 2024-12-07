@@ -6,6 +6,9 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 @Entity
 @Table(name = "product_variants")
 @Data
@@ -19,6 +22,7 @@ public class ProductVariant {
     Long id;
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     Product product;
     int size;
     String color;
@@ -28,6 +32,7 @@ public class ProductVariant {
     String imageAvatar;
     List<String> imageOthers;
     String qrCode;
+    boolean deleted = false;
 
     @Override
     public boolean equals(Object o) {

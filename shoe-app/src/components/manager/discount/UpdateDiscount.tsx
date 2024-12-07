@@ -101,28 +101,30 @@ const UpdateDiscount: React.FC = () => {
             try {
                 // Xác định danh sách sản phẩm đã chọn
                 const newSelected = prevSelected.includes(productId)
-                    ? prevSelected.filter((id) => id !== productId) // Bỏ nếu đã chọn
-                    : [...prevSelected, productId]; // Thêm nếu chưa chọn
-    
-                // Gọi API để lấy danh sách biến thể liên quan
-                getVariantByProduct(newSelected).then((response) => {
-                    const newVariants = response.data.content;
-    
-                    // Hợp nhất các biến thể mới vào danh sách hiện tại (loại bỏ trùng lặp)
-                    setVariants((prevVariants) => {
-                        const mergedVariants = [...prevVariants];
-                        newVariants.forEach((variant: Variant) => {
-                            if (!prevVariants.some((v) => v.id === variant.id)) {
-                                mergedVariants.push(variant);
-                            }
+                    ? prevSelected.filter((id) => id !== productId)
+                    : [...prevSelected, productId];
+
+                // Chỉ gọi API nếu có sản phẩm được chọn
+                if (newSelected.length > 0) {
+                    getVariantByProduct(newSelected).then((response) => {
+                        const newVariants = response.data.content;
+                        setVariants((prevVariants) => {
+                            const mergedVariants = [...prevVariants];
+                            newVariants.forEach((variant: Variant) => {
+                                if (!prevVariants.some((v) => v.id === variant.id)) {
+                                    mergedVariants.push(variant);
+                                }
+                            });
+                            return mergedVariants;
                         });
-                        return mergedVariants;
                     });
-                });
-    
+                } else {
+                    // Nếu không có sản phẩm nào được chọn, reset variants về mảng rỗng
+                    setVariants([]);
+                }
+
                 return newSelected;
             } catch (error) {
-                setSelectedProductIds([]);
                 console.error("Error fetching variants:", error);
                 return prevSelected;
             }

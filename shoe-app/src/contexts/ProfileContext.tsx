@@ -41,7 +41,7 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
             await getProfile()
             .then(data => {
                 const { name, phoneNumber, avatarCode } = data;
-                const avatarUrl = avatarCode ? `${process.env.REACT_APP_BASE_URL}/files/preview/${avatarCode}` : '/default-avatar.png';
+                const avatarUrl = avatarCode ? `${process.env.REACT_APP_BASE_URL}/files/preview/${avatarCode}` : 'https://firebasestorage.googleapis.com/v0/b/lvkmusic.appspot.com/o/umgu5ofe2y?alt=media&token=d9756614-c86c-4269-b46e-8d4b8b2f02d3';
                 setProfile({ name, phoneNumber, avatarUrl });
             })
             .catch(error => {

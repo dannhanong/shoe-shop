@@ -3,13 +3,10 @@ package com.dan.shoe.shoe.repositories;
 import com.dan.shoe.shoe.models.Order;
 import com.dan.shoe.shoe.models.User;
 import com.dan.shoe.shoe.models.enums.OrderStatus;
-import com.dan.shoe.shoe.models.enums.OrderType;
-import com.dan.shoe.shoe.models.enums.RoleName;
-import org.springframework.data.domain.Page;
+import com.dan.shoe.shoe.models.enums.OrderType;import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
@@ -33,4 +30,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("SELECT MONTH(o.createdAt) as month, SUM(o.totalPrice) as totalRevenue, COUNT(o) as totalOrders " +
             "FROM Order o WHERE o.paid = true AND YEAR(o.createdAt) = YEAR(CURRENT_DATE) GROUP BY MONTH(o.createdAt)")
     List<Object[]> getMonthlyRevenueAndOrders();
+
+    @Query("SELECT CAST(o.createdAt AS DATE) as date, SUM(o.totalPrice) as totalRevenue, COUNT(o) as totalOrders " +
+            "FROM Order o WHERE o.paid = true AND o.createdAt BETWEEN :startDate AND :endDate " +
+            "GROUP BY CAST(o.createdAt AS DATE)")
+    List<Object[]> getDailyRevenueAndOrders(LocalDateTime startDate, LocalDateTime endDate);
 }

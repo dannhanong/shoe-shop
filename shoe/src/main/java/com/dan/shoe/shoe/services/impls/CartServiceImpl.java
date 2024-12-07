@@ -10,16 +10,14 @@ import com.dan.shoe.shoe.models.*;
 import com.dan.shoe.shoe.repositories.*;
 import com.dan.shoe.shoe.services.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.stream.Collectors;
 
-@Repository
+@Service
+@Transactional
 public class CartServiceImpl implements CartService {
     @Autowired
     private CartRepository cartRepository;
