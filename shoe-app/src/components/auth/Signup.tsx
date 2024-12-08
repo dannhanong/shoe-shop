@@ -52,7 +52,7 @@ const Signup: React.FC = () => {
                     variant="h5"
                     sx={{ textAlign: 'center', marginBottom: 3, fontWeight: 'bold' }}
                 >
-                    Sign up
+                    Đăng ký
                 </Typography>
                 <form
                     onSubmit={handleSubmit(onSubmit)}
