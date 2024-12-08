@@ -69,6 +69,7 @@ public class Endpoints {
     };
 
     public static final String[] STAFF_GET_ENDPOINTS = {
+        "/accounts/admin/**",
     };
 
     public static final String[] STAFF_PUT_ENDPOINTS = {
@@ -93,7 +94,6 @@ public class Endpoints {
     public static final String[] ADMIN_GET_ENDPOINTS = {
             "/brands/admin/**",
             "/categories/admin/**",
-            "/accounts/admin/**",
             "/staffs/admin/**"
     };
 }

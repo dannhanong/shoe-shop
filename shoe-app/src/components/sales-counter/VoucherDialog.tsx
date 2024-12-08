@@ -25,7 +25,6 @@ interface VoucherDialogProps {
 const VoucherDialog: React.FC<VoucherDialogProps> = ({isShowVoucherDialog, handleCloseVoucherDialog, handleNotSelectVoucher, handleSelectVoucher, vouchers, invoice}) => {
   return (
     <Dialog open={isShowVoucherDialog} onClose={handleCloseVoucherDialog} fullWidth maxWidth='md'>
-      <DialogTitle>Chọn mã giảm giá</DialogTitle>
       <DialogTitle>Chọn Mã Giảm Giá</DialogTitle>
       <DialogContent>
         <TableContainer component={Paper}>
@@ -43,7 +42,7 @@ const VoucherDialog: React.FC<VoucherDialogProps> = ({isShowVoucherDialog, handl
                 <TableRow key={voucher.id} className="hover:bg-gray-100">
                   <TableCell align="center">{voucher.code}</TableCell>
                   {
-                    voucher.discountAmount < 100 ? (
+                    voucher.discountAmount <= 100 ? (
                       <TableCell align="center">Giảm {voucher.discountAmount}% giá trị đơn hàng</TableCell>
                     ) : (
                       <TableCell align="center">Giảm {voucher.discountAmount.toLocaleString()}  VNĐ giá trị đơn hàng</TableCell>

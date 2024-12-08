@@ -70,7 +70,7 @@ const UpdateDiscount: React.FC = () => {
     }
 
     const fetchAllProducts = async (page: number) => {
-        const response = await getAllProducts(keyword, page, 4, '', '');
+        const response = await getAllProducts(keyword, 'true', page, 4, '', '');
         setProducts(response.data.content);
         setTotalPages(response.data.page.totalPages);
     };

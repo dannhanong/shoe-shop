@@ -229,6 +229,12 @@ public class OrderController {
         return ResponseEntity.ok(data);
     }
 
+    @PutMapping("/staff/update-paid/{orderId}")
+    public ResponseEntity<?> updateOrderPaid(@PathVariable Long orderId) {
+        orderService.updateOrderPaid(orderId);
+        return ResponseEntity.ok("updated order status");
+    }
+
     private String getTokenFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {

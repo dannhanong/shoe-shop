@@ -207,3 +207,11 @@ export const getDailyStatistics = async ( startDate: string, endDate: string ) =
         }
     });
 };
+
+export const updateOrderPaid = async (id: number) => {
+    return axios.put(`${BASE_URL}/orders/staff/update-paid/${id}`, {}, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        }
+    });
+}

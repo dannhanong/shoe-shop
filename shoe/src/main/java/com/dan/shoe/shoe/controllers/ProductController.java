@@ -44,14 +44,16 @@ public class ProductController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<?> getAllProducts(@RequestParam(defaultValue = "") String keyword,
-                                            @RequestParam(defaultValue = "0") int page,
-                                            @RequestParam(defaultValue = "10") int size,
-                                            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
-                                            @RequestParam(value = "order", defaultValue = "desc") String order) {
+    public ResponseEntity<?> getAllProducts(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "") String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(value = "order", defaultValue = "desc") String order) {
         Sort sort = order.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        return ResponseEntity.ok(productService.getProductByKeyword(keyword, pageable));
+        return ResponseEntity.ok(productService.getProductByKeywordAndStatus(keyword, status, pageable));
     }
 
     @GetMapping("/filter")
@@ -151,5 +153,10 @@ public class ProductController {
     @PutMapping("/staff/variant/update/{variantId}")
     public ResponseEntity<?> updateVariant(@PathVariable Long variantId, @RequestBody ProductVariant productVariant) {
         return ResponseEntity.ok(productService.updateVariant(variantId, productVariant));
+    }
+
+    @GetMapping("/public/top-selling")
+    public ResponseEntity<?> getTopSellingProducts(@RequestParam(defaultValue = "4") int limit) {
+        return ResponseEntity.ok(productService.getTopSellingProducts(limit));
     }
 }

@@ -28,6 +28,7 @@ import { getVouchersActiveHasStatusByUser } from '../../services/voucher.service
 import VoucherDialog from './VoucherDialog';
 import Swal from 'sweetalert2';
 import { createOrderByStaff } from '../../services/order.service';
+import { toast, ToastContainer } from 'react-toastify';
 
 interface Invoice {
   id: number;
@@ -222,26 +223,36 @@ const SalesCounter: React.FC = () => {
   }
 
   const handleSelectProduct = (product: Variant) => {
-    console.log('Selected product:', product);
-    
+    const totalSelectedQuantity = invoices.reduce((total, invoice) => {
+        const existingProduct = invoice.products.find(p => p.id === product.id);
+        return total + (existingProduct?.quantity || 0);
+    }, 0);
+
+    if (totalSelectedQuantity >= product.stockQuantity) {
+        Swal.fire({
+            title: 'Không đủ số lượng tồn kho',
+            text: `Sản phẩm ${product.product.name} đã hết hàng hoặc đã được chọn hết trong các hóa đơn khác`,
+            icon: 'warning'
+        })
+        handleCloseProductDialog();
+        return;
+    }
+
     setInvoices((prevInvoices) =>
-      prevInvoices.map((invoice, index) =>
-        index === currentTab
-          ? {
-            ...invoice,
-            products: invoice.products.find((p) => p.id === product.id)
-              ? invoice.products.map((p) =>
-                p.id === product.id
-                  ? { ...p, quantity: p.quantity + 1 }
-                  : p
-              )
-              : [
-                ...invoice.products,
-                { ...product, quantity: 1 },
-              ],
-          }
-          : invoice
-      )
+        prevInvoices.map((invoice, index) =>
+            index === currentTab
+                ? {
+                    ...invoice,
+                    products: invoice.products.find((p) => p.id === product.id)
+                        ? invoice.products.map((p) =>
+                            p.id === product.id
+                                ? { ...p, quantity: p.quantity + 1 }
+                                : p
+                        )
+                        : [...invoice.products, { ...product, quantity: 1 }],
+                }
+                : invoice
+        )
     );
   };
 
@@ -323,19 +334,35 @@ const SalesCounter: React.FC = () => {
   };
 
   const handleQuantityChange = (invoiceId: number, productId: number, amount: number) => {
+    const totalSelectedQuantity = invoices.reduce((total, invoice) => {
+        const existingProduct = invoice.products.find(p => p.id === productId);
+        return total + (existingProduct?.quantity || 0);
+    }, 0);
+
+    const product = invoices.find(inv => inv.id === invoiceId)?.products.find(p => p.id === productId);
+    
+    if (amount > 0 && totalSelectedQuantity >= (product?.stockQuantity || 0)) {
+        Swal.fire({
+            title: 'Không đủ số lượng tồn kho',
+            text: 'Số lượng sản phẩm đã đạt giới hạn tồn kho',
+            icon: 'warning'
+        });
+        return;
+    }
+
     setInvoices((prevInvoices) =>
-      prevInvoices.map((invoice) =>
-        invoice.id === invoiceId
-          ? {
-            ...invoice,
-            products: invoice.products.map((product) =>
-              product.id === productId
-                ? { ...product, quantity: Math.max(1, product.quantity + amount) }
-                : product
-            ),
-          }
-          : invoice
-      )
+        prevInvoices.map((invoice) =>
+            invoice.id === invoiceId
+                ? {
+                    ...invoice,
+                    products: invoice.products.map((product) =>
+                        product.id === productId
+                            ? { ...product, quantity: Math.max(1, product.quantity + amount) }
+                            : product
+                    ),
+                }
+                : invoice
+        )
     );
   };
 
@@ -368,54 +395,91 @@ const SalesCounter: React.FC = () => {
     );
   };
 
-  const handleSubmitOrder = async () => {
-    Swal.fire({
-      title: 'Xác nhận đơn hàng',
-      text: 'Bạn có chắc chắn muốn xác nhận đơn hàng này?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Xác nhận',
-      cancelButtonText: 'Hủy',
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        const orderCreationByStaff = {
-          orderType: invoices[currentTab].orderType,
-          orderProductCreations: invoices[currentTab].products.map((productVariant) => ({
-            productVariantId: productVariant.id,
-            quantity: productVariant.quantity
-          })),
-          customerId: invoices[currentTab].account?.id,
-          address: invoices[currentTab].address?.province + ' - ' + invoices[currentTab].address?.district + ' - ' + invoices[currentTab].address?.ward,
-          voucherCode: invoices[currentTab].voucher?.code,
-          paymentType: invoices[currentTab].paymentType,
-        };
+  const checkStockAvailability = () => {
+    // Tạo map để theo dõi tổng số lượng đã chọn cho mỗi variant
+    const variantQuantityMap = new Map<number, number>();
 
-        console.log('Order creation:', orderCreationByStaff);
+    // Tính tổng số lượng đã chọn cho mỗi variant trong tất cả hóa đơn
+    invoices.forEach(invoice => {
+        invoice.products.forEach(product => {
+            const currentTotal = variantQuantityMap.get(product.id) || 0;
+            variantQuantityMap.set(product.id, currentTotal + product.quantity);
+        });
+    });
 
-        if (orderCreationByStaff.paymentType === 'CASH') {
-          const r = await createOrderByStaff(orderCreationByStaff);
-          console.log('Order creation:', r);
-          printReceipt(r);
-          setInvoices((prevInvoices) =>
-            prevInvoices.map((invoice, index) =>
-              index === currentTab
-                ? { ...invoice, products: [], account: null, address: null, voucher: null, paymentType: '', orderType: 'POS' }
-                : invoice
-            )
-          );
-          Swal.fire('Thành công', 'Đã xác nhận đơn hàng', 'success');
-        } else {
-          try {
-            console.log('Order creation:', orderCreationByStaff);
-            const res = await createOrderByStaff(orderCreationByStaff)
-            if (res) {
-              window.open(res.vnpayUrl, '_blank');
-            }
-          } catch (error) {
-            Swal.fire('Lỗi', 'Có lỗi xảy ra khi xác nhận đơn hàng', 'error');
-          }
+    // Kiểm tra xem có variant nào vượt quá số lượng tồn kho không
+    const overStockProducts: string[] = [];
+    invoices[currentTab].products.forEach(product => {
+        const totalSelected = variantQuantityMap.get(product.id) || 0;
+        if (totalSelected > product.stockQuantity) {
+            overStockProducts.push(`${product.product.name} (${product.size} - ${product.color})`);
         }
-      }
+    });
+
+    return overStockProducts;
+  };
+
+  const handleSubmitOrder = async () => {
+    // Kiểm tra tồn kho trước khi xác nhận đơn hàng
+    const overStockProducts = checkStockAvailability();
+    
+    if (overStockProducts.length > 0) {
+        Swal.fire({
+            title: 'Không đủ số lượng tồn kho',
+            html: `Các sản phẩm sau đã vượt quá số lượng tồn kho:<br/>${overStockProducts.join('<br/>')}`,
+            icon: 'error'
+        });
+        return;
+    }
+
+    Swal.fire({
+        title: 'Xác nhận đơn hàng',
+        text: 'Bạn có chắc chắn muốn xác nhận đơn hàng này?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Xác nhận',
+        cancelButtonText: 'Hủy',
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            const orderCreationByStaff = {
+                orderType: invoices[currentTab].orderType,
+                orderProductCreations: invoices[currentTab].products.map((productVariant) => ({
+                    productVariantId: productVariant.id,
+                    quantity: productVariant.quantity
+                })),
+                customerId: invoices[currentTab].account?.id,
+                address: invoices[currentTab].address?.province + ' - ' + invoices[currentTab].address?.district + ' - ' + invoices[currentTab].address?.ward,
+                voucherCode: invoices[currentTab].voucher?.code,
+                paymentType: invoices[currentTab].paymentType,
+            };
+
+            console.log('Order creation:', orderCreationByStaff);
+
+            if (orderCreationByStaff.paymentType === 'CASH') {
+                const r = await createOrderByStaff(orderCreationByStaff);
+                console.log('Order creation:', r);
+                printReceipt(r);
+                setInvoices((prevInvoices) =>
+                    prevInvoices.map((invoice, index) =>
+                        index === currentTab
+                            ? { ...invoice, products: [], account: null, address: null, voucher: null, paymentType: '', orderType: 'POS' }
+                            : invoice
+                    )
+                );
+                fetchAllProducts(currentPage);
+                Swal.fire('Thành công', 'Đã xác nhận đơn hàng', 'success');
+            } else {
+                try {
+                    console.log('Order creation:', orderCreationByStaff);
+                    const res = await createOrderByStaff(orderCreationByStaff)
+                    if (res) {
+                        window.open(res.vnpayUrl, '_blank');
+                    }
+                } catch (error) {
+                    Swal.fire('Lỗi', 'Có lỗi xảy ra khi xác nhận đơn hàng', 'error');
+                }
+            }
+        }
     });
   }
 
@@ -676,6 +740,7 @@ const SalesCounter: React.FC = () => {
               </Box>
             )
           }
+          <ToastContainer />
         </Box>
       ))}
 

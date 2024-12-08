@@ -19,13 +19,14 @@ const ProductManagement: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [keyword, setKeyword] = useState('');
+  const [status, setStatus] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
 
   const fetchAllProducts = async (page: number) => {
     setLoading(true);
     try {
-      const response = await getAllProducts(keyword, page, 10, '', '');
+      const response = await getAllProducts(keyword, status, page, 10, '', '');
       setProducts(response.data.content);
       setTotalPages(response.data.page.totalPages);
       setLoading(false);
@@ -54,7 +55,7 @@ const ProductManagement: React.FC = () => {
 
   React.useEffect(() => {
     fetchAllProducts(currentPage);
-  }, [keyword, currentPage]);
+  }, [keyword, currentPage, status]);
 
   const handleKeywordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setKeyword(e.target.value);
@@ -106,6 +107,18 @@ const ProductManagement: React.FC = () => {
               value={keyword}
               onChange={handleKeywordChange}
             />
+          </div>
+          <div className='flex col-span-1 items-center'>
+            <label className="text-gray-700 mb-1 w-52">Trạng thái:</label>
+            <select
+              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
+              <option value="">Tất cả</option>
+              <option value="true">Hoạt động</option>
+              <option value="false">Không hoạt động</option>
+            </select>
           </div>
         </div>
       </div>

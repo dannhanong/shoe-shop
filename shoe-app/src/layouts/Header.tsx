@@ -69,8 +69,12 @@ const Header: React.FC = () => {
                         <Link to="/product-page" className="hover:text-red-600">SẢN PHẨM</Link>
                     </li>
                     {/* <li>TIN TỨC</li> */}
-                    <li>GIỚI THIỆU</li>
-                    <li>LIÊN HỆ</li>
+                    <li>
+                        <Link to="/intro" className="hover:text-red-600">GIỚI THIỆU</Link>
+                    </li>
+                    <li>
+                        <Link to="/contact" className="hover:text-red-600">LIÊN HỆ</Link>
+                    </li>
                 </ul>
             </nav>
         </header>

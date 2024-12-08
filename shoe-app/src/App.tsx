@@ -14,6 +14,8 @@ import ProductPage from './components/home/product-page/ProductPage';
 import { CartProvider } from './contexts/CartContext';
 import CartPage from './components/home/cart-page/CartPage';
 import ProductDetail from './components/home/product-page/ProductDetail';
+import Intro from './layouts/Intro';
+import Contact from './layouts/Contact';
 
 function App() {
   return (
@@ -57,6 +59,16 @@ function App() {
               <AuthenticatedRoute>
                 <Dashboard />
               </AuthenticatedRoute>
+            } />
+            <Route path="/intro" element={
+              <Home>
+                <Intro />
+              </Home>
+            } />
+            <Route path="/contact" element={
+              <Home>
+                <Contact />
+              </Home>
             } />
           </Routes>
         </CartProvider>

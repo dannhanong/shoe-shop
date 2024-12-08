@@ -1,6 +1,5 @@
 package com.dan.shoe.shoe.controllers;
 
-import com.dan.shoe.shoe.dtos.requests.EditAccount;
 import com.dan.shoe.shoe.dtos.requests.SignupForm;
 import com.dan.shoe.shoe.dtos.requests.StaffAccountSignup;
 import com.dan.shoe.shoe.dtos.requests.UserUpdatetionByAdmin;
@@ -24,10 +23,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @RestController

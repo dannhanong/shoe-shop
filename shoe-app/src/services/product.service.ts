@@ -59,10 +59,11 @@ export const filterProductVariantDefaults = async (minPrice = '', maxPrice = '',
     });
 };
 
-export const getAllProducts = async (keyword = '', page = 0, size = 10, sortBy = '', order = '') => {
+export const getAllProducts = async (keyword = '', status = '', page = 0, size = 10, sortBy = '', order = '') => {
     return axios.get(`${BASE_URL}/products/all`, {
         params: {
             keyword,
+            status,
             page,
             size,
             sortBy,
@@ -184,4 +185,8 @@ export const updateVariantApi = async (id: number, size: number, color: string, 
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
         },
     });
+}
+
+export const getTopSellingProducts = async () => {
+    return axios.get(`${BASE_URL}/products/public/top-selling`);
 }

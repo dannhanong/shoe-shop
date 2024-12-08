@@ -32,4 +32,6 @@ public interface ProductService {
     List<ProductVariant> getProductVariantsByProductId(Long productId);
     ResponseMessage deleteVariant(Long id);
     ResponseMessage updateVariant(Long id, ProductVariant productVariant);
+    List<ProductVariantDetailsResponse> getTopSellingProducts(int limit);
+    Page<Product> getProductByKeywordAndStatus(String keyword, String status, Pageable pageable);
 }

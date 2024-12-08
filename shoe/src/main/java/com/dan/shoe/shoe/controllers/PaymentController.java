@@ -19,7 +19,7 @@ public class PaymentController {
     private OrderService orderService;
 
     @GetMapping("/payment")
-    public String returnPayment(HttpServletRequest request, @RequestParam Map<String, String> allParams){
+    public void returnPayment(HttpServletRequest request, @RequestParam Map<String, String> allParams){
         {
             int paymentStatus = vnPayService.orderReturn(request);
 
@@ -39,9 +39,12 @@ public class PaymentController {
                 System.out.println("updated order status");
                 orderService.updateOrderPaid(orderId);
 
-                return "ordersuccess";
-            } else
-                return "orderfail";
+//                return "ordersuccess";
+
+            } else {
+                System.out.println("order fail");
+            }
+//                return "orderfail";
         }
     }
 }

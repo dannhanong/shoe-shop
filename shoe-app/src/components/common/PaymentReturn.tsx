@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { hasManagement } from '../../services/auth.service';
 import { get } from 'lodash';
-import { Link } from 'react-router-dom';
-import { getOrderInfor } from '../../services/order.service';
+import { Link, useParams } from 'react-router-dom';
+import { getOrderInfor, updateOrderPaid } from '../../services/order.service';
 
 const PaymentReturn: React.FC = () => {
+    const params = useParams();
     const [order, setOrder] = useState<any>(null);
 
     const getReturnOrderInfo = async (orderId: string) => {
@@ -29,6 +30,19 @@ const PaymentReturn: React.FC = () => {
             second: '2-digit',
         });
     };
+
+    const updateOrderPaidReturn = async (orderId: number) => {
+        try {
+            await updateOrderPaid(orderId);
+        } catch (error) {
+            console.error('Error updating order paid:', error);
+        }
+    };
+
+    useEffect(() => {
+        const orderId = new URLSearchParams(window.location.search).get('vnp_OrderInfo');
+        updateOrderPaidReturn(Number(orderId));
+    }, []);
 
     const printReceipt = () => {
         if (!order) return;

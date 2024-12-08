@@ -9,7 +9,7 @@ const Footer: React.FC = () => {
                     <div className="flex items-center space-x-2 justify-center">
                         <img src="https://pendecor.vn/uploads/files/2023/08/15/thiet-ke-logo-shop-giay-3.jpg" alt="" width="40" height="40" className="hover:cursor-pointer" />
                     </div>
-                    <p>Ho Chi Minh, Viet Nam</p>
+                    <p>Ha Noi, Viet Nam</p>
                     <p>Phone: 0123456789</p>
                     <p>Email: abc@gmail.com</p>
                     {/* <div className="flex space-x-3">
@@ -31,8 +31,8 @@ const Footer: React.FC = () => {
                 {/* Company Information Links */}
                 <div className="space-y-2">
                     <h3 className="font-semibold">THÔNG TIN CỦA CHÚNG TÔI</h3>
-                    <p>Cơ sở 1: 26 Đường D1, P12, Quận Tân Bình, TP.HCM</p>
-                    <p>Cơ sở 2: 86 Đinh Bộ Lĩnh, P10, Quận Bình Thạnh, TP.HCM</p>
+                    <p>Cơ sở 1: 100 Cầu Giấy, Hà Nội, Việt Nam</p>
+                    <p>Cơ sở 2: 100 Hoàn Kiếm, Hà Nội, Việt Nam</p>
                     <p>Lĩnh vực kinh doanh</p>
                 </div>
 

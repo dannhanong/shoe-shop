@@ -14,7 +14,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     ProductVariant findByProductAndSize(Product product, int size);
     void deleteByProduct(Product product);
     Page<ProductVariant> findByDeletedFalseAndProduct_NameContainingAndDefaultVariantTrueAndProduct_StatusTrue(String productName, Pageable pageable);
-    Page<ProductVariant> findByProduct_NameContaining(String productName, Pageable pageable);
+    Page<ProductVariant> findByProduct_NameContainingAndDeletedFalseAndStockQuantityGreaterThanAndProduct_StatusTrue(String productName, int stockQuantity, Pageable pageable);
     @Query("SELECT DISTINCT pv.color FROM ProductVariant pv WHERE pv.product = :product")
     List<String> findDistinctColorByProduct(@Param("product") Product product);
 
@@ -66,4 +66,17 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     List<ProductVariant> findByProduct(Product product);
     void deleteByProduct_Id(Long id);
     List<ProductVariant> findByProduct_Id(Long id);
+
+    @Query("""
+    SELECT pv FROM ProductVariant pv 
+    JOIN pv.product p
+    JOIN OrderItem oi ON oi.productVariant = pv
+    AND pv.deleted = false 
+    AND p.status = true
+    GROUP BY pv
+    ORDER BY SUM(oi.quantity) DESC
+    """)
+    Page<ProductVariant> findTopSellingProducts(Pageable pageable);
+
+    ProductVariant findByProductAndDefaultVariantTrue(Product product);
 }

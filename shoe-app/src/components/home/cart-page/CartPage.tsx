@@ -263,7 +263,7 @@ const CartPage: FC = () => {
                                                     </div>
                                                     {item.productVariantDetailsResponse.stockQuantity < item.quantity && (
                                                         <Typography variant="caption" color="error" className="mt-1">
-                                                            Chỉ còn {item.productVariantDetailsResponse.stockQuantity} sản phẩm
+                                                            Hiện còn {item.productVariantDetailsResponse.stockQuantity} sản phẩm
                                                         </Typography>
                                                     )}
                                                 </div>

@@ -69,10 +69,20 @@ const ProductTable: React.FC<ProductTableProps> = ({invoice, totalAmount, handle
                                             <Remove />
                                         </IconButton>
                                         <Typography>{product.quantity}</Typography>
-                                        <IconButton onClick={() => handleQuantityChange(invoice.id, product.id, 1)}>
+                                        <IconButton onClick={
+                                            () => handleQuantityChange(invoice.id, product.id, 1)}
+                                            disabled={product.quantity >= product.stockQuantity}
+                                        >
                                             <Add />
                                         </IconButton>
                                     </Box>
+                                    {
+                                        product.quantity >= product.stockQuantity && (
+                                            <Typography variant="caption" color="error" className="mt-2">
+                                                Hiện còn {product.stockQuantity} sản phẩm
+                                            </Typography>
+                                        )
+                                    }
                                 </TableCell>
                                 <TableCell align="center">
                                     <Box width={20} height={20} bgcolor={product.color} borderRadius="50%" />

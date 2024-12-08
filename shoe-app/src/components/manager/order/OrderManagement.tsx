@@ -126,7 +126,7 @@ const OrderManagement: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell align="center"></TableCell>
+              {/* <TableCell align="center"></TableCell> */}
               <TableCell align="center">STT</TableCell>
               <TableCell align="center">Mã đơn hàng</TableCell>
               <TableCell align="center">Tên khách hàng</TableCell>
@@ -144,9 +144,9 @@ const OrderManagement: React.FC = () => {
               orders.length > 0 ? (
                 orders.map((order, index) => (
                   <TableRow key={order.id}>
-                    <TableCell align="center">
+                    {/* <TableCell align="center">
                       <Checkbox />
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell align="center">{(index + 1) * (currentPage + 1)}</TableCell>
                     <TableCell align="center">HD{order.id}</TableCell>
                     <TableCell align="center">{order.user?.name}</TableCell>

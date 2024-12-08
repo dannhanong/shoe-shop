@@ -16,6 +16,7 @@ import com.google.zxing.WriterException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -157,7 +158,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<ProductVariantResponse> getAllProductVariants(String keyword, Pageable pageable) {
-        Page<ProductVariant> productVariants = productVariantRepository.findByProduct_NameContaining(keyword, pageable);
+        Page<ProductVariant> productVariants = productVariantRepository.findByProduct_NameContainingAndDeletedFalseAndStockQuantityGreaterThanAndProduct_StatusTrue(keyword, 0, pageable);
         return productVariants.map(this::fromProductVariantToProductVariantResponse);
     }
 
@@ -382,5 +383,31 @@ public class ProductServiceImpl implements ProductService {
                 .colors(productVariantRepository.findDistinctColorByProduct(productVariant.getProduct()))
                 .sizes(productVariantRepository.findDistinctSizeByProduct(productVariant.getProduct()))
                 .build();
+    }
+
+    @Override
+    public List<ProductVariantDetailsResponse> getTopSellingProducts(int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        return productVariantRepository.findTopSellingProducts(pageable)
+            .getContent()
+            .stream()
+            .map(this::getDefaultVariantFromVariant)
+            .distinct()
+            .map(this::fromProductVariantToProductVariantDetailsResponse)
+            .limit(limit)
+            .collect(Collectors.toList());
+    }
+
+    private ProductVariant getDefaultVariantFromVariant(ProductVariant productVariant) {
+        return productVariantRepository.findByProductAndDefaultVariantTrue(productVariant.getProduct());
+    }
+
+    @Override
+    public Page<Product> getProductByKeywordAndStatus(String keyword, String status, Pageable pageable) {
+        if (status.isEmpty()) {
+            return productRepository.findByNameContainingAndDeletedFalse(keyword, pageable);
+        }
+        boolean isActive = status.equalsIgnoreCase("true");
+        return productRepository.findByNameContainingAndStatusAndDeletedFalse(keyword, isActive, pageable);
     }
 }

@@ -19,6 +19,9 @@ import axios from "axios";
 import { createStaff } from "../../../services/staff.service";
 import { toast, ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { Controller, useForm } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from "yup";
 
 const CreateStaff: React.FC = () => {
     const navigate = useNavigate();
@@ -43,6 +46,50 @@ const CreateStaff: React.FC = () => {
     const [staffAddress, setStaffAddress] = useState<string>("");
     const [staffCccd, setStaffCccd] = useState<string>("");
     const [staffImage, setStaffImage] = useState<File | null>(null);
+
+    const schema = yup.object().shape({
+        name: yup.string().required("Tên hiển thị không được để trống"),
+        username: yup.string()
+            .required("Tên đăng nhập không được để trống")
+            .min(5, "Tên đăng nhập phải nhiều hơn 5 kí tự"),
+        password: yup.string()
+            .required("Mật khẩu không được để trống")
+            .min(6, "Mật khẩu phải nhiều hơn 6 kí tự"),
+        rePassword: yup.string()
+            .required("Vui lòng nhập lại mật khẩu")
+            .oneOf([yup.ref('password')], "Mật khẩu không khớp"),
+        email: yup.string()
+            .required("Email không được để trống")
+            .email("Email không đúng định dạng"),
+        staffName: yup.string().required("Tên nhân viên không được để trống"),
+        staffPhoneNumber: yup.string()
+            .required("Số điện thoại không được để trống")
+            .matches(/^[0-9]+$/, "Số điện thoại chỉ được chứa số")
+            .min(10, "Số điện thoại phải có ít nhất 10 số"),
+        staffDob: yup.string().required("Ngày sinh không được để trống"),
+        staffGender: yup.string().required("Giới tính phải chọn"),
+        staffCccd: yup.string()
+            .required("Số CCCD không được để trống")
+            .matches(/^[0-9]+$/, "CCCD chỉ được chứa số")
+            .length(12, "CCCD phải có 12 số"),
+    }).required();
+
+    const { handleSubmit, control, formState: { errors } } = useForm({
+        defaultValues: {
+            name: '',
+            username: '',
+            password: '',
+            rePassword: '',
+            email: '',
+            staffName: '',
+            staffPhoneNumber: '',
+            staffDob: '',
+            staffGender: '',
+            staffCccd: '',
+        },
+        mode: 'onBlur',
+        resolver: yupResolver(schema)
+    });
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files[0]) {
@@ -120,42 +167,17 @@ const CreateStaff: React.FC = () => {
     };
 
     // Handle form submission
-    const handleSubmit = async () => {     
+    const onSubmit = async (data: any) => {
         const staffAccountSignup = {
-            name,
-            username,
-            password,
-            rePassword,
-            email,
-            staffName,
-            staffPhoneNumber,
-            staffDob,
-            staffGender,
+            ...data,
             staffAddress,
-            staffCccd,
             staffImage
-        }
+        };
+        
         const response = await createStaff(staffAccountSignup);
         if (response) {
             toast.success("Thêm mới nhân viên thành công");
-            
-            // Reset form fields
-            setName("");
-            setUsername("");
-            setPassword("");
-            setRePassword("");
-            setEmail("");
-            setStaffName("");
-            setStaffPhoneNumber("");
-            setStaffDob("");
-            setStaffGender("");
-            setStaffAddress("");
-            setStaffCccd("");
-            setStaffImage(null);
-            setPreviewUrl(null);
-            setSelectedProvince(null);
-            setSelectedDistrict(null);
-            setSelectedWard(null);
+            // Reset form logic...
         }
     };
 
@@ -187,131 +209,204 @@ const CreateStaff: React.FC = () => {
 
                 {/* Form Fields */}
                 <Grid item xs={12} sm={8}>
-                    <Box component="form">
+                    <Box component="form" onSubmit={handleSubmit(onSubmit)}>
                         <Grid container spacing={3}>
                             {/* Basic Information */}
                             <Grid item xs={12} sm={6}>
-                                <TextField
-                                    label="Tên nhân viên"
+                                <Controller
+                                    control={control}
                                     name="staffName"
-                                    fullWidth
-                                    required
-                                    value={staffName}
-                                    onChange={(e) => setStaffName(e.target.value)}
+                                    render={({ field: { onChange, value } }) => (
+                                        <TextField
+                                            label="Tên nhân viên"
+                                            fullWidth
+                                            
+                                            value={value}
+                                            onChange={onChange}
+                                            error={Boolean(errors.staffName)}
+                                            helperText={errors.staffName?.message}
+                                        />
+                                    )}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
-                                <TextField
-                                    label="Tên hiển thị"
+                                <Controller
+                                    control={control}
                                     name="name"
-                                    fullWidth
-                                    required
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
+                                    render={({ field: { onChange, value } }) => (
+                                        <TextField
+                                            label="Tên hiển thị"
+                                            fullWidth
+                                            
+                                            value={value}
+                                            onChange={onChange}
+                                            error={Boolean(errors.name)}
+                                            helperText={errors.name?.message}
+                                        />
+                                    )}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
-                                <TextField
-                                    label="Tên đăng nhập"
+                                <Controller
+                                    control={control}
                                     name="username"
-                                    fullWidth
-                                    required
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
+                                    render={({ field: { onChange, value } }) => (
+                                        <TextField
+                                            label="Tên đăng nhập"
+                                            fullWidth
+                                            
+                                            value={value}
+                                            onChange={onChange}
+                                            error={Boolean(errors.username)}
+                                            helperText={errors.username?.message}
+                                        />
+                                    )}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
-                                <TextField
-                                    label="Mật khẩu"
+                                <Controller
+                                    control={control}
                                     name="password"
-                                    type="password"
-                                    fullWidth
-                                    required
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    render={({ field: { onChange, value } }) => (
+                                        <TextField
+                                            label="Mật khẩu"
+                                            type="password"
+                                            fullWidth
+                                            
+                                            value={value}
+                                            onChange={onChange}
+                                            error={Boolean(errors.password)}
+                                            helperText={errors.password?.message}
+                                        />
+                                    )}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
-                                <TextField
-                                    label="Nhập lại mật khẩu"
+                                <Controller
+                                    control={control}
                                     name="rePassword"
-                                    type="password"
-                                    fullWidth
-                                    required
-                                    value={rePassword}
-                                    onChange={(e) => setRePassword(e.target.value)}
+                                    render={({ field: { onChange, value } }) => (
+                                        <TextField
+                                            label="Nhập lại mật khẩu"
+                                            type="password"
+                                            fullWidth
+                                            
+                                            value={value}
+                                            onChange={onChange}
+                                            error={Boolean(errors.rePassword)}
+                                            helperText={errors.rePassword?.message}
+                                        />
+                                    )}
                                 />
                             </Grid>
 
                             {/* Contact Information */}
                             <Grid item xs={12} sm={6}>
-                                <TextField
-                                    label="Email"
+                                <Controller
+                                    control={control}
                                     name="email"
-                                    type="email"
-                                    fullWidth
-                                    required
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    render={({ field: { onChange, value } }) => (
+                                        <TextField
+                                            label="Email"
+                                            type="email"
+                                            fullWidth
+                                            
+                                            value={value}
+                                            onChange={onChange}
+                                            error={Boolean(errors.email)}
+                                            helperText={errors.email?.message}
+                                        />
+                                    )}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
-                                <TextField
-                                    label="Số điện thoại"
+                                <Controller
+                                    control={control}
                                     name="staffPhoneNumber"
-                                    fullWidth
-                                    required
-                                    value={staffPhoneNumber}
-                                    onChange={(e) => setStaffPhoneNumber(e.target.value)}
+                                    render={({ field: { onChange, value } }) => (
+                                        <TextField
+                                            label="Số điện thoại"
+                                            fullWidth
+                                            
+                                            value={value}
+                                            onChange={onChange}
+                                            error={Boolean(errors.staffPhoneNumber)}
+                                            helperText={errors.staffPhoneNumber?.message}
+                                        />
+                                    )}
                                 />
                             </Grid>
 
                             {/* Additional Information */}
                             <Grid item xs={12} sm={6}>
-                                <TextField
-                                    label="Ngày sinh"
+                                <Controller
+                                    control={control}
                                     name="staffDob"
-                                    type="date"
-                                    fullWidth
-                                    required
-                                    InputLabelProps={{ shrink: true }}
-                                    value={staffDob}
-                                    onChange={(e) => setStaffDob(e.target.value)}
+                                    render={({ field: { onChange, value } }) => (
+                                        <TextField
+                                            label="Ngày sinh"
+                                            type="date"
+                                            fullWidth
+                                            
+                                            InputLabelProps={{ shrink: true }}
+                                            value={value}
+                                            onChange={onChange}
+                                            error={Boolean(errors.staffDob)}
+                                            helperText={errors.staffDob?.message}
+                                        />
+                                    )}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
-                                <TextField
-                                    label="Số CCCD"
+                                <Controller
+                                    control={control}
                                     name="staffCccd"
-                                    fullWidth
-                                    required
-                                    value={staffCccd}
-                                    onChange={(e) => setStaffCccd(e.target.value)}
+                                    render={({ field: { onChange, value } }) => (
+                                        <TextField
+                                            label="Số CCCD"
+                                            fullWidth
+                                            
+                                            value={value}
+                                            onChange={onChange}
+                                            error={Boolean(errors.staffCccd)}
+                                            helperText={errors.staffCccd?.message}
+                                        />
+                                    )}
                                 />
                             </Grid>
 
                             {/* Gender */}
                             <Grid item xs={12} sm={6}>
-                                <FormControl component="fieldset" fullWidth>
+                                <FormControl component="fieldset" fullWidth error={Boolean(errors.staffGender)}>
                                     <Typography component="legend">Giới tính</Typography>
-                                    <RadioGroup
-                                        row
-                                        value={staffGender}
-                                        onChange={(e) => setStaffGender(e.target.value)}
+                                    <Controller
+                                        control={control}
                                         name="staffGender"
-                                        sx={{ justifyContent: "center" }}
-                                    >
-                                        <FormControlLabel
-                                            value="MALE"
-                                            control={<Radio />}
-                                            label="Nam"
-                                        />
-                                        <FormControlLabel
-                                            value="FEMALE"
-                                            control={<Radio />}
-                                            label="Nữ"
-                                        />
-                                    </RadioGroup>
+                                        render={({ field: { onChange, value } }) => (
+                                            <RadioGroup
+                                                row
+                                                value={value}
+                                                onChange={onChange}
+                                                sx={{ justifyContent: "center" }}
+                                            >
+                                                <FormControlLabel
+                                                    value="MALE"
+                                                    control={<Radio />}
+                                                    label="Nam"
+                                                />
+                                                <FormControlLabel
+                                                    value="FEMALE"
+                                                    control={<Radio />}
+                                                    label="Nữ"
+                                                />
+                                            </RadioGroup>
+                                        )}
+                                    />
+                                    {errors.staffGender && (
+                                        <Typography color="error" variant="caption">
+                                            {errors.staffGender.message}
+                                        </Typography>
+                                    )}
                                 </FormControl>
                             </Grid>
 
@@ -370,7 +465,7 @@ const CreateStaff: React.FC = () => {
                             <Button variant="outlined" color="secondary" sx={{ marginX: 2 }} onClick={() => navigate("/manager/staff-management")}>
                                 Quay lại
                             </Button>
-                            <Button variant="contained" color="primary" onClick={handleSubmit}>
+                            <Button variant="contained" color="primary" type="submit">
                                 Tạo mới
                             </Button>
                         </Box>
