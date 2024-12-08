@@ -405,6 +405,7 @@ const ProductDetail: React.FC = () => {
                                                     onClose={handleCloseProductDialog}
                                                     handleCloseProductDialog={handleCloseProductDialog}
                                                     product={selectedProduct}
+                                                    setProduct={setSelectedProduct}
                                                 />
                                             )}
                                         </div>

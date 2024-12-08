@@ -21,15 +21,17 @@ import { Voucher } from '../../../models/Voucher';
 import VoucherDialog from '../dialogs/VoucherDialog';
 import Swal from 'sweetalert2';
 import { createOrderNow } from '../../../services/order.service';
+import { getVariantByColor } from '../../../services/product.service';
 
 interface ProductDialogProps {
   isOpen: boolean;
   product: Variant;
   onClose: () => void;
   handleCloseProductDialog: () => void;
+  setProduct: (product: Variant) => void;
 }
 
-const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose, handleCloseProductDialog }) => {
+const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose, handleCloseProductDialog, setProduct }) => {
   const [selectedSize, setSelectedSize] = useState<number | null>(null);
   const [quantity, setQuantity] = useState<number>(1);
   const [mainImage, setMainImage] = useState<string>('');
@@ -150,9 +152,10 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose,
     console.log('Size:', size);
   };
 
-  const handleColorSelect = (color: string) => {
+  const handleColorSelect = async (color: string) => {
     setSelectedColor((prevColor) => (prevColor === color ? null : color));
-    console.log('Color:', color);
+    const response = await getVariantByColor(color, Number(product.product.id))
+    setProduct(response.data);
   };
 
   const handleQuantityChange = (type: 'increment' | 'decrement') => {

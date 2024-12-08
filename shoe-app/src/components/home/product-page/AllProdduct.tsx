@@ -154,6 +154,7 @@ const AllProdduct: React.FC = () => {
                                     onClose={handleCloseProductDialog}
                                     product={selectedProduct}
                                     handleCloseProductDialog={handleCloseProductDialog}
+                                    setProduct={setSelectedProduct}
                                 />
                             )}
                         </div>
