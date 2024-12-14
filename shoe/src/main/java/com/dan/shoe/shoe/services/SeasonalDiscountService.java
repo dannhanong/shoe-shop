@@ -15,6 +15,6 @@ public interface SeasonalDiscountService {
     ResponseMessage deleteSeasonalDiscount(Long id);
     List<SeasonalDiscount> getActiveDiscounts();
     SeasonalDiscount getDiscountById(Long id);
-    Page<SeasonalDiscountResponse> getAllDiscounts(String keyword, Pageable pageable);
+    Page<SeasonalDiscountResponse> getAllDiscounts(String keyword, String status, Pageable pageable);
     SeasonalDiscountResponse getDiscountResponseById(Long id);
 }

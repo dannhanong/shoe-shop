@@ -3,11 +3,12 @@ import axios from 'axios';
 const BASE_URL = process.env.REACT_APP_BASE_URL
 
 //Hàm lấy danh sách tài khoản theo quyền
-export const getUsersByRole = async (keyword = '', page = 0, size = 10, sortBy = '', order = '') => {
+export const getUsersByRole = async (keyword = '', status ='', page = 0, size = 10, sortBy = '', order = '') => {
     try {
         const response = await axios.get(`${BASE_URL}/accounts/admin/users-by-role?roleName=user`, {
             params: {
                 keyword,
+                status,
                 page,
                 size,
                 sortBy,

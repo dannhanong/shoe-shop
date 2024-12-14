@@ -32,6 +32,7 @@ const UpdateVariant: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [variant, setVariant] = useState<Variant | null>(null);
     const [colorPreview, setColorPreview] = useState<string>(''); // Preview mã màu
+    const [formattedPrice, setFormattedPrice] = useState<string>('');
 
     const fetchVariant = async () => {
         try {
@@ -53,6 +54,16 @@ const UpdateVariant: React.FC = () => {
             console.error('Error fetching variant:', error);
         }
     };
+
+    const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value.replace(/,/g, '');
+        if (!isNaN(Number(value))) {
+            setVariant(variant ? { ...variant, price: Number(value) } : variant);
+            setFormattedPrice(Number(value).toLocaleString());
+        } else if (value === '') {
+            setFormattedPrice('');
+        }
+    }
 
     useEffect(() => {
         fetchVariant();
@@ -135,9 +146,11 @@ const UpdateVariant: React.FC = () => {
                 />
                 <TextField
                     label="Giá"
-                    type="number"
-                    value={variant.price}
-                    onChange={(e) => setVariant({ ...variant, price: Number(e.target.value) })}
+                    type="text"
+                    // value={variant.price}
+                    // onChange={(e) => setVariant({ ...variant, price: Number(e.target.value) })}
+                    value={formattedPrice || variant.price.toLocaleString()}
+                    onChange={handlePriceChange}
                     fullWidth
                 />
 

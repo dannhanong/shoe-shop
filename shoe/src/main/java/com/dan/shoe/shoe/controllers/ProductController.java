@@ -3,7 +3,6 @@ package com.dan.shoe.shoe.controllers;
 import com.dan.shoe.shoe.dtos.requests.ProductCreationRequest;
 import com.dan.shoe.shoe.dtos.requests.ProductUpdatetion;
 import com.dan.shoe.shoe.dtos.responses.ProductVariantDetailsResponse;
-import com.dan.shoe.shoe.models.Product;
 import com.dan.shoe.shoe.models.ProductVariant;
 import com.dan.shoe.shoe.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;

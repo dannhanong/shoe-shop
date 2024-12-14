@@ -174,10 +174,30 @@ const CreateStaff: React.FC = () => {
             staffImage
         };
         
-        const response = await createStaff(staffAccountSignup);
-        if (response) {
-            toast.success("Thêm mới nhân viên thành công");
-            // Reset form logic...
+        try {
+            const response = await createStaff(staffAccountSignup);
+            if (response) {
+                toast.success("Thêm mới nhân viên thành công");
+                setName("");
+                setUsername("");
+                setPassword("");
+                setRePassword("");
+                setEmail("");
+                setStaffName("");
+                setStaffPhoneNumber("");
+                setStaffDob("");
+                setStaffGender("");
+                setStaffCccd("");
+                setStaffAddress("");
+                setStaffImage(null);
+                setPreviewUrl(null);
+                setSelectedProvince(null);
+                setSelectedDistrict(null);
+                setSelectedWard(null);
+            }
+        } catch (error) {
+            console.error("Error creating staff:", error);
+            toast.error("Không thể thêm mới nhân viên, vui lòng kiểm tra lại thông tin");
         }
     };
 
@@ -202,6 +222,7 @@ const CreateStaff: React.FC = () => {
                                 onChange={(e) => handleFileChange(e)
                                     // setFormData({ ...formData, staffImage: e.target.files?.[0] || null })
                                 }
+                                required
                             />
                         </Button>
                     </Box>

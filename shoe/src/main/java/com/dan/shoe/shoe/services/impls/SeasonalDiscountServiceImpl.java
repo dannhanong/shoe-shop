@@ -11,6 +11,7 @@ import com.dan.shoe.shoe.repositories.SeasonalDiscountRepository;
 import com.dan.shoe.shoe.services.SeasonalDiscountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -89,9 +90,25 @@ public class SeasonalDiscountServiceImpl implements SeasonalDiscountService {
     }
 
     @Override
-    public Page<SeasonalDiscountResponse> getAllDiscounts(String keyword, Pageable pageable) {
-        return seasonalDiscountRepository.findByNameContaining(keyword, pageable)
-                .map(this::fromSeasonalDiscount);
+    public Page<SeasonalDiscountResponse> getAllDiscounts(String keyword, String status, Pageable pageable) {
+        Page<SeasonalDiscount> discounts = seasonalDiscountRepository.findByNameContaining(keyword, pageable);
+        if (status.isEmpty()) {
+            return discounts.map(this::fromSeasonalDiscount);
+        }
+        boolean active = status.equalsIgnoreCase("true");
+        if (active) {
+                List<SeasonalDiscount> activeDiscounts = discounts.stream()
+                .filter(SeasonalDiscount::isApplicable)
+                .collect(Collectors.toList());
+                        return new PageImpl<>(activeDiscounts, pageable, activeDiscounts.size())
+                                .map(this::fromSeasonalDiscount);
+        } else {
+                List<SeasonalDiscount> inactiveDiscounts = discounts.stream()
+                        .filter(discount -> !discount.isApplicable())
+                        .collect(Collectors.toList());
+                return new PageImpl<>(inactiveDiscounts, pageable, inactiveDiscounts.size())
+                        .map(this::fromSeasonalDiscount);
+        }
     }
 
     @Override

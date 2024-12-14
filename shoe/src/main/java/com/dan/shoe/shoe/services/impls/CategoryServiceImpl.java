@@ -49,7 +49,11 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Page<Category> getAllCategories(String name, Pageable pageable) {
-        return categoryRepository.findAllByNameContaining(name, pageable);
+    public Page<Category> getAllCategories(String name, String status, Pageable pageable) {
+        if (status.isEmpty()) {
+            return categoryRepository.findAllByNameContaining(name, pageable);
+        }
+        boolean active = status.equalsIgnoreCase("true");
+        return categoryRepository.findAllByNameContainingAndStatus(name, active, pageable);
     }
 }

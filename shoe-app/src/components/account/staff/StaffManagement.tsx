@@ -17,12 +17,13 @@ const StaffManagement: React.FC = () => {
     const [keyword, setKeyword] = React.useState('');
     const [currentPage, setCurrentPage] = React.useState(0);
     const [totalPages, setTotalPages] = React.useState(1);
+    const [status, setStatus] = React.useState('');
     const navigate = useNavigate();
 
     const fetchAllStaffs = async (page: number) => {
         setLoading(true);
         try {
-          const response = await getAllStaffs(keyword, page, 10, '', '');
+          const response = await getAllStaffs(keyword, status, page, 10, '', '');
           setStaffs(response.data.content);
           setTotalPages(response.data.page.totalPages);
           setLoading(false);
@@ -51,7 +52,7 @@ const StaffManagement: React.FC = () => {
     
       React.useEffect(() => {
         fetchAllStaffs(currentPage);
-      }, [keyword, currentPage]);
+      }, [keyword, currentPage, status]);
     
       const handleKeywordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setKeyword(e.target.value);
@@ -105,6 +106,18 @@ const StaffManagement: React.FC = () => {
                             value={keyword}
                             onChange={handleKeywordChange}
                         />
+                    </div>
+                    <div className='flex col-span-1 items-center'>
+                      <label className="text-gray-700 mb-1 w-52">Trạng thái:</label>
+                      <select
+                      className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={status}
+                      onChange={(e) => setStatus(e.target.value)}
+                      >
+                      <option value="">Tất cả</option>
+                      <option value="true">Hoạt động</option>
+                      <option value="false">Không hoạt động</option>
+                      </select>
                     </div>
                 </div>
             </div>

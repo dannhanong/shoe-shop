@@ -21,5 +21,5 @@ public interface VoucherService {
     boolean isVoucherUsedByUser(User user, Voucher voucher);
     Voucher getVoucherConsistent();
     List<VoucherResponse> getVouchersActiveHasStatusByUser(String username);
-    Page<Voucher> getAllVouchers(String keyword, Pageable pageable);
+    Page<Voucher> getAllVouchers(String keyword, String status, Pageable pageable);
 }

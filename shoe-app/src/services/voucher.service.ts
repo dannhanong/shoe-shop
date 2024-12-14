@@ -32,11 +32,12 @@ export const getVouchersActiveHasStatusByMe = async () => {
     }
 };
 
-export const getAllVouchers = async (keyword = '', page = 0, size = 10, sortBy = '', order = '') => {
+export const getAllVouchers = async (keyword = '', status = '', page = 0, size = 10, sortBy = '', order = '') => {
     try {
         const response = await axios.get(`${BASE_URL}/vouchers/all`, {
             params: {
                 keyword,
+                status,
                 page,
                 size,
                 sortBy,

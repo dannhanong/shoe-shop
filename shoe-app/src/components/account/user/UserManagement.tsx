@@ -5,7 +5,7 @@ import { CiEdit } from 'react-icons/ci'
 import { MdDeleteForever } from 'react-icons/md'
 import { TbCategory } from 'react-icons/tb'
 import { Link, useNavigate } from 'react-router-dom'
-import { Avatar, Switch } from '@mui/material'
+import { Avatar, Chip, Switch } from '@mui/material'
 import Swal from 'sweetalert2'
 import { deleteAccount, getUsersByRole } from '../../../services/account.service'
 import { User } from '../../../models/User'
@@ -17,12 +17,13 @@ const UserManagement: React.FC = () => {
     const [keyword, setKeyword] = React.useState('');
     const [currentPage, setCurrentPage] = React.useState(0);
     const [totalPages, setTotalPages] = React.useState(1);
+    const [status, setStatus] = React.useState('');
     const navigate = useNavigate();
 
     const fetchAllUsers = async (page: number) => {
         setLoading(true);
         try {
-          const response = await getUsersByRole(keyword, page, 10, '', '');
+          const response = await getUsersByRole(keyword, status, page, 10, '', '');
           setUsers(response.content);
           setTotalPages(response.page.totalPages);
           setLoading(false);
@@ -34,7 +35,7 @@ const UserManagement: React.FC = () => {
     
       React.useEffect(() => {
         fetchAllUsers(currentPage);
-      }, [keyword, currentPage]);
+      }, [keyword, currentPage, status]);
     
       const handleKeywordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setKeyword(e.target.value);
@@ -89,12 +90,24 @@ const UserManagement: React.FC = () => {
                             onChange={handleKeywordChange}
                         />
                     </div>
+                    <div className='flex col-span-1 items-center'>
+                        <label className="text-gray-700 mb-1 w-52">Trạng thái:</label>
+                        <select
+                        className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={status}
+                        onChange={(e) => setStatus(e.target.value)}
+                        >
+                        <option value="">Tất cả</option>
+                        <option value="true">Đã kích hoạt</option>
+                        <option value="false">Chưa kích hoạt</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
             {/* Bảng danh sách */}
             <div className="bg-white p-4 rounded-md shadow">
-                <h2 className="text-lg font-semibold mb-2">Danh sách tài khoản</h2>
+                <h2 className="text-lg font-semibold mb-2">Danh sách tài khoản khách hàng</h2>
                 <div>
                     <div className="flex justify-end mb-4">
                         <Link to="/manager/create-user" className="bg-blue-500 text-white px-2 py-2 rounded-md hover:bg-blue-600">
@@ -112,7 +125,7 @@ const UserManagement: React.FC = () => {
                             <th className="border p-2">Tên đăng nhập</th>
                             <th className="border p-2">Email</th>
                             <th className="border p-2">SĐT</th>
-                            <th className="border p-2">Trạng Thái</th>
+                            <th className="border p-2">Tình trạng</th>
                             <th className="border p-2">Hành động</th>
                         </tr>
                     </thead>
@@ -132,10 +145,13 @@ const UserManagement: React.FC = () => {
                                 <td className="border p-2">{user.email}</td>
                                 <td className="border p-2">{user.phoneNumber}</td>
                                 <td className="border p-2 text-center">
-                                    <Switch
+                                    {/* <Switch
                                         color="primary"
                                         checked={user.enabled}
-                                        // onChange={() => handleStatusChange(user.id)}
+                                    /> */}
+                                    <Chip
+                                        label={user.enabled ? 'Đã kích hoạt' : 'Chưa kích hoạt'}
+                                        color={user.enabled ? 'success' : 'error'}
                                     />
                                 </td>
                                 <td className="border p-2 text-center">

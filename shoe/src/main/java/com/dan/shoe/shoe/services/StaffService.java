@@ -14,7 +14,7 @@ public interface StaffService {
     Page<Staff> getAllStaffsByKeyword(String keyword, Pageable pageable);
     ResponseMessage updateStaffStatus(Long id);
     AccountStaffResponse getStaffInfo(Long id);
-    Page<AccountStaffResponse> getAllStaffs(String keyword, Pageable pageable);
+    Page<AccountStaffResponse> getAllStaffs(String keyword, String status, Pageable pageable);
     Staff updateStaff(Staff staff, Long id);
     ResponseMessage deleteStaff(Long id);
 }

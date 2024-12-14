@@ -240,7 +240,7 @@ const UpdateProductVariant: React.FC = () => {
             <Box display="flex" flexDirection="column" gap={2}>
                 <TextField label="Tên sản phẩm" value={name} onChange={(e) => setName(e.target.value)} fullWidth required />
                 <TextField label="Mô tả sản phẩm" value={description} onChange={(e) => setDescription(e.target.value)} fullWidth multiline rows={4} required />
-                <TextField label="Giá" type="number" value={price} onChange={(e) => setPrice(e.target.value ? Number(e.target.value) : '')} fullWidth required />
+                {/* <TextField label="Giá" type="number" value={price} onChange={(e) => setPrice(e.target.value ? Number(e.target.value) : '')} fullWidth required /> */}
 
                 <FormControl fullWidth>
                     <InputLabel id="brand-select-label">Thương hiệu</InputLabel>
@@ -301,7 +301,7 @@ const UpdateProductVariant: React.FC = () => {
                             <td className="border p-2">{'SPV' + variant.id}</td>
                             <td className="border p-2">{variant.product.name}</td>
                             <td className="border p-2 text-center">
-                                <div style={{ width: 20, height: 20, backgroundColor: variant.color, borderRadius: '50%' }} />
+                                <div style={{ width: 20, height: 20, backgroundColor: variant.color, borderRadius: '50%', marginLeft: '38%' }} />
                             </td>
                             <td className="border p-2 flex justify-center">
                                 <img

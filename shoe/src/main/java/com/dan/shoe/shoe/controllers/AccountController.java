@@ -53,6 +53,7 @@ public class AccountController {
     @GetMapping("/admin/users-by-role")
     public Page<User> getUsersByRole(@RequestParam String roleName,
                                      @RequestParam(value = "keyword", defaultValue = "") String keyword,
+                                    @RequestParam(value = "status", defaultValue = "") String status,
                                      @RequestParam(value = "page", defaultValue = "0") int page,
                                      @RequestParam(value = "size", defaultValue = "10") int size,
                                      @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
@@ -60,7 +61,7 @@ public class AccountController {
         Sort sort = order.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
         RoleName roleEnum = RoleName.valueOf(roleName.toUpperCase());
-        return userService.getUserByRoleName(roleEnum, keyword, pageable);
+        return userService.getUserByRoleName(roleEnum, keyword, status, pageable);
     }
 
     @PostMapping("/admin/create-staff-account")

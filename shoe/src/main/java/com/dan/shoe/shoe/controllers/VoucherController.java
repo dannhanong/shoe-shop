@@ -23,13 +23,14 @@ public class VoucherController {
 
     @GetMapping("/all")
     public ResponseEntity<Page<Voucher>> getAllVouchers(@RequestParam(value = "keyword", defaultValue = "") String keyword,
+                                                            @RequestParam(value = "status", defaultValue = "") String status,
                                                            @RequestParam(value = "page", defaultValue = "0") int page,
                                                            @RequestParam(value = "size", defaultValue = "10") int size,
                                                            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
                                                            @RequestParam(value = "order", defaultValue = "desc") String order) {
         Sort sort = order.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        return new ResponseEntity<>(voucherService.getAllVouchers(keyword, pageable), HttpStatus.OK);
+        return new ResponseEntity<>(voucherService.getAllVouchers(keyword, status, pageable), HttpStatus.OK);
     }
 
     @PostMapping("/admin/create")

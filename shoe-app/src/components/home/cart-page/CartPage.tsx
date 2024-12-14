@@ -44,6 +44,7 @@ const CartPage: FC = () => {
                     if (response) {
                         getMyCart();
                         toast.success('Đặt hàng thành công');
+                        addItemToCart();
                     } else {
                         toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
                     }
@@ -335,7 +336,7 @@ const CartPage: FC = () => {
                                 onClick={() => {
                                     if (voucher) {
                                         setVoucher(null);
-                                        toast.success('Đã h��y mã giảm giá');
+                                        toast.success('Đã hủy mã giảm giá');
                                     } else {
                                         setIsShowVoucherDialog(true);
                                     }

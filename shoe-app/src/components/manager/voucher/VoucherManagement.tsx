@@ -2,7 +2,7 @@ import React, { ChangeEvent, useEffect, useState } from 'react';
 import { CiEdit } from "react-icons/ci";
 import { MdDeleteForever } from "react-icons/md";
 import Swal from 'sweetalert2';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Switch, TextField } from '@mui/material';
+import { Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Switch, TextField } from '@mui/material';
 import { toast, ToastContainer } from 'react-toastify';
 import Pagination from '../../common/Pagination';
 import 'react-toastify/dist/ReactToastify.css';
@@ -23,6 +23,7 @@ const VoucherManagement: React.FC = () => {
 
     const [newCode, setNewCode] = useState('');
     const [newDiscountAmount, setNewDiscountAmount] = useState<number | ''>('');
+    const [formattedNewDiscountAmount, setFormattedNewDiscountAmount] = useState<string>('');
     const [newMaxUsage, setNewMaxUsage] = useState<number | ''>('');
     const [newStartDate, setNewStartDate] = useState('');
     const [newEndDate, setNewEndDate] = useState('');
@@ -30,12 +31,14 @@ const VoucherManagement: React.FC = () => {
     const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null);
     const [newCodeUpdate, setNewCodeUpdate] = useState('');
     const [newDiscountAmountUpdate, setNewDiscountAmountUpdate] = useState<number | ''>('');
+    const [formattedNewDiscountAmountUpdate, setFormattedNewDiscountAmountUpdate] = useState<string>('');
     const [newMaxUsageUpdate, setNewMaxUsageUpdate] = useState<number | ''>('');
     const [newStartDateUpdate, setNewStartDateUpdate] = useState('');
     const [newEndDateUpdate, setNewEndDateUpdate] = useState('');
 
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
+    const [status, setStatus] = useState('');
 
     const [errors, setErrors] = useState<{[key: string]: string}>({});
 
@@ -48,8 +51,7 @@ const VoucherManagement: React.FC = () => {
             .number()
             .transform((value) => (isNaN(value) ? undefined : value))
             .required('Giá trị giảm không được để trống')
-            .positive('Giá trị giảm phải là số dương')
-            .max(100, 'Nếu là phần trăm thì không được vượt quá 100%'),
+            .positive('Giá trị giảm phải là số dương'),
         maxUsage: yup
             .number()
             .transform((value) => (isNaN(value) ? undefined : value))
@@ -135,6 +137,28 @@ const VoucherManagement: React.FC = () => {
         }
     };
 
+    const handleDiscountAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value.replace(/,/g, '');
+        if (!isNaN(Number(value))) {
+            setNewDiscountAmount(Number(value));
+            setFormattedNewDiscountAmount(Number(value).toLocaleString());
+        } else if (value === '') {
+            setNewDiscountAmount('');
+            setFormattedNewDiscountAmount('');
+        }
+    };
+
+    const handleDiscountAmountChangeUpdate = (e: ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value.replace(/,/g, '');
+        if (!isNaN(Number(value))) {
+            setNewDiscountAmountUpdate(Number(value));
+            setFormattedNewDiscountAmountUpdate(Number(value).toLocaleString());
+        } else if (value === '') {
+            setNewDiscountAmountUpdate('');
+            setFormattedNewDiscountAmountUpdate('');
+        }
+    };
+
     const handleShow = (id: number) => {
         setOpenEdit(true);
         getVoucher(id);
@@ -143,7 +167,7 @@ const VoucherManagement: React.FC = () => {
     const fetchAllVouchers = async (page: number) => {
         setLoading(true);
         try {
-            const response = await getAllVouchers(keyword, page, 10, '', '');
+            const response = await getAllVouchers(keyword, status, page, 10, '', '');
             setVouchers(response.data.content);
             setTotalPages(response.data.page.totalPages);
             setLoading(false);
@@ -155,7 +179,7 @@ const VoucherManagement: React.FC = () => {
 
     useEffect(() => {
         fetchAllVouchers(currentPage);
-    }, [keyword, currentPage]);
+    }, [keyword, currentPage, status]);
 
     const handleKeywordChange = (e: ChangeEvent<HTMLInputElement>) => {
         setKeyword(e.target.value);
@@ -210,6 +234,18 @@ const VoucherManagement: React.FC = () => {
                             onChange={handleKeywordChange}
                         />
                     </div>
+                    <div className='flex col-span-1 items-center'>
+                        <label className="text-gray-700 mb-1 w-52">Tình trạng:</label>
+                        <select
+                        className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={status}
+                        onChange={(e) => setStatus(e.target.value)}
+                        >
+                        <option value="">Tất cả</option>
+                        <option value="true">Còn hạn</option>
+                        <option value="false">Hết hạn</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -242,11 +278,13 @@ const VoucherManagement: React.FC = () => {
                             <TextField
                                 margin="dense"
                                 label="Giá trị giảm"
-                                type="number"
+                                type="text"
                                 fullWidth
                                 variant="outlined"
-                                value={newDiscountAmount}
-                                onChange={(e) => setNewDiscountAmount(Number(e.target.value))}
+                                // value={newDiscountAmount}
+                                // onChange={(e) => setNewDiscountAmount(Number(e.target.value))}
+                                value={formattedNewDiscountAmount}
+                                onChange={handleDiscountAmountChange}
                                 error={!!errors.discountAmount}
                                 helperText={errors.discountAmount}
                             />
@@ -308,7 +346,7 @@ const VoucherManagement: React.FC = () => {
                             <th className="border p-2">Ngày bắt đầu</th>
                             <th className="border p-2">Ngày kết thúc</th>
                             <th className="border p-2">Số lượng còn</th>
-                            <th className="border p-2">Trạng Thái</th>
+                            <th className="border p-2">Tình trạng</th>
                             <th className="border p-2">Hành động</th>
                         </tr>
                     </thead>
@@ -332,9 +370,9 @@ const VoucherManagement: React.FC = () => {
                                     {voucher.maxUsage}
                                 </td>
                                 <td className="border p-2 text-center">
-                                    <Switch
-                                        checked={voucher.active}
-                                        color="primary"
+                                    <Chip
+                                        label={voucher.active ? 'Còn hạn' : 'Hết hạn'}
+                                        color={voucher.active ? 'primary' : 'default'}
                                     />
                                 </td>
                                 <td className="border p-2 text-center">
@@ -361,11 +399,13 @@ const VoucherManagement: React.FC = () => {
                                             autoFocus
                                             margin="dense"
                                             label="Giá trị giảm"
-                                            type="number"
+                                            type="text"
                                             fullWidth
                                             variant="outlined"
-                                            value={newDiscountAmountUpdate}
-                                            onChange={(e) => setNewDiscountAmountUpdate(Number(e.target.value))}
+                                            // value={newDiscountAmountUpdate}
+                                            // onChange={(e) => setNewDiscountAmountUpdate(Number(e.target.value))}
+                                            value={formattedNewDiscountAmountUpdate || newDiscountAmountUpdate.toLocaleString()}
+                                            onChange={handleDiscountAmountChangeUpdate}
                                         />
 
                                         <TextField

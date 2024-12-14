@@ -11,6 +11,7 @@ import com.dan.shoe.shoe.repositories.VoucherUsageRepository;
 import com.dan.shoe.shoe.services.VoucherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -145,7 +146,22 @@ public class VoucherServiceImpl implements VoucherService {
     }
 
     @Override
-    public Page<Voucher> getAllVouchers(String keyword, Pageable pageable) {
-        return voucherRepository.findByCodeContaining(keyword, pageable);
+    public Page<Voucher> getAllVouchers(String keyword, String status, Pageable pageable) {
+        Page<Voucher> vouchers = voucherRepository.findByCodeContaining(keyword, pageable);
+        if (status.isEmpty()) {
+            return vouchers;
+        }
+        boolean active = status.equalsIgnoreCase("true");
+        if (active) {
+            List<Voucher> filteredVouchers = vouchers.stream()
+                    .filter(Voucher::isValid)
+                    .collect(Collectors.toList());
+            return new PageImpl<>(filteredVouchers, pageable, filteredVouchers.size());
+        } else {
+            List<Voucher> filteredVouchers = vouchers.stream()
+                    .filter(voucher -> !voucher.isValid())
+                    .collect(Collectors.toList());
+            return new PageImpl<>(filteredVouchers, pageable, filteredVouchers.size());
+        }
     }
 }

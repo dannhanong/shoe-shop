@@ -2,7 +2,7 @@ import React from 'react';
 import { CiEdit } from "react-icons/ci";
 import { MdDeleteForever } from "react-icons/md";
 import Swal from 'sweetalert2';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Switch, TextField } from '@mui/material';
+import { Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Switch, TextField } from '@mui/material';
 import { toast, ToastContainer } from 'react-toastify';
 import Pagination from '../../common/Pagination';
 import 'react-toastify/dist/ReactToastify.css';
@@ -21,11 +21,12 @@ const DiscountManagement: React.FC = () => {
     const [newdiscountUpdate, setNewdiscountUpdate] = React.useState('');
     const [currentPage, setCurrentPage] = React.useState(0);
     const [totalPages, setTotalPages] = React.useState(1);
+    const [status, setStatus] = React.useState('');
 
     const fetchAllDiscounts = async (page: number) => {
         setLoading(true);
         try {
-            const response = await getAllDiscount(keyword, page, 10, '', '');
+            const response = await getAllDiscount(keyword, status, page, 10, '', '');
             setDiscounts(response.data.content);
             setTotalPages(response.data.page.totalPages);
             setLoading(false);
@@ -37,7 +38,7 @@ const DiscountManagement: React.FC = () => {
 
     React.useEffect(() => {
         fetchAllDiscounts(currentPage);
-    }, [keyword, currentPage]);
+    }, [keyword, currentPage, status]);
 
     const handleKeywordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setKeyword(e.target.value);
@@ -97,6 +98,18 @@ const DiscountManagement: React.FC = () => {
                             onChange={handleKeywordChange}
                         />
                     </div>
+                    <div className='flex col-span-1 items-center'>
+                        <label className="text-gray-700 mb-1 w-52">Tình trạng:</label>
+                        <select
+                        className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={status}
+                        onChange={(e) => setStatus(e.target.value)}
+                        >
+                        <option value="">Tất cả</option>
+                        <option value="true">Còn hạn</option>
+                        <option value="false">Hết hạn</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -118,7 +131,7 @@ const DiscountManagement: React.FC = () => {
                             <th className="border p-2">Giá trị giảm</th>
                             <th className="border p-2">Ngày bắt đầu</th>
                             <th className="border p-2">Ngày kết thúc</th>
-                            <th className="border p-2">Trạng Thái</th>
+                            <th className="border p-2">Tình trạng</th>
                             <th className="border p-2">Hành động</th>
                         </tr>
                     </thead>
@@ -137,9 +150,13 @@ const DiscountManagement: React.FC = () => {
                                     {discount.endDate}
                                 </td>
                                 <td className="border p-2 text-center">
-                                    <Switch
+                                    {/* <Switch
                                         checked={discount.status}
                                         color="primary"
+                                    /> */}
+                                    <Chip
+                                        label={discount.status ? 'Còn hạn' : 'Hết hạn'}
+                                        color={discount.status ? 'primary' : 'default'}
                                     />
                                 </td>
                                 <td className="border p-2 text-center">

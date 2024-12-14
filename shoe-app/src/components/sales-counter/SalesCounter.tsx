@@ -180,7 +180,7 @@ const SalesCounter: React.FC = () => {
 
   const fetchAllAccounts = async (page: number) => {
     try {
-      const res = await getUsersByRole(keyword, page, 10, '', '');
+      const res = await getUsersByRole(keyword, 'true', page, 10, '', '');
       setAccounts(res.content);
       setTotalPages(res.page.totalPages);
     } catch (error) {
@@ -717,6 +717,7 @@ const SalesCounter: React.FC = () => {
                 handleOpenVoucherDialog={handleOpenVoucherDialog} 
                 handleOpenPaymentDialog={handleOpenPaymentDialog}
                 handleSwitchChange={handleSwitchChange}
+                handleNotSelectVoucher={handleNotSelectVoucher}
               />
 
               {/*Voucher Dialog */}

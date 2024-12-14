@@ -26,6 +26,7 @@ const CreateProductWithVariants: React.FC = () => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [price, setPrice] = useState<number | ''>('');
+    const [formattedPrice, setFormattedPrice] = useState<string>('');
     const [selectedBrand, setSelectedBrand] = useState<number | ''>('');
     const [selectedCategory, setSelectedCategory] = useState<number | ''>('');
     const [selectedGender, setSelectedGender] = useState<string | ''>('');
@@ -49,6 +50,20 @@ const CreateProductWithVariants: React.FC = () => {
     const [openDialog, setOpenDialog] = useState(false);
     const [newColor, setNewColor] = useState('');
     const [variants, setVariants] = useState<Variant[]>([]);
+
+    const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value.replace(/,/g, ''); // Loại bỏ dấu phẩy khi nhập
+        if (!isNaN(Number(value))) {
+          const numberValue = Number(value);
+          setPrice(numberValue);
+          setFormattedPrice(
+            new Intl.NumberFormat('en-US').format(numberValue) // Định dạng dấu phẩy
+          );
+        } else if (value === '') {
+          setPrice('');
+          setFormattedPrice('');
+        }
+    };
 
     // Hàm mở dialog
     const handleOpenDialogAddColor = () => {
@@ -111,6 +126,7 @@ const CreateProductWithVariants: React.FC = () => {
                     setVariants([]);
                     setSelectedSizes([]);
                     setSelectedColors([]);
+                    setFormattedPrice('');
                 } catch (error) {
                     console.error('Error creating product:', error);
                     toast.error('Có lỗi xảy ra khi tạo sản phẩm', { autoClose: 3000 });
@@ -221,7 +237,13 @@ const CreateProductWithVariants: React.FC = () => {
             <Box display="flex" flexDirection="column" gap={2}>
                 <TextField label="Tên sản phẩm" value={name} onChange={(e) => setName(e.target.value)} fullWidth required />
                 <TextField label="Mô tả sản phẩm" value={description} onChange={(e) => setDescription(e.target.value)} fullWidth multiline rows={4} required />
-                <TextField label="Giá" type="number" value={price} onChange={(e) => setPrice(e.target.value ? Number(e.target.value) : '')} fullWidth required />
+                <TextField label="Giá" 
+                    type="text" 
+                    value={formattedPrice} 
+                    // onChange={(e) => setPrice(e.target.value ? Number(e.target.value) : '')} 
+                    onChange={handlePriceChange}
+                    fullWidth 
+                required />
 
                 <FormControl fullWidth>
                     <InputLabel id="brand-select-label">Thương hiệu</InputLabel>

@@ -3,11 +3,12 @@ import { SeasonalDiscountCreation } from '../models/request/SeasonalDiscountCrea
 
 const BASE_URL = process.env.REACT_APP_BASE_URL
 
-export const getAllDiscount = async (keyword = '', page = 0, size = 10, sortBy = '', order = '') => {
+export const getAllDiscount = async (keyword = '', status = '', page = 0, size = 10, sortBy = '', order = '') => {
     try {
         const response = await axios.get(`${BASE_URL}/discounts/admin/all`, {
             params: {
                 keyword,
+                status,
                 page,
                 size,
                 sortBy,

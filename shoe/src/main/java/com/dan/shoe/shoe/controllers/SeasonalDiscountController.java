@@ -53,12 +53,13 @@ public class SeasonalDiscountController {
 
     @GetMapping("/admin/all")
     public ResponseEntity<?> getAllDiscounts(@RequestParam(defaultValue = "") String keyword,
+                                            @RequestParam(defaultValue = "") String status,
                                              @RequestParam(defaultValue = "0") int page,
                                              @RequestParam(defaultValue = "10") int size,
                                              @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
                                              @RequestParam(value = "order", defaultValue = "desc") String order) {
         Sort sort = order.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        return ResponseEntity.ok(seasonalDiscountService.getAllDiscounts(keyword, pageable));
+        return ResponseEntity.ok(seasonalDiscountService.getAllDiscounts(keyword, status, pageable));
     }
 }

@@ -15,6 +15,7 @@ const CategoryManagement: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [keyword, setKeyword] = useState('');
+    const [status, setStatus] = useState('');
     const [open, setOpen] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
     const [newCategory, setNewCategory] = useState('');
@@ -53,7 +54,7 @@ const CategoryManagement: React.FC = () => {
     const fetchAllCategories = async (page: number) => {
         setLoading(true);
         try {
-            const response = await getAllCategories(keyword, page, 10, '', '');
+            const response = await getAllCategories(keyword, status, page, 10, '', '');
             setCategories(response.data.content);
             setTotalPages(response.data.page.totalPages); // Cập nhật tổng số trang từ API
             setLoading(false);
@@ -127,7 +128,7 @@ const CategoryManagement: React.FC = () => {
 
     useEffect(() => {
         fetchAllCategories(currentPage);
-    }, [keyword, currentPage]);
+    }, [keyword, currentPage, status]);
 
     const handleKeywordChange = (e: ChangeEvent<HTMLInputElement>) => {
         setKeyword(e.target.value);
@@ -177,6 +178,18 @@ const CategoryManagement: React.FC = () => {
                             value={keyword}
                             onChange={handleKeywordChange}
                         />
+                    </div>
+                    <div className='flex col-span-1 items-center'>
+                        <label className="text-gray-700 mb-1 w-52">Trạng thái:</label>
+                        <select
+                            className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value)}
+                        >
+                            <option value="">Tất cả</option>
+                            <option value="true">Vẫn kinh doanh</option>
+                            <option value="false">Không kinh doanh</option>
+                        </select>
                     </div>
                 </div>
             </div>

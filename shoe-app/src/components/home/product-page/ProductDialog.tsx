@@ -113,13 +113,24 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose,
           toast.error('Vui lòng chọn màu sắc và kích thước');
           return;
         } else {
-          const response = await createOrderNow(nowCreation);
-          if (response) {
-            addItemToCart();
-            handleCloseProductDialog();
-            window.location.href = response.vnpayUrl;
+          if (paymentType === 'transfer') {
+            const response = await createOrderNow(nowCreation);
+            if (response) {
+              addItemToCart();
+              handleCloseProductDialog();
+              window.location.href = response.vnpayUrl;
+            } else {
+              toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
+            }
           } else {
-            toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
+            const response = await createOrderNow(nowCreation);
+            if (response) {
+              addItemToCart();
+              handleCloseProductDialog();
+              toast.success('Đặt hàng thành công');
+            } else {
+              toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
+            }
           }
         }
       }

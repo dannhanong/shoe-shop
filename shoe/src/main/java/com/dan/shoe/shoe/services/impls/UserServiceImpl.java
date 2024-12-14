@@ -171,8 +171,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<User> getUserByRoleName(RoleName roleName, String keyword, Pageable pageable) {
-        return userRepository.findByRoleName(roleName, keyword, pageable);
+    public Page<User> getUserByRoleName(RoleName roleName, String keyword, String enabled, Pageable pageable) {
+        if (enabled.isEmpty()) {
+            return userRepository.findByRoleName(roleName, keyword, pageable);
+        }
+        boolean status = enabled.equalsIgnoreCase("true");
+        return userRepository.findByRoleNameAndEnabled(roleName, keyword, status, pageable);
     }
 
     @Override

@@ -153,7 +153,7 @@ const OrderDetails: React.FC = () => {
             )
           }
           {
-            (activeStep !== 5 && activeStep !== 4 && activeStep !== 3) && (
+            (activeStep !== 5 && activeStep !== 4 && activeStep !== 3 && !order?.paid) && (
               <Button 
                 variant="contained" color="error"
                 onClick={handleCancelOrder}

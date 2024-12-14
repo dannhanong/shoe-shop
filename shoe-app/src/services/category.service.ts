@@ -2,10 +2,11 @@ import axios from 'axios';
 
 const BASE_URL = process.env.REACT_APP_BASE_URL;
 
-export const getAllCategories = (keyword = '', page = 0, size = 10, sortBy = '', order = '') => {
+export const getAllCategories = (keyword = '', status= '', page = 0, size = 10, sortBy = '', order = '') => {
     return axios.get(`${BASE_URL}/categories/all`, {
         params: {
             keyword,
+            status,
             page,
             size,
             sortBy,

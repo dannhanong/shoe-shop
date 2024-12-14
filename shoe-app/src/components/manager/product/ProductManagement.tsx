@@ -116,8 +116,8 @@ const ProductManagement: React.FC = () => {
               onChange={(e) => setStatus(e.target.value)}
             >
               <option value="">Tất cả</option>
-              <option value="true">Hoạt động</option>
-              <option value="false">Không hoạt động</option>
+              <option value="true">Vẫn kinh doanh</option>
+              <option value="false">Không kinh doanh</option>
             </select>
           </div>
         </div>

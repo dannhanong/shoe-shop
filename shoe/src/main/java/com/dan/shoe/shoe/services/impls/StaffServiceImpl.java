@@ -60,8 +60,13 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public Page<AccountStaffResponse> getAllStaffs(String keyword, Pageable pageable) {
-        Page<Staff> staffs = staffRepository.findByNameContainingOrPhoneNumberContainingOrAddressContaining(keyword, keyword, keyword, pageable);
+    public Page<AccountStaffResponse> getAllStaffs(String keyword, String status, Pageable pageable) {
+        if (status.isEmpty()) {
+            Page<Staff> staffs = staffRepository.findByNameContainingOrPhoneNumberContainingOrAddressContaining(keyword, keyword, keyword, pageable);
+            return staffs.map(this::fromStaff);
+        }
+        boolean active = status.equalsIgnoreCase("true");
+        Page<Staff> staffs = staffRepository.findByNameContainingOrPhoneNumberContainingOrAddressContainingAndStatus(keyword, keyword, keyword, active, pageable);
         return staffs.map(this::fromStaff);
     }
 

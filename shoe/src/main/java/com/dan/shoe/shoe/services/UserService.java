@@ -26,7 +26,7 @@ public interface UserService extends UserDetailsService {
     boolean verify(String verificationCode);
     ResponseMessage updateProfile(UpdateProfile updateProfile, String username);
     void updateVerificationCode(String username, String verificationCode);
-    Page<User> getUserByRoleName(RoleName roleName, String keyword, Pageable pageable);
+    Page<User> getUserByRoleName(RoleName roleName, String keyword, String enabled, Pageable pageable);
     ResponseMessage updateStatusUser(Long id);
     Boolean existByUsernameAndUsernameNot(String username);
     Boolean existByEmailAndEmailNot(String email);

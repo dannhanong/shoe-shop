@@ -31,13 +31,14 @@ public class StaffController {
 
     @GetMapping("/admin/all")
     public ResponseEntity<Page<AccountStaffResponse>> getAllStaffsByKeyword(@RequestParam(defaultValue = "") String keyword,
+                                                                            @RequestParam(defaultValue = "") String status,
                                                                             @RequestParam(defaultValue = "0") int page,
                                                                             @RequestParam(defaultValue = "10") int size,
                                                                             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
                                                                             @RequestParam(value = "order", defaultValue = "desc") String order) {
         Sort sort = order.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        return ResponseEntity.ok(staffService.getAllStaffs(keyword, pageable));
+        return ResponseEntity.ok(staffService.getAllStaffs(keyword, status, pageable));
     }
 
     @GetMapping("/admin/{id}")

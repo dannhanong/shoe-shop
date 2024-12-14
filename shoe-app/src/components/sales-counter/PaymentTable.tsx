@@ -21,9 +21,10 @@ interface PaymentTableProps {
     handleOpenVoucherDialog: () => void;
     handleOpenPaymentDialog: () => void;
     handleSwitchChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    handleNotSelectVoucher: () => void;
 }
 
-const PaymentTable: React.FC<PaymentTableProps> = ({ invoice, isShipping, handleOpenVoucherDialog, handleOpenPaymentDialog, handleSwitchChange }) => {
+const PaymentTable: React.FC<PaymentTableProps> = ({ invoice, isShipping, handleOpenVoucherDialog, handleOpenPaymentDialog, handleSwitchChange, handleNotSelectVoucher }) => {
     const totalAmount = invoice.products.reduce((sum, product) => sum + product.price * product.quantity, 0);
     const discountAmount = totalAmount - invoice.products.reduce((sum, product) => sum + product.priceAfterDiscount * product.quantity, 0);
     
@@ -77,11 +78,21 @@ const PaymentTable: React.FC<PaymentTableProps> = ({ invoice, isShipping, handle
                                     <Box display="flex" justifyContent="space-between" mx={5}>
                                         <Typography variant="body1" fontWeight="bold">Mã giảm giá:</Typography>
                                         <input type="text" placeholder="Chưa chọn mã giảm giá" className="w-30 h-8" value={voucherCode} readOnly />
-                                        <Button
-                                            variant="outlined"
-                                            color="secondary"
-                                            onClick={handleOpenVoucherDialog}
-                                        >Chọn mã</Button>
+                                        {
+                                            voucherCode === '' ? (
+                                                <Button
+                                                    variant="outlined"
+                                                    color="secondary"
+                                                    onClick={handleOpenVoucherDialog}
+                                                >Chọn mã</Button>
+                                            ) : (
+                                                <Button
+                                                    variant="contained"
+                                                    color="error"
+                                                    onClick={handleNotSelectVoucher}
+                                                >Hủy</Button>
+                                            )
+                                        }
                                     </Box>
                                     <Box display="flex" justifyContent="space-between" mx={5}>
                                         <Typography variant="body1" fontWeight="bold">Giao hàng:</Typography>

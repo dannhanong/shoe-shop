@@ -346,10 +346,12 @@ const ProductDetail: React.FC = () => {
                                     width: '100%',
                                 }}
                             />
+
+                            <Typography variant="h5" mt={5}>Danh sách sản phẩm liên quan</Typography>
                             
-                            <div className='mt-20'>
+                            <div className='mt-10 mb-4'>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                                    {productRelated.map((product) => (
+                                    {productRelated.length > 0 ? productRelated.map((product) => (
                                         <div
                                             key={product.id}
                                             className="relative border rounded-lg shadow-md overflow-hidden"
@@ -409,7 +411,13 @@ const ProductDetail: React.FC = () => {
                                                 />
                                             )}
                                         </div>
-                                    ))}
+                                    )) : (
+                                        <div>
+                                            <br />
+                                            <br />
+                                            <div className="">Chưa có sản phẩm liên quan</div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </Grid>

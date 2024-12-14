@@ -40,6 +40,7 @@ const CreateDiscount: React.FC = () => {
     const [description, setDescription] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = async () => {
         Swal.fire({
@@ -83,6 +84,16 @@ const CreateDiscount: React.FC = () => {
             }
         })
     }
+
+    const handleDiscountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = Number(e.target.value);
+        if (value >= 0 && value <= 90) {
+          setDiscountRate(value);
+          setError(null); // Xóa lỗi nếu giá trị hợp lệ
+        } else {
+          setError('Giá trị giảm phải nằm trong khoảng từ 1% đến 90%');
+        }
+    };
 
     const fetchAllProducts = async (page: number) => {
         const response = await getAllProducts(keyword, 'true', page, 4, '', '');
@@ -151,7 +162,9 @@ const CreateDiscount: React.FC = () => {
                         fullWidth
                         sx={{ mb: 2 }}
                         value={discountRate}
-                        onChange={(e) => setDiscountRate(Number(e.target.value))}
+                        onChange={handleDiscountChange}
+                        error={!!error}
+                        helperText={error || ''}
                         InputProps={{
                             endAdornment: <InputAdornment position="end">%</InputAdornment>,
                         }}

@@ -4,10 +4,11 @@ import { BaseStaffAccount } from '../models/request/BaseStaffAccount';
 
 const BASE_URL = process.env.REACT_APP_BASE_URL
 
-export const getAllStaffs = async (keyword = '', page = 0, size = 10, sortBy = '', order = '') => {
+export const getAllStaffs = async (keyword = '', status = '', page = 0, size = 10, sortBy = '', order = '') => {
     return await axios.get(`${BASE_URL}/staffs/admin/all`, {
         params: {
             keyword,
+            status,
             page,
             size,
             sortBy,
