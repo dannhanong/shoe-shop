@@ -64,7 +64,7 @@ const ProductTable: React.FC<ProductTableProps> = ({invoice, totalAmount, handle
                                     {product.product.gender === 'MALE' ? 'Nam' : product.product.gender === 'FEMALE' ? 'Nữ' : 'Unisex'}
                                 </TableCell>
                                 <TableCell align="center">
-                                    <Box display="flex" alignItems="center" marginLeft={'24%'}>
+                                    <Box display="flex" alignItems="center" marginLeft={'22%'}>
                                         <IconButton onClick={() => handleQuantityChange(invoice.id, product.id, -1)}>
                                             <Remove />
                                         </IconButton>
