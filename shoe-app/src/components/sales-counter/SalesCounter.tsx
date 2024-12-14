@@ -112,34 +112,6 @@ const SalesCounter: React.FC = () => {
       const response = await getProductVariantResponse(variantId);
       const productData = response.data;
       console.log('Scanned product:', productData);
-      
-
-      // setInvoices((prevInvoices) =>
-      //   prevInvoices.map((invoice, index) => {
-      //     if (index !== currentTab) return invoice;
-
-      //     // Tìm sản phẩm trong danh sách dựa trên `variantId` và các thuộc tính khác nếu cần
-      //     const existingProduct = invoice.products.find(
-      //       (p) => p.variantId === productData.variantId && p.size === productData.size && p.color === productData.color
-      //     );
-
-      //     if (existingProduct) {
-      //       // Nếu sản phẩm đã tồn tại, tăng `quantity` lên 1
-      //       const updatedProducts = invoice.products.map((p) =>
-      //         p.variantId === productData.variantId && p.size === productData.size && p.color === productData.color
-      //           ? { ...p, quantity: p.quantity + 1 }
-      //           : p
-      //       );
-      //       return { ...invoice, products: updatedProducts };
-      //     } else {
-      //       // Nếu sản phẩm chưa tồn tại, thêm sản phẩm mới với `quantity` là 1
-      //       return {
-      //         ...invoice,
-      //         products: [...invoice.products, { ...productData, quantity: 1 }],
-      //       };
-      //     }
-      //   })
-      // );
 
       handleSelectProduct(productData);
 
@@ -550,7 +522,7 @@ const SalesCounter: React.FC = () => {
                         <br>
                         <h2>Hóa đơn mua hàng</h2>
                         <p><strong>Khách hàng:</strong> ${order.user ? order.user.name : 'Khách lạ'}</p>
-                        ${ order.user ? `<p><strong>Số điện thoại:</strong> ${order.user.phone ? order.user.phoneNumber : 'Không có'}</p>` : '' }
+                        ${ order.user ? `<p><strong>Số điện thoại:</strong> ${order.user.phoneNumber ? order.user.phoneNumber : 'Không có'}</p>` : '' }
                         ${order.address !== "undefined - undefined - undefined" ? `<p><strong>Địa chỉ:</strong> ${order.address}</p>` : ''}
                     <p><strong>Thanh toán:</strong> ${order.paymentType === 'CASH' ? 'Tiền mặt' : 'Chuyển khoản'}</p>
                     <p><strong>Voucher đã áp dụng:</strong> ${order.discountDetails ? order.discountDetails : 'Không sử dụng'}</p>

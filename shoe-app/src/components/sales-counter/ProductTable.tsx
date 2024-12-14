@@ -38,7 +38,7 @@ const ProductTable: React.FC<ProductTableProps> = ({invoice, totalAmount, handle
                             <TableRow key={product.id}>
                                 <TableCell align="center">{productIndex + 1}</TableCell>
                                 <TableCell align="center">
-                                    <Box display="flex" alignItems="center">
+                                    <Box display="flex" alignItems="center" marginLeft={'22%'}>
                                         <Avatar src={`${process.env.REACT_APP_BASE_URL}/files/preview/${product.imageAvatar}`} sx={{ marginRight: 5 }} />
                                         <Box>
                                             <Typography variant="subtitle1">{product.product.name}</Typography>
@@ -64,7 +64,7 @@ const ProductTable: React.FC<ProductTableProps> = ({invoice, totalAmount, handle
                                     {product.product.gender === 'MALE' ? 'Nam' : product.product.gender === 'FEMALE' ? 'Nữ' : 'Unisex'}
                                 </TableCell>
                                 <TableCell align="center">
-                                    <Box display="flex" alignItems="center">
+                                    <Box display="flex" alignItems="center" marginLeft={'24%'}>
                                         <IconButton onClick={() => handleQuantityChange(invoice.id, product.id, -1)}>
                                             <Remove />
                                         </IconButton>
@@ -85,7 +85,7 @@ const ProductTable: React.FC<ProductTableProps> = ({invoice, totalAmount, handle
                                     }
                                 </TableCell>
                                 <TableCell align="center">
-                                    <Box width={20} height={20} bgcolor={product.color} borderRadius="50%" />
+                                    <Box width={20} height={20} bgcolor={product.color} borderRadius="50%" sx={{ marginLeft: '36%' }} />
                                 </TableCell>
                                 <TableCell align="center">
                                     <IconButton color="error" onClick={() => handleDeleteProduct(invoice.id, product.id)}>

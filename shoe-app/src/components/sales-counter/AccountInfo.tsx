@@ -52,9 +52,8 @@ const AccountInfo: React.FC<AccountInfoProps> = ({invoice, currentTab, index, ha
                         {invoice.account ? (
                             <TableRow key={invoice.account.id}>
                                 <TableCell align="center">
-                                    <Box display="flex" alignItems="center">
+                                    <Box display="flex" alignItems="center" justifyContent={'center'}>
                                         <Avatar src={`${process.env.REACT_APP_BASE_URL}/files/preview/${invoice.account.avatarCode}`} sx={{ marginRight: 1 }} />
-                                        <Typography>{invoice.account.name}</Typography>
                                     </Box>
                                 </TableCell>
                                 <TableCell align="center">{invoice.account.name}</TableCell>

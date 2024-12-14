@@ -317,8 +317,19 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose,
                 <Typography variant="subtitle1">Số lượng:</Typography>
                 <Button variant="outlined" onClick={() => handleQuantityChange('decrement')}>-</Button>
                 <Typography>{quantity}</Typography>
-                <Button variant="outlined" onClick={() => handleQuantityChange('increment')}>+</Button>
+                <Button 
+                  variant="outlined" 
+                  onClick={() => handleQuantityChange('increment')}
+                  disabled={quantity >= product.stockQuantity}
+                >+</Button>
               </Box>
+              {
+                quantity >= product.stockQuantity && (
+                    <Typography variant="caption" color="error" className="mt-1 text-center">
+                        Hiện còn {product.stockQuantity} sản phẩm
+                    </Typography>
+                )
+              }
             </Box>
 
             <Box display={'flex'} gap={2}>

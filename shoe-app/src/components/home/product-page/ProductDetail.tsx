@@ -313,8 +313,19 @@ const ProductDetail: React.FC = () => {
                                         <Typography variant="subtitle1">Số lượng:</Typography>
                                         <Button variant="outlined" onClick={() => handleQuantityChange('decrement')}>-</Button>
                                         <Typography>{quantity}</Typography>
-                                        <Button variant="outlined" onClick={() => handleQuantityChange('increment')}>+</Button>
+                                        <Button 
+                                            variant="outlined" 
+                                            onClick={() => handleQuantityChange('increment')}
+                                            disabled={quantity >= productDetail.stockQuantity}
+                                        >+</Button>
                                     </Box>
+                                    {
+                                        quantity >= productDetail.stockQuantity && (
+                                            <Typography variant="caption" color="error" className="mt-1">
+                                                Hiện còn {productDetail.stockQuantity} sản phẩm
+                                            </Typography>
+                                        )
+                                    }
                                 </Box>
 
                                 <Box display={'flex'} gap={2}>

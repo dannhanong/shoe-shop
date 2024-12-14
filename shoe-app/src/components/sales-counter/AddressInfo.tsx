@@ -155,9 +155,10 @@ const AddressInfo: React.FC<AddressInfoProps> = ({ invoice, isShowAddressInfo, h
                 </div>
             </FormControl>            
             ) : (
-                <Button variant="outlined" color="primary" onClick={() => setIsShowAddressInfo(true)}>
-                    Thêm địa chỉ giao hàng
-                </Button>
+                // <Button variant="outlined" color="primary" onClick={() => setIsShowAddressInfo(true)}>
+                //     Thêm địa chỉ giao hàng
+                // </Button>
+                <p></p>
             )}
         </Box>
     );

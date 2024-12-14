@@ -94,13 +94,13 @@ const PaymentTable: React.FC<PaymentTableProps> = ({ invoice, isShipping, handle
                                             )
                                         }
                                     </Box>
-                                    <Box display="flex" justifyContent="space-between" mx={5}>
+                                    {/* <Box display="flex" justifyContent="space-between" mx={5}>
                                         <Typography variant="body1" fontWeight="bold">Giao hàng:</Typography>
                                         <Switch
                                             checked={isShipping}
                                             onChange={handleSwitchChange}
                                         />
-                                    </Box>
+                                    </Box> */}
                                     <Box display="flex" justifyContent="space-between" mx={5}>
                                         <Typography variant="body1" fontWeight="bold">Giảm giá:</Typography>
                                         <Typography>{totalReducedAmount.toLocaleString()}  VNĐ</Typography>

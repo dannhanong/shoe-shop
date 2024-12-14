@@ -3,7 +3,7 @@ import DiscountLabel from '../../common/DiscountLabel';
 import { CgDetailsMore } from "react-icons/cg";
 import { FaCartPlus } from 'react-icons/fa6';
 import { Variant } from '../../../models/Variant';
-import { getAllProductVariantDefaults, getTopSellingProducts } from '../../../services/product.service';
+import { getTopSellingProducts } from '../../../services/product.service';
 import { useNavigate } from 'react-router-dom';
 import { addToCart } from '../../../services/cart.service';
 import { toast, ToastContainer } from 'react-toastify';
