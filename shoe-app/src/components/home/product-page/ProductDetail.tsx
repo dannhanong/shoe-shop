@@ -15,6 +15,7 @@ import { CgDetailsMore } from 'react-icons/cg';
 import ProductDialog from './ProductDialog';
 import Swal from 'sweetalert2';
 import { createOrderNow } from '../../../services/order.service';
+import { isAuthenticated } from '../../../services/auth.service';
 
 const ProductDetail: React.FC = () => {
     const navigate = useNavigate();
@@ -138,26 +139,30 @@ const ProductDetail: React.FC = () => {
     };
 
     const handleAddToCartNow = async () => {
-        const nowCreation = {
-            productId: productDetail?.product.id,
-            color: selectedColor || '',
-            size: selectedSize || 0,
-            quantity: quantity,
-            voucherCode: "",
-            paymentType: paymentType,
-        };
-        console.log('NowCreation:', nowCreation);
-        if (!selectedColor || !selectedSize) {
-            toast.error('Vui lòng chọn màu sắc và kích thước');
-            return;
-        } else {
-            const response = await addCartNow(nowCreation);
-            if (response) {
-                toast.success(response.data.message);
-                addItemToCart();
+        if (isAuthenticated()) {
+            const nowCreation = {
+                productId: productDetail?.product.id,
+                color: selectedColor || '',
+                size: selectedSize || 0,
+                quantity: quantity,
+                voucherCode: "",
+                paymentType: paymentType,
+            };
+            console.log('NowCreation:', nowCreation);
+            if (!selectedColor || !selectedSize) {
+                toast.error('Vui lòng chọn màu sắc và kích thước');
+                return;
             } else {
-                toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
+                const response = await addCartNow(nowCreation);
+                if (response) {
+                    toast.success(response.data.message);
+                    addItemToCart();
+                } else {
+                    toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
+                }
             }
+        } else {
+            toast.error('Vui lòng đăng nhập để thêm vào giỏ hàng');
         }
     }
 
@@ -168,7 +173,11 @@ const ProductDetail: React.FC = () => {
     };
 
     const handleVoucherDialogOpen = () => {
-        setVoucherDialogOpen(true);
+        if (isAuthenticated()) {
+            setVoucherDialogOpen(true);
+        } else {
+            toast.error('Vui lòng đăng nhập để mua hàng');
+        }
     };
 
     const handleVoucherDialogClose = () => {

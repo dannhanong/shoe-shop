@@ -229,7 +229,7 @@ public class OrderController {
         return ResponseEntity.ok(data);
     }
 
-    @PutMapping("/staff/update-paid/{orderId}")
+    @PutMapping("/public/update-paid/{orderId}")
     public ResponseEntity<?> updateOrderPaid(@PathVariable Long orderId) {
         orderService.updateOrderPaid(orderId);
         return ResponseEntity.ok("updated order status");

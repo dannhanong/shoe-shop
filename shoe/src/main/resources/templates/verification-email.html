@@ -3,16 +3,16 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Email Verification</title>
+    <title>Email xác thực tài khoản</title>
 </head>
 
 <body>
-<p style="font-weight: 600; font-size: 20px;">Dear <span th:text="${name}">Name</span>,</p>
-<p style="font-size: 18px">Please click the link below to verify your registration:</p>
+<p style="font-weight: 600; font-size: 20px;">Này, <span th:text="${name}">Name</span>,</p>
+<p style="font-size: 18px">Hãy ấn vào đường dẫn bên dưới để hoàn thành việc xác thực tài khoản:</p>
 <div style="display: flex; gap: 4px;">
-    <p style="font-weight: 600; font-size: 20px;"><a th:href="${verifyURL}">Verify</a></p>
+    <p style="font-weight: 600; font-size: 20px;"><a th:href="${verifyURL}">Xác thực</a></p>
 </div>
-<p style="font-size: 18px">Thank you!!!!</p>
+<p style="font-size: 18px">Cảm ơn!!!!</p>
 </body>
 
 </html>

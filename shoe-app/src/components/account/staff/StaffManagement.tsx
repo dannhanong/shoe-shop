@@ -163,7 +163,7 @@ const StaffManagement: React.FC = () => {
                                 <td className="border p-2">{staff.staffAddress}</td>
                                 <td className="border p-2">{staff.staffCccd}</td>
                                 <td className="border p-2">
-                                    {staff.gender === "MALE" ? "Nam" : staff.staffGender === "FEMALE" ? "Nữ" : "Unisex"}
+                                    {staff.staffGender === "MALE" ? "Nam" : "Nữ"}
                                 </td>
                                 <td className="border p-2 text-center">
                                     <Switch

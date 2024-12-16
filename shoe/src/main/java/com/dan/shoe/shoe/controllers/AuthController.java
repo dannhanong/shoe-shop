@@ -28,6 +28,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashSet;
 import java.util.Set;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @RequestMapping("/auth")
@@ -192,6 +195,19 @@ public class AuthController {
         String username = jwtService.extractUsername(token);
         return new ResponseEntity<>(userService.changePassword(username, changePasswordForm), HttpStatus.OK);
     }
+
+    @PostMapping("/public/forgot-password/{email}")
+    public ResponseEntity<?> forgotPass(@PathVariable String email) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new RuntimeException("Email không tồn tại");
+        }
+        User user1 = userService.forgotPassword(email);
+        user1.setPassword(passwordEncoder.encode(user1.getPassword()));
+        userRepository.save(user1);
+        return ResponseEntity.ok(user1);
+    }
+    
 
     private String getTokenFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");

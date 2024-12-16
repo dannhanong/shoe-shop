@@ -229,7 +229,7 @@ const OrderDetails: React.FC = () => {
                   Tên khách hàng: {order?.user?.name}
                 </Typography>
                 <Typography variant="body1">
-                  Địa chỉ: {order?.address}
+                  Địa chỉ: {order?.address !== "undefined - undefined - undefined" ? order?.address : "Chưa có dữ liệu"}
                 </Typography>
                 <Typography variant="body1">
                   Số điện thoại: {order?.user?.phoneNumber}

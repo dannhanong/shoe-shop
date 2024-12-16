@@ -19,10 +19,8 @@ public class UserUpdatetionByAdmin {
     String username;
     String email;
     String phoneNumber;
-    String password;
-    String rePassword;
     String role;
     Set<String> roles;
-    MultipartFile avatar;
+    // MultipartFile avatar;
     boolean enabled;
 }

@@ -16,6 +16,7 @@ import CartPage from './components/home/cart-page/CartPage';
 import ProductDetail from './components/home/product-page/ProductDetail';
 import Intro from './layouts/Intro';
 import Contact from './layouts/Contact';
+import ForgotPassword from './components/auth/ForgotPassword';
 
 function App() {
   return (
@@ -48,6 +49,11 @@ function App() {
             <Route path="/login" element={
               <Home>
                 <Login />
+              </Home>
+            } />
+            <Route path="/forgot-password" element={
+              <Home>
+                <ForgotPassword />
               </Home>
             } />
             <Route path="/signup" element={

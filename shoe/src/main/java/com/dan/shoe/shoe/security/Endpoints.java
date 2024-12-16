@@ -51,6 +51,7 @@ public class Endpoints {
             "/auth/reset-password",
             "/auth/update-verify-code",
             "/tables/update-status/**",
+            "/orders/public/**",
     };
 
     public static final String[] PRIVATE_PUT_ENDPOINTS = {

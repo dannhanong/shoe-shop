@@ -17,6 +17,7 @@ interface PaymentDialogProps {
   isPaymentDialogOpen: boolean;
   totalAmount: number;
   cashAmount: number | string;
+  formattedCashAmount: string;
   changeAmount: number;  onClose: () => void;
   onAddPaymentMethod: (method: string) => void;
   onCashChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -27,6 +28,7 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
   isPaymentDialogOpen,
   totalAmount,
   cashAmount,
+  formattedCashAmount,
   changeAmount,
   onClose,
   onAddPaymentMethod,
@@ -75,7 +77,7 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
           invoice?.paymentType === 'CASH' && (
             <>
               <Typography variant="h6" sx={{ marginTop: 2 }}>Khách thanh toán:</Typography>
-              <TextField type="number" value={cashAmount} onChange={onCashChange} fullWidth margin="normal" />
+              <TextField type="text" value={formattedCashAmount} onChange={onCashChange} fullWidth margin="normal" />
               <Typography variant="h6">Tiền thừa: {changeAmount > 0 ? changeAmount.toLocaleString() : 0}  VNĐ</Typography>
             </>
           )

@@ -9,6 +9,7 @@ import { addToCart } from '../../../services/cart.service';
 import { toast, ToastContainer } from 'react-toastify';
 import ProductDialog from '../product-page/ProductDialog';
 import { useCart } from '../../../contexts/CartContext';
+import { isAuthenticated } from '../../../services/auth.service';
 
 const ProductList: React.FC = () => {
     const [hoveredProductId, setHoveredProductId] = useState<number | null>(null);
@@ -28,12 +29,16 @@ const ProductList: React.FC = () => {
     }
 
     const addProductToCart = async (productVariantId: number) => {
-        const response = await addToCart(productVariantId, 1);
-        if (response) {
-            await addItemToCart();
-            toast.success('Thêm vào giỏ hàng thành công');
+        if (isAuthenticated()) {
+            const response = await addToCart(productVariantId, 1);
+            if (response) {
+                await addItemToCart();
+                toast.success('Thêm vào giỏ hàng thành công');
+            }
+        } else {
+            toast.error('Vui lòng đăng nhập để thêm vào giỏ hàng');
         }
-    }
+    };
 
     const handleOpenProductDialog = () => {
         setOpenProductDialog(true);

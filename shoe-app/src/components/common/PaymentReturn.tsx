@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { hasManagement } from '../../services/auth.service';
 import { get } from 'lodash';
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { getOrderInfor, updateOrderPaid } from '../../services/order.service';
 
 const PaymentReturn: React.FC = () => {
-    const params = useParams();
     const [order, setOrder] = useState<any>(null);
 
     const getReturnOrderInfo = async (orderId: string) => {
         try {
             console.log('Order ID:', orderId);
             const response = await getOrderInfor(Number(orderId));
-            
-            setOrder(response);
+            setOrder(response.data);            
         } catch (error) {
             console.error('Error getting order info:', error);
         }
@@ -40,7 +38,9 @@ const PaymentReturn: React.FC = () => {
     };
 
     useEffect(() => {
-        const orderId = new URLSearchParams(window.location.search).get('vnp_OrderInfo');
+        const params = new URLSearchParams(window.location.search);
+        const orderId = params.get("vnp_OrderInfo");
+        // const orderId = new URLSearchParams(window.location.search).get('vnp_OrderInfo');
         updateOrderPaidReturn(Number(orderId));
     }, []);
 
@@ -96,7 +96,7 @@ const PaymentReturn: React.FC = () => {
                     <body>
                         <h1>SHOP GIÀY FPT</h1>
                         <p>Địa chỉ: </p>
-                        <p>Nhân viên: ${order.staff.name}</p>
+                        ${order.staff && `<p>Nhân viên: ${order.staff && order.staff.name}</p>`}
                         <p><strong>Thời gian tạo:</strong> ${formatDate(order.createdAt)}</p>
                         <br>
                         <h2>Hóa đơn mua hàng</h2>
@@ -148,9 +148,7 @@ const PaymentReturn: React.FC = () => {
         <div className='text-center'>
             <h1 className='text-green-600'>Thanh toán thành công</h1>
             {
-                hasManagement() && (
-                    <button onClick={printReceipt}>In hóa đơn</button>
-                )
+                <button onClick={printReceipt}>In hóa đơn</button>
             }
             <br />
             <button>

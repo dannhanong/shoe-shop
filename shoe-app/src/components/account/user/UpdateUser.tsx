@@ -6,6 +6,7 @@ import {
     TextField,
     Typography,
     Avatar,
+    Switch,
 } from "@mui/material";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
@@ -29,7 +30,7 @@ const UpdateUser: React.FC = () => {
 
     // Handle form submission
     const handleSubmit = async () => {
-        const response = await updateAccount(Number(param.id), name, username, email)
+        const response = await updateAccount(Number(param.id), name, username, email, phoneNumber, account?.enabled || false);
 
         if (response) {
             toast.success(response.message, {
@@ -125,11 +126,35 @@ const UpdateUser: React.FC = () => {
                             <Grid item xs={12} sm={6}>
                                 <TextField
                                     label="Số điện thoại"
-                                    name="poneNumber"
+                                    name="phoneNumber"
                                     fullWidth
                                     required
                                     value={phoneNumber}
                                     onChange={(e) => setPhoneNumber(e.target.value)}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                {/* <TextField
+                                    label="Chặn tài khoản"
+                                    name="enabled"
+                                    fullWidth
+                                    required
+                                    value={enabled}
+                                    onChange={(e) => set(e.target.value)}
+                                /> */}
+                                <label htmlFor="" className="mr-[55%]">
+                                    Chặn tài khoản
+                                </label>
+                                <Switch
+                                    checked={account?.enabled}
+                                    onChange={(e) => {
+                                        if (account) {
+                                            setAccount({
+                                                ...account,
+                                                enabled: e.target.checked,
+                                            });
+                                        }
+                                    }}
                                 />
                             </Grid>
                         </Grid>

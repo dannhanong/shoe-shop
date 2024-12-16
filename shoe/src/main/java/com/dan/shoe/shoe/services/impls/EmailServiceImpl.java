@@ -54,4 +54,34 @@ public class EmailServiceImpl implements EmailService {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public void sendForgotPasswordEmail(User user) {
+        String toAddress = user.getEmail();
+        String subject = "Email quên mật khẩu";
+        String senderName = "Shoe Shop";
+
+        Map<String, Object> model = new HashMap<>();
+        model.put("name", user.getName());
+        model.put("password", user.getPassword());
+
+        Context context = new Context();
+        context.setVariables(model);
+        String content = templateEngine.process("forgot-pass-email", context);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = null;
+        try {
+            helper = new MimeMessageHelper(message, true);
+            helper.setFrom("admin", senderName);
+            helper.setTo(toAddress);
+            helper.setSubject(subject);
+            helper.setText(content, true);
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

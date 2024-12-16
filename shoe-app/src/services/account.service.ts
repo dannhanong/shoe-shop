@@ -88,13 +88,16 @@ export const getAccountById = async (id: number) => {
     }
 };
 
-export const updateAccount = async (id: number, name: string, username: string, email: string) => {
+export const updateAccount = async (id: number, name: string, username: string, email: string, phoneNumber: string, enabled: boolean) => {
     try {
-        const response = await axios.put(`${BASE_URL}/accounts/admin/update-account/${id}`, {
-            name,
-            username,
-            email
-        }, {
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('username', username);
+        formData.append('email', email);
+        formData.append('phoneNumber', phoneNumber);
+        formData.append('enabled', enabled.toString());
+
+        const response = await axios.put(`${BASE_URL}/accounts/admin/update-account/${id}`, formData, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('accessToken')}`
             }

@@ -58,6 +58,7 @@ const SalesCounter: React.FC = () => {
   const [selectedPayments, setSelectedPayments] = useState<string>('');
   const [totalAmount, setTotalAmount] = useState(0);
   const [cashAmount, setCashAmount] = useState<number | string>('');
+  const [formattedCashAmount, setFormattedCashAmount] = useState<string>('');
   const [changeAmount, setChangeAmount] = useState(0);
   const [isShowAddressInfo, setIsShowAddressInfo] = useState(false);
   const [isShowVoucherDialog, setIsShowVoucherDialog] = useState(false);
@@ -92,10 +93,18 @@ const SalesCounter: React.FC = () => {
   };
 
   const handleCashChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const cashValue = parseFloat(event.target.value);
-    setCashAmount(event.target.value);
-    setChangeAmount(cashValue - totalAmount);
-  };
+    const value = event.target.value.replace(/,/g, ''); // Loại bỏ dấu phẩy
+    if (!isNaN(Number(value))) {
+      const numericValue = Number(value);
+      setCashAmount(numericValue); // Lưu giá trị thực trong state
+      setFormattedCashAmount(numericValue.toLocaleString()); // Định dạng hiển thị
+      setChangeAmount(numericValue - totalAmount); // Tính toán dựa trên giá trị mới
+    } else if (value === '') {
+      setCashAmount('');
+      setFormattedCashAmount('');
+      setChangeAmount(0); // Đặt lại changeAmount nếu không có input
+    }
+  };  
 
   const handleOpenQrScanner = () => {
     setQrScannerOpen(true);
@@ -516,7 +525,7 @@ const SalesCounter: React.FC = () => {
                 </head>
                 <body>
                     <h1>SHOP GIÀY FPT</h1>
-                        <p>Địa chỉ: </p>
+                        <p>Địa chỉ: 100 Cầu Giấy, Hà Nội</p>
                         <p>Nhân viên: ${order.staff.name}</p>
                         <p><strong>Thời gian tạo:</strong> ${formatDate(order.createdAt)}</p>
                         <br>
@@ -749,6 +758,7 @@ const SalesCounter: React.FC = () => {
         isPaymentDialogOpen={isPaymentDialogOpen}
         totalAmount={totalAmount}
         cashAmount={cashAmount}
+        formattedCashAmount={formattedCashAmount}
         changeAmount={changeAmount}
         onClose={handleClosePaymentDialog}
         onAddPaymentMethod={handleAddPaymentMethod}

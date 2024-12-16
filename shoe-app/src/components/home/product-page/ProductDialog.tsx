@@ -22,6 +22,7 @@ import VoucherDialog from '../dialogs/VoucherDialog';
 import Swal from 'sweetalert2';
 import { createOrderNow } from '../../../services/order.service';
 import { getVariantByColor } from '../../../services/product.service';
+import { isAuthenticated } from '../../../services/auth.service';
 
 interface ProductDialogProps {
   isOpen: boolean;
@@ -144,7 +145,11 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose,
   }; 
 
   const handleVoucherDialogOpen = () => {
-    setVoucherDialogOpen(true);
+    if (isAuthenticated()) {
+      setVoucherDialogOpen(true);
+    } else {
+      toast.error('Vui lòng đăng nhập để mua hàng');
+    }
   };  
 
   const handleVoucherDialogClose = () => {
@@ -179,25 +184,29 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose,
   };  
 
   const handleAddToCartNow = async () => {
-    const NowCreation = {
-      productId: product.product.id,
-      color: selectedColor || '',
-      size: selectedSize || 0,
-      quantity,
-      paymentType,
-    };
-    console.log('NowCreation:', NowCreation);
-    if (!selectedColor || !selectedSize) {
-      toast.error('Vui lòng chọn màu sắc và kích thước');
-      return;
-    } else {
-      const response = await addCartNow(NowCreation);
-      if (response) {
-        toast.success(response.data.message);
-        addItemToCart();
+    if (isAuthenticated()) {
+      const NowCreation = {
+        productId: product.product.id,
+        color: selectedColor || '',
+        size: selectedSize || 0,
+        quantity,
+        paymentType,
+      };
+      console.log('NowCreation:', NowCreation);
+      if (!selectedColor || !selectedSize) {
+        toast.error('Vui lòng chọn màu sắc và kích thước');
+        return;
       } else {
-        toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
+        const response = await addCartNow(NowCreation);
+        if (response) {
+          toast.success(response.data.message);
+          addItemToCart();
+        } else {
+          toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
+        }
       }
+    } else {
+      toast.error('Vui lòng đăng nhập để thêm vào giỏ hàng');
     }
   }
 

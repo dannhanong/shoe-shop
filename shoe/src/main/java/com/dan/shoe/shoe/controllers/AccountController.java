@@ -261,12 +261,6 @@ public class AccountController {
         userUpdate.setPhoneNumber(user.getPhoneNumber());
         userUpdate.setEnabled(user.isEnabled());
 
-        if (!user.getPassword().equals(user.getRePassword())) {
-            throw new RuntimeException("Mật khẩu không khớp");
-        }
-
-        userUpdate.setPassword(passwordEncoder.encode(user.getPassword()));
-
         Set<String> strRoles = user.getRoles();
         Set<Role> roles = new HashSet<>();
         if (strRoles == null){
@@ -292,18 +286,18 @@ public class AccountController {
         }
         userUpdate.setRoles(roles);
 
-        if (user.getAvatar()!=null && !user.getAvatar().isEmpty()) {
-            try {
-//                String avatarCode = userUpdate.getAvatarCode();
-                FileUpload fileUpload = fileUploadService.uploadFile(user.getAvatar());
-                userUpdate.setAvatarCode(fileUpload.getFileCode());
-//                if (avatarCode != null || !avatarCode.equals("")) {
-//                    fileUploadService.deleteFileByFileCode(avatarCode);
-//                }
-            } catch (Exception e) {
-                throw new RuntimeException("Lỗi khi tải ảnh lên");
-            }
-        }
+//         if (user.getAvatar()!=null && !user.getAvatar().isEmpty()) {
+//             try {
+// //                String avatarCode = userUpdate.getAvatarCode();
+//                 FileUpload fileUpload = fileUploadService.uploadFile(user.getAvatar());
+//                 userUpdate.setAvatarCode(fileUpload.getFileCode());
+// //                if (avatarCode != null || !avatarCode.equals("")) {
+// //                    fileUploadService.deleteFileByFileCode(avatarCode);
+// //                }
+//             } catch (Exception e) {
+//                 throw new RuntimeException("Lỗi khi tải ảnh lên");
+//             }
+//         }
 
         try {
             User savedUser = userRepository.save(userUpdate);

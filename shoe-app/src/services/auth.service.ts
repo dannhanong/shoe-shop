@@ -135,3 +135,13 @@ export const verifyAccount = async (code: string) => {
         throw error;
     }
 }
+
+export const forgotPassword = async (email: string) => {
+    try {
+        const response = await axios.post(`${BASE_URL}/auth/public/forgot-password/${email}`);
+        return response;
+    } catch (error) {
+        console.error('Error during forgot password:', error);
+        throw error;
+    }
+}

@@ -239,4 +239,17 @@ public class UserServiceImpl implements UserService {
     private String generateVerificationCode() {
         return UUID.randomUUID().toString();
     }
+
+    @Override
+    public User forgotPassword(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new RuntimeException("Không tìm thấy user");
+        }
+        String newPassword = RandomStringUtils.randomAlphanumeric(6);
+        user.setPassword(newPassword);
+        userRepository.save(user);
+        emailService.sendForgotPasswordEmail(user);
+        return user;
+    }
 }

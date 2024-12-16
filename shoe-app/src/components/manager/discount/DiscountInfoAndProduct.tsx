@@ -1,5 +1,5 @@
 import { Box, Button, Checkbox, Chip, Grid, InputAdornment, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material'
-import React from 'react'
+import React, { useState } from 'react'
 import Pagination from '../../common/Pagination'
 
 interface DiscountInfoAndProductProps {
@@ -31,6 +31,19 @@ interface DiscountInfoAndProductProps {
 const DiscountInfoAndProduct: React.FC<DiscountInfoAndProductProps> = (
     { name, setName, discountRate, setDiscountRate, description, setDescription, startDate, setStartDate, endDate, setEndDate, selectedVariantIds, setSelectedVariantIds, products, keyword, setKeyword, selectedProductIds, setSelectedProductIds, currentPage, setCurrentPage, totalPages, handleSubmit, handleKeywordChange, handleCheckboxChange }
 ) => {
+    const [error, setError] = useState<string | null>(null);
+    
+
+    const handleDiscountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = Number(e.target.value);
+        if (value >= 0 && value <= 90) {
+            setDiscountRate(value);
+            setError(null); // Xóa lỗi nếu giá trị hợp lệ
+        } else {
+            setError('Giá trị giảm phải nằm trong khoảng từ 1% đến 90%');
+        }
+    };
+    
     return (
         <Grid container spacing={8}>
             {/* Form Inputs */}
@@ -52,7 +65,10 @@ const DiscountInfoAndProduct: React.FC<DiscountInfoAndProductProps> = (
                     fullWidth
                     sx={{ mb: 2 }}
                     value={discountRate}
-                    onChange={(e) => setDiscountRate(Number(e.target.value))}
+                    // onChange={(e) => setDiscountRate(Number(e.target.value))}
+                    onChange={handleDiscountChange}
+                    error={!!error}
+                    helperText={error || ''}
                     InputProps={{
                         endAdornment: <InputAdornment position="end">%</InputAdornment>,
                     }}

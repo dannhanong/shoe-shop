@@ -32,4 +32,5 @@ public interface UserService extends UserDetailsService {
     Boolean existByEmailAndEmailNot(String email);
     ResponseMessage deleteUser(Long id);
     User getUserById(Long id);
+    User forgotPassword(String email);
 }

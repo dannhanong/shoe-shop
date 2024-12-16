@@ -32,4 +32,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = :roleName AND (u.name LIKE %:keyword% OR u.username LIKE %:keyword% OR u.email LIKE %:keyword%) AND u.enabled = :enabled")
     Page<User> findByRoleNameAndEnabled(@Param("roleName") RoleName roleName, @Param("keyword") String keyword, @Param("enabled") boolean enabled, Pageable pageable);
+    User findByEmail(String email);
 }
