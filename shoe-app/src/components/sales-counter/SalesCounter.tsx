@@ -455,6 +455,13 @@ const SalesCounter: React.FC = () => {
                     const res = await createOrderByStaff(orderCreationByStaff)
                     if (res) {
                         window.open(res.vnpayUrl, '_blank');
+                        setInvoices((prevInvoices) =>
+                          prevInvoices.map((invoice, index) =>
+                              index === currentTab
+                                  ? { ...invoice, products: [], account: null, address: null, voucher: null, paymentType: '', orderType: 'POS' }
+                                  : invoice
+                          )
+                      );
                     }
                 } catch (error) {
                     Swal.fire('Lỗi', 'Có lỗi xảy ra khi xác nhận đơn hàng', 'error');

@@ -10,6 +10,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import ProductDialog from '../product-page/ProductDialog';
 import { useCart } from '../../../contexts/CartContext';
 import { isAuthenticated } from '../../../services/auth.service';
+import Swal from 'sweetalert2';
 
 const ProductList: React.FC = () => {
     const [hoveredProductId, setHoveredProductId] = useState<number | null>(null);
@@ -36,7 +37,19 @@ const ProductList: React.FC = () => {
                 toast.success('Thêm vào giỏ hàng thành công');
             }
         } else {
-            toast.error('Vui lòng đăng nhập để thêm vào giỏ hàng');
+            handleCloseProductDialog();
+            Swal.fire({
+                title: 'Vui lòng đăng nhập',
+                text: 'Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Đăng nhập',
+                cancelButtonText: 'Hủy',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    navigate('/login');
+                }
+            });
         }
     };
 

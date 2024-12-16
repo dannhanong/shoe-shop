@@ -1,4 +1,5 @@
 import { Box, Card, Checkbox, FormControlLabel, Grid, IconButton, TextField, Typography } from '@mui/material';
+import * as yup from 'yup';
 import React, { useState } from 'react';
 import { FaRegFileImage } from 'react-icons/fa6';
 
@@ -96,7 +97,15 @@ const VariantForm: React.FC<VariantFormProps> = ({
         }
     };
 
-    return (
+    const stockQuantitySchema = yup
+        .number()
+        .typeError('Số lượng phải là một số')
+        .required('Số lượng là bắt buộc')
+        .min(0, 'Số lượng không được âm');
+
+    const [error, setError] = useState<string | null>(null);
+
+    return (        
         <Box>
             <Typography variant="h6" sx={{ marginTop: 2 }}>
                 Danh sách biến thể
@@ -221,12 +230,20 @@ const VariantForm: React.FC<VariantFormProps> = ({
                                                 fullWidth
                                                 margin="normal"
                                                 value={variant.stockQuantity || ''}
-                                                onChange={(e) =>
-                                                    handleVariantStockQuantityChange(
-                                                        variants.indexOf(variant),
-                                                        Number(e.target.value)
-                                                    )
-                                                }
+                                                onChange={async (e) => {
+                                                    const inputValue = Number(e.target.value);
+
+                                                    // Validate giá trị bằng schema Yup
+                                                    try {
+                                                        await stockQuantitySchema.validate(inputValue);
+                                                        handleVariantStockQuantityChange(variants.indexOf(variant), inputValue);
+                                                        setError(null); // Nếu không có lỗi, xóa thông báo lỗi
+                                                    } catch (validationError: any) {
+                                                        setError(validationError.message); // Ghi lại lỗi
+                                                    }
+                                                }}
+                                                error={!!error} // Hiển thị trạng thái lỗi
+                                                helperText={error} // Hiển thị thông báo lỗi
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={4}>

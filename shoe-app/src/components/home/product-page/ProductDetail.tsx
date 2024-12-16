@@ -15,7 +15,8 @@ import { CgDetailsMore } from 'react-icons/cg';
 import ProductDialog from './ProductDialog';
 import Swal from 'sweetalert2';
 import { createOrderNow } from '../../../services/order.service';
-import { isAuthenticated } from '../../../services/auth.service';
+import { getProfile, isAuthenticated } from '../../../services/auth.service';
+import { getMyPrimaryAddress } from '../../../services/address.service';
 
 const ProductDetail: React.FC = () => {
     const navigate = useNavigate();
@@ -162,7 +163,19 @@ const ProductDetail: React.FC = () => {
                 }
             }
         } else {
-            toast.error('Vui lòng đăng nhập để thêm vào giỏ hàng');
+            setOpenProductDialog(false);
+            Swal.fire({
+                title: 'Vui lòng đăng nhập',
+                text: 'Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Đăng nhập',
+                cancelButtonText: 'Hủy',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    navigate('/login');
+                }
+            });
         }
     }
 
@@ -172,11 +185,39 @@ const ProductDetail: React.FC = () => {
         setIsShowVoucherDialog(false);
     };
 
-    const handleVoucherDialogOpen = () => {
-        if (isAuthenticated()) {
-            setVoucherDialogOpen(true);
+    const handleVoucherDialogOpen = async () => {
+        const profile = await getProfile();
+        const primaryAddress = await getMyPrimaryAddress();
+        if (primaryAddress.data && profile.phoneNumber) {
+            if (isAuthenticated()) {
+                setVoucherDialogOpen(true);
+            } else {
+                handleCloseProductDialog();
+                Swal.fire({
+                    title: 'Vui lòng đăng nhập',
+                    text: 'Bạn cần đăng nhập để mua hàng',
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonText: 'Đăng nhập',
+                    cancelButtonText: 'Hủy',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        navigate('/login');
+                    }
+                });
+            }
         } else {
-            toast.error('Vui lòng đăng nhập để mua hàng');
+            Swal.fire({
+                title: 'Vui lòng cập nhật thông tin cá nhân và địa chỉ giao hàng',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Cập nhật',
+                cancelButtonText: 'Hủy',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    navigate('/manager/profile');
+                }
+            });
         }
     };
 

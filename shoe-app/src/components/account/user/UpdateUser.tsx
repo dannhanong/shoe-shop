@@ -13,6 +13,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { createAccount, getAccountById, updateAccount } from "../../../services/account.service";
 import { useNavigate, useParams } from "react-router-dom";
 import { User } from "../../../models/User";
+import { getUserPrimaryAddress } from "../../../services/address.service";
 
 const UpdateUser: React.FC = () => {
     const navigate = useNavigate();
@@ -27,6 +28,7 @@ const UpdateUser: React.FC = () => {
     const [rePassword, setRePassword] = useState<string>("");
     const [email, setEmail] = useState<string>("");
     const [phoneNumber, setPhoneNumber] = useState<string>("");
+    const [address, setAddress] = useState<string>("");
 
     // Handle form submission
     const handleSubmit = async () => {
@@ -43,16 +45,30 @@ const UpdateUser: React.FC = () => {
     const fethchUser = async () => {
         try {
             const response = await getAccountById(Number(param.id));
+            if (!response) throw new Error("User not found");
+            
             setAccount(response);
             setName(response.name);
             setUsername(response.username);
             setEmail(response.email);
             setPhoneNumber(response.phoneNumber);
+    
+            try {
+                const primaryAddress = await getUserPrimaryAddress(response.username);
+                if (primaryAddress && primaryAddress.data) {
+                    setAddress(`${primaryAddress.data.province} - ${primaryAddress.data.district} - ${primaryAddress.data.ward}`);
+                } else {
+                    setAddress("Chưa cập nhật");
+                }
+            } catch (addressError) {
+                console.error("Error fetching primary address:", addressError);
+                setAddress("Chưa cập nhật");
+            }
         } catch (error) {
             console.error("Error fetching user:", error);
         }
-    }
-
+    };
+    
     useEffect(() => {
         fethchUser();
     }, []);
@@ -133,25 +149,28 @@ const UpdateUser: React.FC = () => {
                                     onChange={(e) => setPhoneNumber(e.target.value)}
                                 />
                             </Grid>
-                            <Grid item xs={12} sm={6}>
-                                {/* <TextField
-                                    label="Chặn tài khoản"
-                                    name="enabled"
+                            <Grid item xs={12} sm={12}>
+                                <TextField
+                                    label="Địa chỉ"
+                                    name="address"
                                     fullWidth
                                     required
-                                    value={enabled}
-                                    onChange={(e) => set(e.target.value)}
-                                /> */}
+                                    value={address}
+                                    onChange={(e) => setPhoneNumber(e.target.value)}
+                                    InputProps={{ readOnly: true }}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
                                 <label htmlFor="" className="mr-[55%]">
                                     Chặn tài khoản
                                 </label>
                                 <Switch
-                                    checked={account?.enabled}
+                                    checked={!account?.enabled}
                                     onChange={(e) => {
                                         if (account) {
                                             setAccount({
                                                 ...account,
-                                                enabled: e.target.checked,
+                                                enabled: !e.target.checked,
                                             });
                                         }
                                     }}

@@ -124,6 +124,37 @@ const RevenueManagement: React.FC = () => {
                 </Grid>
             </Grid>
 
+            {/* Tổng doanh thu và tổng đơn hàng */}
+            <Grid container spacing={2} sx={{ marginTop: 3 }}>
+                <Grid item xs={12} sm={6} md={6}>
+                    <Card sx={{ padding: 2, textAlign: 'center' }}>
+                        <Typography variant="h6" color="textSecondary">
+                            Tổng doanh thu
+                        </Typography>
+                        <Typography variant="h5" color="primary">
+                            {
+                                revenueData && revenueData.datasets[0].data.reduce((a: number, b: number) => a + b, 0).toLocaleString() + ' VNĐ'
+                            }
+                        </Typography>
+                    </Card>
+                </Grid>
+
+                <Grid item xs={12} sm={6} md={6}>
+                    <Card sx={{ padding: 2, textAlign: 'center' }}>
+                        <Typography variant="h6" color="textSecondary">
+                            Tổng số đơn hàng thành công
+                        </Typography>
+                        <Typography variant="h5" color="primary">
+                            {
+                                orderData && orderData.datasets[0].data.reduce((a: number, b: number) => a + b, 0).toLocaleString() + ' đơn'
+                            }
+                        </Typography>
+                    </Card>
+                </Grid>
+            </Grid>
+
+            <br />
+
             <Grid container spacing={3}>
                 {/* Doanh thu */}
                 <Grid item xs={12} md={6}>
@@ -148,35 +179,6 @@ const RevenueManagement: React.FC = () => {
                             orderData &&
                             <Line data={orderData} options={options} />
                         }
-                    </Card>
-                </Grid>
-            </Grid>
-
-            {/* Tổng doanh thu và tổng đơn hàng */}
-            <Grid container spacing={2} sx={{ marginTop: 3 }}>
-                <Grid item xs={12} sm={6} md={5}>
-                    <Card sx={{ padding: 2, textAlign: 'center' }}>
-                        <Typography variant="h6" color="textSecondary">
-                            Tổng doanh thu
-                        </Typography>
-                        <Typography variant="h5" color="primary">
-                            {
-                                revenueData && revenueData.datasets[0].data.reduce((a: number, b: number) => a + b, 0).toLocaleString() + ' VNĐ'
-                            }
-                        </Typography>
-                    </Card>
-                </Grid>
-
-                <Grid item xs={12} sm={6} md={5}>
-                    <Card sx={{ padding: 2, textAlign: 'center' }}>
-                        <Typography variant="h6" color="textSecondary">
-                            Tổng số đơn hàng thành công
-                        </Typography>
-                        <Typography variant="h5" color="primary">
-                            {
-                                orderData && orderData.datasets[0].data.reduce((a: number, b: number) => a + b, 0).toLocaleString() + ' đơn'
-                            }
-                        </Typography>
                     </Card>
                 </Grid>
             </Grid>

@@ -22,7 +22,9 @@ import VoucherDialog from '../dialogs/VoucherDialog';
 import Swal from 'sweetalert2';
 import { createOrderNow } from '../../../services/order.service';
 import { getVariantByColor } from '../../../services/product.service';
-import { isAuthenticated } from '../../../services/auth.service';
+import { getProfile, isAuthenticated } from '../../../services/auth.service';
+import { useNavigate } from 'react-router-dom';
+import { getMyPrimaryAddress } from '../../../services/address.service';
 
 interface ProductDialogProps {
   isOpen: boolean;
@@ -33,6 +35,7 @@ interface ProductDialogProps {
 }
 
 const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose, handleCloseProductDialog, setProduct }) => {
+  const navigate = useNavigate();
   const [selectedSize, setSelectedSize] = useState<number | null>(null);
   const [quantity, setQuantity] = useState<number>(1);
   const [mainImage, setMainImage] = useState<string>('');
@@ -144,11 +147,40 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose,
     setIsShowVoucherDialog(false);
   }; 
 
-  const handleVoucherDialogOpen = () => {
-    if (isAuthenticated()) {
-      setVoucherDialogOpen(true);
+  const handleVoucherDialogOpen = async () => {
+    const profile = await getProfile();
+    const primaryAddress = await getMyPrimaryAddress();
+    if (primaryAddress.data && profile.phoneNumber) {
+      if (isAuthenticated()) {
+        setVoucherDialogOpen(true);
+      } else {
+        handleCloseProductDialog();
+        Swal.fire({
+            title: 'Vui lòng đăng nhập',
+            text: 'Bạn cần đăng nhập để mua hàng',
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: 'Đăng nhập',
+            cancelButtonText: 'Hủy',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                navigate('/login');
+            }
+        });
+      }
     } else {
-      toast.error('Vui lòng đăng nhập để mua hàng');
+      handleCloseProductDialog();
+      Swal.fire({
+        title: 'Vui lòng cập nhật thông tin cá nhân và địa chỉ giao hàng',
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'Cập nhật',
+        cancelButtonText: 'Hủy',
+      }).then((result) => {
+        if (result.isConfirmed) {
+            navigate('/manager/profile');
+        }
+      });
     }
   };  
 
@@ -206,7 +238,19 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose,
         }
       }
     } else {
-      toast.error('Vui lòng đăng nhập để thêm vào giỏ hàng');
+      handleCloseProductDialog();
+      Swal.fire({
+          title: 'Vui lòng đăng nhập',
+          text: 'Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng',
+          icon: 'info',
+          showCancelButton: true,
+          confirmButtonText: 'Đăng nhập',
+          cancelButtonText: 'Hủy',
+      }).then((result) => {
+          if (result.isConfirmed) {
+              navigate('/login');
+          }
+      });
     }
   }
 

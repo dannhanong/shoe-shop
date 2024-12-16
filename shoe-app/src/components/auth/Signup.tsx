@@ -6,7 +6,7 @@ import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
 import { signup } from '../../services/auth.service';
-import { ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 
 const Signup: React.FC = () => {
     const navigate = useNavigate()
@@ -36,15 +36,25 @@ const Signup: React.FC = () => {
     })
 
     const onSubmit = async (data: { name: string; username: string; email: string; password: string; repassword: string }) => {
-        const response = await signup(data.name, data.username, data.email, data.password, data.repassword)
-
-        if (response) {
-            navigate('/login', { state: { message: response.message } });
+        try {
+            const response = await signup(data.name, data.username, data.email, data.password, data.repassword);
+    
+            if (response) {
+                navigate('/login', { state: { message: response.message } });
+            }
+        } catch (error: any) {
+            // Kiểm tra nếu `error.response` tồn tại
+            if (error.response && error.response.data && error.response.data.message) {
+                toast.error(error.response.data.message); // Hiển thị lỗi từ message trong response
+            } else {
+                // Hiển thị lỗi chung nếu không có message trong response
+                toast.error("Đã xảy ra lỗi trong quá trình đăng ký!");
+            }
         }
-    }
+    };    
 
     return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '76vh', backgroundColor: '#f4f6f8', padding: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '72vh', backgroundColor: '#f4f6f8', padding: 3 }}>
             <CssBaseline enableColorScheme />
             <Card sx={{ maxWidth: 500, width: '100%', padding: 4, borderRadius: 2, boxShadow: 3 }}>
                 <Typography

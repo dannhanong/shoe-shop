@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
+import { differenceInYears } from 'date-fns';
 
 const CreateStaff: React.FC = () => {
     const navigate = useNavigate();
@@ -66,7 +67,13 @@ const CreateStaff: React.FC = () => {
             .required("Số điện thoại không được để trống")
             .matches(/^[0-9]+$/, "Số điện thoại chỉ được chứa số")
             .min(10, "Số điện thoại phải có ít nhất 10 số"),
-        staffDob: yup.string().required("Ngày sinh không được để trống"),
+        staffDob: yup
+            .string().required("Ngày sinh không được để trống")
+            .test(
+                'is-18',
+                'Nhân viên phải đủ 18 tuổi trở lên',
+                (value) => !!value && differenceInYears(new Date(), new Date(value)) >= 18
+            ),
         staffGender: yup.string().required("Giới tính phải chọn"),
         staffCccd: yup.string()
             .required("Số CCCD không được để trống")
@@ -368,9 +375,8 @@ const CreateStaff: React.FC = () => {
                                             label="Ngày sinh"
                                             type="date"
                                             fullWidth
-                                            
                                             InputLabelProps={{ shrink: true }}
-                                            value={value}
+                                            value={value || ''}
                                             onChange={onChange}
                                             error={Boolean(errors.staffDob)}
                                             helperText={errors.staffDob?.message}

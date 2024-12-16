@@ -10,7 +10,11 @@ import { MdOutlineVisibility, MdOutlineVisibilityOff } from 'react-icons/md';
 // Định nghĩa schema validation với yup
 const schema = yup.object().shape({
     oldPassword: yup.string().required('Vui lòng nhập mật khẩu hiện tại'),
-    newPassword: yup.string().required('Vui lòng nhập mật khẩu mới').min(6, 'Mật khẩu mới phải có ít nhất 6 ký tự'),
+    newPassword: yup
+        .string()
+        .required('Vui lòng nhập mật khẩu mới')
+        .min(6, 'Mật khẩu mới phải có ít nhất 6 ký tự')
+        .notOneOf([yup.ref('oldPassword')], 'Mật khẩu mới không được giống với mật khẩu hiện tại'),
     confirmPassword: yup
         .string()
         .oneOf([yup.ref('newPassword')], 'Mật khẩu xác nhận không khớp')

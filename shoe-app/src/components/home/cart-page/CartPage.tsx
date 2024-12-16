@@ -4,7 +4,7 @@ import { Delete } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import { Cart } from '../../../models/Cart';
 import { getCartItems, removeCartItem, updateCart } from '../../../services/cart.service';
-import { isAuthenticated } from '../../../services/auth.service';
+import { getProfile, isAuthenticated } from '../../../services/auth.service';
 import Swal from 'sweetalert2';
 import { toast, ToastContainer } from 'react-toastify';
 import { useCart } from '../../../contexts/CartContext';
@@ -12,6 +12,7 @@ import VoucherDialog from '../dialogs/VoucherDialog';
 import { Voucher } from '../../../models/Voucher';
 import { createOrder } from '../../../services/order.service';
 import { debounce } from 'lodash';
+import { getMyPrimaryAddress } from '../../../services/address.service';
 
 const CartPage: FC = () => {
     const navigate = useNavigate();
@@ -24,33 +25,49 @@ const CartPage: FC = () => {
     const [hasInsufficientStock, setHasInsufficientStock] = useState<boolean>(false);
 
     const handleSubmitOrder = async (voucherCode: string) => {
-        Swal.fire({
-            title: 'Xác nhận đặt hàng?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Xác nhận',
-            cancelButtonText: 'Hủy',
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                if (paymentType === 'transfer') {
-                    const response = await createOrder(voucherCode, paymentType);
-                    if (response) {
-                        window.location.href = response.vnpayUrl;
+        const profile = await getProfile();
+        const primaryAddress = await getMyPrimaryAddress();
+        if (primaryAddress.data && profile.phoneNumber) {
+            Swal.fire({
+                title: 'Xác nhận đặt hàng?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Xác nhận',
+                cancelButtonText: 'Hủy',
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    if (paymentType === 'transfer') {
+                        const response = await createOrder(voucherCode, paymentType);
+                        if (response) {
+                            window.location.href = response.vnpayUrl;
+                        } else {
+                            toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
+                        }
                     } else {
-                        toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
-                    }
-                } else {
-                    const response = await createOrder(voucherCode, paymentType);
-                    if (response) {
-                        getMyCart();
-                        toast.success('Đặt hàng thành công');
-                        addItemToCart();
-                    } else {
-                        toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
+                        const response = await createOrder(voucherCode, paymentType);
+                        if (response) {
+                            getMyCart();
+                            toast.success('Đặt hàng thành công');
+                            addItemToCart();
+                        } else {
+                            toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
+                        }
                     }
                 }
-            }
-        });
+            });
+        } else {
+            Swal.fire({
+                title: 'Vui lòng cập nhật thông tin cá nhân và địa chỉ giao hàng',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Cập nhật',
+                cancelButtonText: 'Hủy',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    navigate('/manager/profile');
+                }
+            });
+        }
     }
 
     const handleSelectVoucher = (voucher: Voucher) => {
@@ -227,7 +244,7 @@ const CartPage: FC = () => {
                                                         <Button
                                                             variant="outlined" 
                                                             onClick={() => handleDecrease(item.id)}
-                                                            disabled={hasInsufficientStock}
+                                                            // disabled={hasInsufficientStock}
                                                         >-</Button>
                                                         <input
                                                             type="number"
@@ -255,6 +272,7 @@ const CartPage: FC = () => {
                                                                 }
                                                             }}
                                                             className="text-center border w-12"
+                                                            readOnly={item.productVariantDetailsResponse.stockQuantity <= item.quantity}
                                                         />
                                                         <Button 
                                                             variant="outlined" 

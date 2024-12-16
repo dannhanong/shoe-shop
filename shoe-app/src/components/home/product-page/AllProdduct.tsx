@@ -11,6 +11,7 @@ import { addToCart } from '../../../services/cart.service';
 import { useCart } from '../../../contexts/CartContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ProductDialog from './ProductDialog';
+import Swal from 'sweetalert2';
 
 const AllProdduct: React.FC = () => {
     const [hoveredProductId, setHoveredProductId] = useState<number | null>(null);
@@ -60,8 +61,19 @@ const AllProdduct: React.FC = () => {
                 toast.success('Thêm sản phẩm vào giỏ hàng thành công');
             }
         } catch (error) {
-            console.error('Error adding to cart:', error);
-            toast.error('Không thể thêm sản phẩm vào giỏ hàng.');
+            setOpenProductDialog(false);
+            Swal.fire({
+                title: 'Vui lòng đăng nhập',
+                text: 'Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Đăng nhập',
+                cancelButtonText: 'Hủy',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    navigate('/login');
+                }
+            });
         }
     };
 
