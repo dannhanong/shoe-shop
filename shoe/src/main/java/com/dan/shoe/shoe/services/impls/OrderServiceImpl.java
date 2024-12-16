@@ -11,6 +11,7 @@ import com.dan.shoe.shoe.models.enums.OrderStatus;
 import com.dan.shoe.shoe.models.enums.OrderType;
 import com.dan.shoe.shoe.models.enums.PaymentType;
 import com.dan.shoe.shoe.repositories.*;
+import com.dan.shoe.shoe.services.AddressService;
 import com.dan.shoe.shoe.services.CartService;
 import com.dan.shoe.shoe.services.OrderService;
 import com.dan.shoe.shoe.services.SeasonalDiscountService;
@@ -51,15 +52,21 @@ public class OrderServiceImpl implements OrderService {
     private OrderItemRepository orderItemRepository;
     @Autowired
     private VoucherRepository voucherRepository;
+    @Autowired
+    private AddressRepository addressRepository;
+    @Autowired
+    private AddressService addressService;
 
     @Override
     public Order createOrder(String username, String voucherCode, PaymentType paymentType) {
         User user = userRepository.findByUsername(username);
+        Address address = addressService.getPrimaryAddress(username);
         Order order = new Order();
         order.setUser(user);
         order.setOrderType(OrderType.ONLINE);
         order.setStatus(OrderStatus.CREATED);
         order.setPaymentType(paymentType);
+        order.setAddress(address.getProvince() + " - " + address.getDistrict() + " - " + address.getWard());
         Cart cart = cartRepository.findByUser(user);
 
         // Sao chép các CartItem thành OrderItem và thiết lập Order cho mỗi OrderItem
@@ -277,11 +284,13 @@ public class OrderServiceImpl implements OrderService {
         }
 
         User user = userRepository.findByUsername(username);
+        Address address = addressService.getPrimaryAddress(username);
         Order order = new Order();
         order.setUser(user);
         order.setOrderType(OrderType.ONLINE);
         order.setPaymentType(PaymentType.valueOf(orderNowCreation.getPaymentType().toUpperCase()));
         order.setStatus(OrderStatus.CREATED);
+        order.setAddress(address.getProvince() + " - " + address.getDistrict() + " - " + address.getWard());
         OrderItem orderItem = new OrderItem(productVariant, orderNowCreation.getQuantity(), productVariant.getPrice() * orderNowCreation.getQuantity());
         orderItem.setOrder(order); // Set the Order reference in OrderItem
         order.setOrderItems(Set.of(orderItem));

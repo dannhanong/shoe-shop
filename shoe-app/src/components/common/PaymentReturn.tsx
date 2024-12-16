@@ -101,8 +101,8 @@ const PaymentReturn: React.FC = () => {
                         <br>
                         <h2>Hóa đơn mua hàng</h2>
                         <p><strong>Khách hàng:</strong> ${order.user ? order.user.name : 'Khách lạ'}</p>
-                        ${order.user ? `<p><strong>Điện thoại:</strong> ${order.user.phoneNumber ? order.user.phoneNumber : 'Không có'}</p>` : ''}
-                        ${order.address !== "undefined - undefined - undefined" ? `<p><strong>Địa chỉ:</strong> ${order.address && order.address}</p>` : ''}
+                        ${(order.user && order.status !== 'DONE') ? `<p><strong>Điện thoại:</strong> ${order.user.phoneNumber ? order.user.phoneNumber : 'Không có'}</p>` : ''}
+                        ${(order.address && order.status !== 'DONE') && order.address !== "undefined - undefined - undefined" ? `<p><strong>Địa chỉ:</strong> ${order.address && order.address}</p>` : ''}
                         <p><strong>Thanh toán:</strong> ${order.paymentType === 'CASH' ? 'Tiền mặt' : 'Chuyển khoản'}</p>
                         <p><strong>Voucher đã áp dụng:</strong> ${order.discountDetails ? order.discountDetails : 'Không sử dụng'}</p>
                         <h3>Chi tiết sản phẩm</h3>
