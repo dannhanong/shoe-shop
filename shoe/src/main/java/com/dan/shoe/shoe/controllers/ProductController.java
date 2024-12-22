@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
 @RestController
 @RequestMapping("/products")
 public class ProductController {
@@ -101,6 +102,20 @@ public class ProductController {
             @PathVariable Long productId,
             @RequestParam(required = false, defaultValue = "#00FF00") String color) {
         return ResponseEntity.ok(productService.getProductDetailByColor(color, productId));
+    }
+
+    @GetMapping("/public/variant/details-full/{productId}")
+    public ResponseEntity<?> getProductVariantDetailsResponseByProductIdAndColorAndSize(@PathVariable Long productId,
+                                                                                       @RequestParam(required = false, defaultValue = "#00FF00") String color,
+                                                                                       @RequestParam(required = false, defaultValue = "0") int size) {
+        return ResponseEntity.ok(productService.getProductVariantDetailsResponseByProductIdAndColorAndSize(productId, color, size));
+    }
+
+    @GetMapping("/public/variant/details-change-color/{productId}")
+    public ResponseEntity<List<ProductVariantDetailsResponse>> getAllProductVariantDetailsResponseByProductIdAndColor(
+            @PathVariable Long productId,
+            @RequestParam(required = false, defaultValue = "#00FF00") String color) {
+        return ResponseEntity.ok(productService.getAllVariantByProductAndColor(productId, color));
     }
 
     @GetMapping("/admin/variants/{productIds}")

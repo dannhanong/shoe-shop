@@ -107,7 +107,19 @@ export const getProductVariantResponseAndRelated = async (id: number, size = 4) 
 export const getVariantByColor = async (color: string, productId: number) => {
     const encodedColor = encodeURIComponent(color);
     console.log('color', color);
-    return axios.get(`${BASE_URL}/products/public/variant/details-change/${productId}?color=${encodedColor}`);
+    return (await axios.get(`${BASE_URL}/products/public/variant/details-change/${productId}?color=${encodedColor}`));
+}
+
+export const getAllVariantByColor = async (color: string, productId: number) => {
+    const encodedColor = encodeURIComponent(color);
+    console.log('color', color);
+    return (await axios.get(`${BASE_URL}/products/public/variant/details-change-color/${productId}?color=${encodedColor}`));
+}
+
+export const getVariantByColorAndSize = async (size: number, color: string, productId: number) => {
+    const encodedColor = encodeURIComponent(color);
+    console.log('color', color);
+    return axios.get(`${BASE_URL}/products/public/variant/details-full/${productId}?size=${size}&color=${encodedColor}`);
 }
 
 export const getVariantByProduct = async (productIds: number[], page = 0, size = 10, sortBy = '', order = '') => {

@@ -147,9 +147,11 @@ public class OrderController {
     }
 
     @PutMapping("/staff/switch-status/{orderId}")
-    public ResponseEntity<Order> switchOrderStatus(@PathVariable Long orderId) {
+    public ResponseEntity<Order> switchOrderStatus(@PathVariable Long orderId, HttpServletRequest request) {
+        String token = getTokenFromRequest(request);
+        String username = jwtService.extractUsername(token);
         try {
-            Order order = orderService.switchOrderStatus(orderId);
+            Order order = orderService.switchOrderStatus(orderId, username);
             return new ResponseEntity<>(order, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);

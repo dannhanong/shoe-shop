@@ -338,7 +338,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductVariantResponse fromProductVariantToProductVariantResponse(ProductVariant productVariant) {
         SeasonalDiscount discount = seasonalDiscountRepository.findByProductVariant(productVariant, LocalDate.now());
         int priceAfterDiscount = productVariant.getPrice();
-        if (discount != null) {
+        if (discount != null && discount.isApplicable()) {
             double discountAmount = discount.getDiscountRate() / 100.0;
             System.out.println(discountAmount);
             priceAfterDiscount = (int) (productVariant.getPrice() * (1 - discountAmount));
@@ -362,7 +362,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductVariantDetailsResponse fromProductVariantToProductVariantDetailsResponse(ProductVariant productVariant) {
         SeasonalDiscount discount = seasonalDiscountRepository.findByProductVariant(productVariant, LocalDate.now());
         int priceAfterDiscount = productVariant.getPrice();
-        if (discount != null) {
+        if (discount != null && discount.isApplicable()) {
             double discountAmount = discount.getDiscountRate() / 100.0;
             System.out.println(discountAmount);
             priceAfterDiscount = (int) (productVariant.getPrice() * (1 - discountAmount));
@@ -409,5 +409,13 @@ public class ProductServiceImpl implements ProductService {
         }
         boolean isActive = status.equalsIgnoreCase("true");
         return productRepository.findByNameContainingAndStatusAndDeletedFalse(keyword, isActive, pageable);
+    }
+
+    @Override
+    public List<ProductVariantDetailsResponse> getAllVariantByProductAndColor(Long productId, String color) {
+        return productVariantRepository.findByProduct_IdAndColor(productId, color)
+            .stream()
+            .map(this::fromProductVariantToProductVariantDetailsResponse)
+            .collect(Collectors.toList());
     }
 }

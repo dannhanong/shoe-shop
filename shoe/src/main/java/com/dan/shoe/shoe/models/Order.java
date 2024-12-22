@@ -3,7 +3,6 @@ package com.dan.shoe.shoe.models;
 import com.dan.shoe.shoe.models.enums.OrderStatus;
 import com.dan.shoe.shoe.models.enums.OrderType;
 import com.dan.shoe.shoe.models.enums.PaymentType;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;

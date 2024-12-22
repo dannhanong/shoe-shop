@@ -29,7 +29,7 @@ public interface OrderService {
     Order createOrderByStaff(String username, OrderCreationByStaff orderCreationByStaff);
     Order getOrderInfo(Long orderId);
     Order createOrderNow(String username, OrderNowCreation orderNowCreation);
-    Order switchOrderStatus(Long orderId);
+    Order switchOrderStatus(Long orderId, String username);
     Page<Order> getOrderByOrderType(Pageable pageable, OrderType orderType);
     Page<Order> getOrderByStatus(OrderStatus status, String keyword, LocalDate startDate, LocalDate endDate, Pageable pageable);
     ResponseMessage deleteOrder(Long orderId);

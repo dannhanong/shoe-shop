@@ -289,6 +289,7 @@ const UpdateProductVariant: React.FC = () => {
                         <th className="border p-2">Mã sản phẩm</th>
                         <th className="border p-2">Tên sản phẩm</th>
                         <th className="border p-2">Màu sắc</th>
+                        <th className="border p-2">Kích cỡ</th>
                         <th className="border p-2">Hình ảnh</th>
                         <th className="border p-2">Số lượng còn</th>
                         <th className="border p-2">Hành động</th>
@@ -303,6 +304,7 @@ const UpdateProductVariant: React.FC = () => {
                             <td className="border p-2 text-center">
                                 <div style={{ width: 20, height: 20, backgroundColor: variant.color, borderRadius: '50%', marginLeft: '38%' }} />
                             </td>
+                            <td className="border p-2">{variant.size}</td>
                             <td className="border p-2 flex justify-center">
                                 <img
                                     src={`${process.env.REACT_APP_BASE_URL}/files/preview/${variant.imageAvatar}`}

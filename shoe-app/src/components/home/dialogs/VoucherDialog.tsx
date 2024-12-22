@@ -81,7 +81,7 @@ const VoucherDialog: React.FC<VoucherDialogProps> = ({isShowVoucherDialog, handl
       </DialogContent>
       
       <DialogActions sx={{ marginRight: 2 }}>
-        <Button variant="outlined" color="error" onClick={() => handleNotSelectVoucher()}>Từ chối</Button>
+        {/* <Button variant="outlined" color="error" onClick={() => handleNotSelectVoucher()}>Từ chối</Button> */}
         <Button onClick={handleCloseVoucherDialog} variant="outlined" color="secondary">Đóng</Button>
       </DialogActions>
     </Dialog>

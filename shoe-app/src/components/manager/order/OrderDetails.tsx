@@ -3,6 +3,13 @@ import {
   Box,
   Button,
   Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  List,
+  ListItem,
+  ListItemText,
   Table,
   TableBody,
   TableCell,
@@ -19,13 +26,18 @@ import { toast, ToastContainer } from "react-toastify";
 import Swal from "sweetalert2";
 import { format } from "date-fns";
 import { hasManagement } from "../../../services/auth.service";
+import { getOrderHistories } from "../../../services/history.service";
 
 const OrderDetails: React.FC = () => {
   const navigate = useNavigate();
   const param = useParams();
   const [order, setOrder] = useState<Order | null>(null);
+  const [histories, setHistories] = useState<any[]>([]);
   const [activeStep, setActiveStep] = useState(0);
   const [stepText, setStepText] = useState("");
+  const [isShowHistories, setIsShowHistories] = useState(false);
+
+  const ntc = require('ntcjs');
 
   // Dữ liệu các bước trạng thái
   const steps = [
@@ -55,6 +67,9 @@ const OrderDetails: React.FC = () => {
       setActiveStep(5);
       setStepText("Đã hủy");
     }
+
+    const responseHistories = await getOrderHistories(id);
+    setHistories(responseHistories.data);
   };
 
   // Hàm hủy đơn hàng
@@ -162,6 +177,9 @@ const OrderDetails: React.FC = () => {
               </Button>
             )
           }
+          <p className="text-right text-blue-600 hover:cursor-pointer"
+            onClick={() => setIsShowHistories(true)}
+          >Lịch sử cập nhật</p>
         </Box>
       </Box>
 
@@ -204,11 +222,6 @@ const OrderDetails: React.FC = () => {
                         )
                       )
                     }
-                    {/* <Chip
-                      label={order.paymentType}
-                      color="success"
-                      sx={{ fontWeight: "bold" }}
-                    /> */}
                   </TableCell>
                 </TableRow>
               )}
@@ -244,6 +257,12 @@ const OrderDetails: React.FC = () => {
         <Typography variant="h6" sx={{ mb: 2 }}>
           <strong>Chi tiết đơn hàng</strong>
         </Typography>
+        <Typography variant="body1" sx={{ mb: 2, textAlign: 'left' }}>
+          Mã đơn hàng: ĐH{order?.id}
+        </Typography>
+        <Typography variant="body1" sx={{ mb: 2, textAlign: 'left' }}>
+          Ngày tạo: {order?.createdAt ? format(new Date(order.createdAt), 'dd/MM/yyyy HH:mm:ss') : 'Chưa có dữ liệu'}
+        </Typography>
         <TableContainer>
           <Table>
             <TableHead>
@@ -275,7 +294,13 @@ const OrderDetails: React.FC = () => {
                       </div>
                     </TableCell>
                     <TableCell align="center">
-                      <div style={{width: 20, height: 20, backgroundColor: item.productVariant.color, borderRadius: '50%', marginLeft: "36%"}}></div>
+                      <div className="flex flex-col items-center">
+                        <div
+                          className="w-5 h-5 rounded-full"
+                          style={{ backgroundColor: item.productVariant.color }}
+                        ></div>
+                        <div>{ntc.name(item.productVariant.color)[1]}</div>
+                      </div>
                     </TableCell>
                     <TableCell align="center">{item.productVariant.size}</TableCell>
                     <TableCell align="center">{item.quantity}</TableCell>
@@ -290,6 +315,45 @@ const OrderDetails: React.FC = () => {
           </Table>
         </TableContainer>
       </Box>
+      <Dialog open={isShowHistories} onClose={() => setIsShowHistories(false)}>
+          <DialogTitle className="text-xl font-semibold">Lịch sử cập nhật</DialogTitle>
+          <DialogContent>
+              {
+                histories.length > 0 ? (
+                  <List>
+                    {histories.map((item, index) => (
+                      <ListItem
+                          key={index}
+                          className="hover:bg-gray-200 rounded-lg cursor-pointer"
+                      >
+                        <ListItemText
+                          sx={{ minWidth: 300 }}
+                          primary={
+                              <>
+                                  <strong>{item.staff ? item.staff.name : 'Admin'}</strong> 
+                                  {" cập nhật " }
+                                  <span className="text-red-600">{ item.description }</span>
+                                  { " vào "}
+                                  {format(new Date(item.updateAt), 'dd/MM/yyyy HH:mm:ss')}
+                              </>
+                          }
+                        /></ListItem>
+                    ))}
+                  </List>
+                ) : (
+                  <Typography>Chưa có dữ liệu</Typography>
+                )
+              }
+          </DialogContent>
+          <DialogActions>
+              <Button
+                  onClick={() => setIsShowHistories(false)}
+                  className="text-red-500 hover:bg-red-100"
+              >
+                  Đóng
+              </Button>
+          </DialogActions>
+      </Dialog>
       <ToastContainer />
     </Box>
   );

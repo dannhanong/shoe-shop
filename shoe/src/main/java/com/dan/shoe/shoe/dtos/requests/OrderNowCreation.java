@@ -16,4 +16,5 @@ public class OrderNowCreation {
     int quantity;
     String voucherCode = "";
     String paymentType;
+    String address;
 }

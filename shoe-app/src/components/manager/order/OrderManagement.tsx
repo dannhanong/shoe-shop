@@ -135,6 +135,7 @@ const OrderManagement: React.FC = () => {
               <TableCell align="center">Ngày tạo</TableCell>
               <TableCell align="center">Tiền giảm</TableCell>
               <TableCell align="center">Tổng tiền</TableCell>
+              <TableCell align="center">Phương thức thanh toán</TableCell>
               <TableCell align="center">Trạng thái</TableCell>
               <TableCell align="center">Thao Tác</TableCell>
             </TableRow>
@@ -164,11 +165,24 @@ const OrderManagement: React.FC = () => {
                       {/* {new Date(order.createdAt).toLocaleString("vi-VN")} */}
                       {format(new Date(order.createdAt), 'dd/MM/yyyy HH:mm:ss')}
                     </TableCell>
-                    <TableCell align="center">{order.totalDiscount}</TableCell>
+                    <TableCell align="center">{order.discountAmount?.toLocaleString()}</TableCell>
                     <TableCell align="center">
                       <Typography color="error" fontWeight="bold">
                         {order.totalPrice.toLocaleString()}
                       </Typography>
+                    </TableCell>
+                    <TableCell align="center">
+                      {
+                        order.paymentType === "CASH" ? (
+                          <Chip label="Tiền mặt" color="primary" />
+                        ) : (
+                          order.paymentType === "TRANSFER" ? (
+                            <Chip label="Chuyển khoản" color="secondary" />
+                          ) : (
+                            <Chip label="Thanh toán khi nhận hàng" color="success" />
+                          )
+                        )
+                      }
                     </TableCell>
                     <TableCell align="center">
                       <Chip
@@ -179,7 +193,7 @@ const OrderManagement: React.FC = () => {
                     <TableCell align="center">
                       <div className="flex justify-center items-center space-x-3">
                         <CiEdit size={25} className='cursor-pointer' color='blue' onClick={() => navigate(`/manager/order-details/${order.id}`)} />
-                        <MdDeleteForever size={25} className='cursor-pointer' color='red' onClick={() => handleDelete(order.id)} />
+                        {/* <MdDeleteForever size={25} className='cursor-pointer' color='red' onClick={() => handleDelete(order.id)} /> */}
                       </div>
                     </TableCell>
                   </TableRow>

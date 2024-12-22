@@ -6,6 +6,10 @@ import {
     TextField,
     Typography,
     IconButton,
+    Dialog,
+    DialogContent,
+    DialogActions,
+    DialogTitle,
 } from '@mui/material';
 import { FaRegFileImage } from 'react-icons/fa';
 import Swal from 'sweetalert2';
@@ -33,6 +37,38 @@ const UpdateVariant: React.FC = () => {
     const [variant, setVariant] = useState<Variant | null>(null);
     const [colorPreview, setColorPreview] = useState<string>(''); // Preview mã màu
     const [formattedPrice, setFormattedPrice] = useState<string>('');
+    const [colors, setColors] = useState<string[]>([
+        '#FFFFFF', // Trắng
+        '#000000', // Đen
+        '#FF0000', // Đỏ
+        '#00FF00', // Xanh lá
+        '#0000FF', // Xanh dương
+        '#808080', // Xám
+        '#FFD700', // Vàng
+        '#8B4513', // Nâu (da)
+        '#C0C0C0', // Bạc
+        '#FF69B4'  // Hồng nhạt
+    ]);
+    const [selectedColor, setSelectedColor] = useState<string | null>(null);
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [newColor, setNewColor] = useState<string>('');
+
+    const handleColorChange = (color: string) => {
+        setSelectedColor(color);
+        if (variant) {
+            setVariant({ ...variant, color });
+        }
+    }
+
+    const handleAddColor = () => {
+        if (/^#[0-9A-F]{6}$/i.test(newColor)) {
+            setColors(prevColors => [...prevColors, newColor]);
+            setNewColor('');
+            setOpenDialog(false);
+        } else {
+            alert('Mã màu không hợp lệ!');
+        }
+    };
 
     const fetchVariant = async () => {
         try {
@@ -49,7 +85,8 @@ const UpdateVariant: React.FC = () => {
                 ),
             });
 
-            setColorPreview(data.color); // Đặt preview màu ban đầu
+            setColorPreview(data.color);
+            setSelectedColor(data.color);
         } catch (error) {
             console.error('Error fetching variant:', error);
         }
@@ -107,7 +144,7 @@ const UpdateVariant: React.FC = () => {
 
     return (
         <Card sx={{ maxWidth: 800, margin: 'auto', padding: 3, marginTop: 5 }}>
-            <Typography variant="h5">Cập nhật Biến Thể</Typography>
+            <Typography variant="h5">Cập nhật biến thể</Typography>
             <Box display="flex" flexDirection="column" gap={2} marginTop={3}>
                 <TextField
                     label="Size"
@@ -116,7 +153,7 @@ const UpdateVariant: React.FC = () => {
                     onChange={(e) => setVariant({ ...variant, size: Number(e.target.value) })}
                     fullWidth
                 />
-                <TextField
+                {/* <TextField
                     label="Màu sắc"
                     type="text"
                     value={variant.color}
@@ -136,7 +173,37 @@ const UpdateVariant: React.FC = () => {
                         marginTop: 2,
                         borderRadius: '4px',
                     }}
-                ></Box>
+                ></Box> */}
+                <Box display="flex" justifyContent={'center'} flexWrap="wrap" gap={1}>
+                    {colors.map(color => (
+                        <Button
+                            key={color}
+                            sx={{
+                                backgroundColor: color,
+                                color: color === '#FFFFFF' ? 'black' : 'white',
+                                border: `1px solid ${color === '#FFFFFF' ? 'black' : color}`,
+                                minWidth: 40,
+                                minHeight: 40
+                            }}
+                            onClick={() => handleColorChange(color)}
+                        >
+                            { color === selectedColor ? '✓' : ''}
+                        </Button>
+                    ))}
+                    <Button
+                        variant={'outlined'}
+                        sx={{
+                            backgroundColor: 'white',
+                            color: 'blue',
+                            border: `1px solid 'blue`,
+                            minWidth: 40,
+                            minHeight: 40,
+                        }}
+                        onClick={() => setOpenDialog(true)}
+                    >
+                        +
+                    </Button>
+                </Box>
                 <TextField
                     label="Số lượng tồn kho"
                     type="number"
@@ -197,6 +264,29 @@ const UpdateVariant: React.FC = () => {
                     Lưu thay đổi
                 </Button>
             </Box>
+
+            {/* Dialog để thêm màu mới */}
+            <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+                <DialogTitle>Thêm Mã Màu Mới</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        label="Mã Màu (Hex)"
+                        value={newColor}
+                        onChange={(e) => setNewColor(e.target.value)}
+                        fullWidth
+                        autoFocus
+                        margin="normal"
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenDialog(false)} color="primary">
+                        Hủy
+                    </Button>
+                    <Button onClick={handleAddColor} color="primary">
+                        Thêm
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Card>
     );
 };

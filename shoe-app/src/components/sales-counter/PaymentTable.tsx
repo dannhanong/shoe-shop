@@ -1,4 +1,4 @@
-import { Box, Button, Paper, Switch, Table, TableBody, TableContainer, TableRow, TableCell, Typography } from '@mui/material';
+import { Box, Button, Paper, Table, TableBody, TableContainer, TableRow, TableCell, Typography } from '@mui/material';
 import React from 'react';
 import { User } from '../../models/User';
 import { Variant } from '../../models/Variant';
@@ -94,13 +94,6 @@ const PaymentTable: React.FC<PaymentTableProps> = ({ invoice, isShipping, handle
                                             )
                                         }
                                     </Box>
-                                    {/* <Box display="flex" justifyContent="space-between" mx={5}>
-                                        <Typography variant="body1" fontWeight="bold">Giao hàng:</Typography>
-                                        <Switch
-                                            checked={isShipping}
-                                            onChange={handleSwitchChange}
-                                        />
-                                    </Box> */}
                                     <Box display="flex" justifyContent="space-between" mx={5}>
                                         <Typography variant="body1" fontWeight="bold">Giảm giá:</Typography>
                                         <Typography>{totalReducedAmount.toLocaleString()}  VNĐ</Typography>

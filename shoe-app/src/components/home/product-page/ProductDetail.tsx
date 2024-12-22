@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { getProductVariantResponseAndRelated, getVariantByColor } from '../../../services/product.service';
+import { getAllVariantByColor, getProductVariantResponseAndRelated, getVariantByColor, getVariantByColorAndSize } from '../../../services/product.service';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Typography } from '@mui/material';
 import VoucherDialog from '../dialogs/VoucherDialog';
 import { ProductDetailAndRelated } from '../../../models/response/ProductDetailAndRelated';
@@ -16,12 +16,16 @@ import ProductDialog from './ProductDialog';
 import Swal from 'sweetalert2';
 import { createOrderNow } from '../../../services/order.service';
 import { getProfile, isAuthenticated } from '../../../services/auth.service';
-import { getMyPrimaryAddress } from '../../../services/address.service';
+import { getMyAddress, getMyPrimaryAddress } from '../../../services/address.service';
+import AddressSelection from './AddressSelection';
+import { Address } from '../../../models/Address';
+import AddressDialog from '../dialogs/AddressDialog';
+import axios from 'axios';
+import { add } from 'lodash';
 
 const ProductDetail: React.FC = () => {
     const navigate = useNavigate();
     const param = useParams()
-    const [productDetailAndRelated, setProductDetailAndRelated] = useState<ProductDetailAndRelated | null>(null);
     const [mainImage, setMainImage] = useState<string>('');
     const [selectedColor, setSelectedColor] = useState<string | null>(null);
     const [selectedSize, setSelectedSize] = useState<number | null>(null);
@@ -37,6 +41,84 @@ const ProductDetail: React.FC = () => {
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [paymentType, setPaymentType] = useState<string>('transfer');
 
+    const [isWantChange, setIsWantChange] = useState(false);
+    const [address, setAddress] = useState<string>("");
+    const [addresses, setAddresses] = useState<Address[]>([]);
+    const [provinces, setProvinces] = useState<{ name: string; code: number }[]>([]);
+    const [districts, setDistricts] = useState<{ name: string; code: number }[]>([]);
+    const [wards, setWards] = useState<{ name: string; code: number }[]>([]);
+    const [selectedProvince, setSelectedProvince] = useState<number | null>(null);
+    const [selectedDistrict, setSelectedDistrict] = useState<number | null>(null);
+    const [selectedWard, setSelectedWard] = useState<number | null>(null);
+
+    const [listSizeAvailable, setListSizeAvailable] = useState<number[]>([]);
+    const [validColors, setValidColors] = useState<string[]>([]);
+
+    const ntc = require('ntcjs');
+
+    const totalAmount = (productDetail?.price ?? 0) * quantity;
+    const discountAmount = totalAmount - (productDetail?.priceAfterDiscount ?? 0) * quantity;
+
+    let voucherDiscount = 0;
+    if (voucher) {
+        if (voucher.discountAmount > 100) {
+            voucherDiscount = voucher.discountAmount;
+        } else {
+            voucherDiscount = (totalAmount - discountAmount) * (voucher.discountAmount / 100);
+        }
+    }
+
+    const totalReducedAmount = discountAmount + voucherDiscount;
+    const paymentAmount = (totalAmount - totalReducedAmount) < 0 ? 0 : (totalAmount - totalReducedAmount);
+
+    const checkVariantColor = async (color: string) => {
+        const response = await getVariantByColor(color, Number(productDetail?.product.id))
+        try {
+            if (response.data.stockQuantity > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (error) {
+            return false;
+        }
+    }
+
+    const fetchAllProvince = async () => {
+        try {
+            axios
+                .get("https://provinces.open-api.vn/api/p/")
+                .then((response) => {
+                    const formattedProvinces = response.data.map((province: any) => ({
+                        name: province.name,
+                        code: province.code,
+                    }));
+                    setProvinces(formattedProvinces);
+                })
+                .catch((error) => console.error("Error fetching provinces:", error));
+        } catch (error) {
+            console.error('Lỗi khi tải thông tin người dùng:', error);
+        }
+    }
+
+    const fetchMyAddress = async () => {
+        try {
+            const response = await getMyAddress();
+            setAddresses(response.data);
+        } catch (error) {
+            console.error('Lỗi khi tải thông tin người dùng:', error);
+        }
+    }
+
+    const fetchMyPrimaryAddress = async () => {
+        try {
+            const response = await getMyPrimaryAddress();
+            response.data && setAddress(response.data.province + ' - ' + response.data.district + ' - ' + response.data.ward);
+        } catch (error) {
+            console.error('Lỗi khi tải thông tin người dùng:', error);
+        }
+    }
+
     const addProductToCart = async (productVariantId: number) => {
         const response = await addToCart(productVariantId, 1);
         if (response) {
@@ -49,84 +131,143 @@ const ProductDetail: React.FC = () => {
         handleVoucherDialogClose();
         handleCloseProductDialog();
         Swal.fire({
-        title: 'Xác nhận mua hàng',
-        text: 'Bạn có chắc chắn muốn mua sản phẩm này không?',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Đồng ý',
-        cancelButtonText: 'Hủy',
+            title: 'Xác nhận mua hàng',
+            text: 'Bạn có chắc chắn muốn mua sản phẩm này không?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Đồng ý',
+            cancelButtonText: 'Hủy',
         }).then(async (res) => {
-        if (res.isConfirmed) {
-            const nowCreation = {
-            productId: productDetail?.product.id,
-            color: selectedColor || '',
-            size: selectedSize || 0,
-            quantity,
-            paymentType: paymentType,
-            };
-            console.log('NowCreation:', nowCreation);
-            if (!selectedColor || !selectedSize) {
-            toast.error('Vui lòng chọn màu sắc và kích thước');
-            return;
-            } else {
-            const response = await createOrderNow(nowCreation);
-            if (response) {
-                addItemToCart();
-                handleCloseProductDialog();
-                window.location.href = response.vnpayUrl;
-            } else {
-                toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
+            if (res.isConfirmed) {
+                if (paymentType === 'transfer') {
+                    const nowCreation = {
+                        productId: productDetail?.product.id,
+                        color: selectedColor || '',
+                        size: selectedSize || 0,
+                        quantity,
+                        paymentType: paymentType,
+                        address: address,
+                    };
+                    console.log('NowCreation:', nowCreation);
+                    if (!selectedColor || !selectedSize) {
+                        toast.error('Vui lòng chọn màu sắc và kích thước');
+                        return;
+                    } else {
+                        const response = await createOrderNow(nowCreation);
+                        if (response) {
+                            addItemToCart();
+                            handleCloseProductDialog();
+                            window.location.href = response.vnpayUrl;
+                        } else {
+                            toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
+                        }
+                    }
+                } else {
+                    const nowCreation = {
+                        productId: productDetail?.product.id,
+                        color: selectedColor || '',
+                        size: selectedSize || 0,
+                        quantity,
+                        paymentType: paymentType,
+                        address: address,
+                    };
+                    console.log('NowCreation:', nowCreation);
+                    if (!selectedColor || !selectedSize) {
+                        toast.error('Vui lòng chọn màu sắc và kích thước');
+                        return;
+                    } else {
+                        const response = await createOrderNow(nowCreation);
+                        if (response) {
+                            addItemToCart();
+                            handleCloseProductDialog();
+                            toast.success('Đã tạo đơn hàng thành công');
+                            getProductDetailAndRelated(3);
+                        } else {
+                            toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
+                        }
+                    }
+                }
             }
-            }
-        }
         });
     }
 
     const handleSubmitByNow = () => {
         handleVoucherDialogClose();
         handleCloseProductDialog();
-        Swal.fire({
-        title: 'Xác nhận mua hàng',
-        text: 'Bạn có chắc chắn muốn mua sản phẩm này không?',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Đồng ý',
-        cancelButtonText: 'Hủy',
-        }).then(async (res) => {
-        if (res.isConfirmed) {
-            const nowCreation = {
-            productId: productDetail?.product.id,
-            color: selectedColor || '',
-            size: selectedSize || 0,
-            quantity,
-            voucherCode: voucher?.code || '',
-            paymentType: paymentType,
-            };
-            console.log('NowCreation:', nowCreation);
-            if (!selectedColor || !selectedSize) {
-            toast.error('Vui lòng chọn màu sắc và kích thước');
-            return;
-            } else {
-            const response = await createOrderNow(nowCreation);
-            if (response) {
-                addItemToCart();
-                handleCloseProductDialog();
-                window.location.href = response.vnpayUrl;
-            } else {
-                toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
-            }
-            }
+        if (voucher) {
+            Swal.fire({
+                title: 'Xác nhận mua hàng',
+                text: 'Bạn có chắc chắn muốn mua sản phẩm này không?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Đồng ý',
+                cancelButtonText: 'Hủy',
+            }).then(async (res) => {
+                if (res.isConfirmed) {
+                    if (paymentType === 'transfer') {
+                        const nowCreation = {
+                            productId: productDetail?.product.id,
+                            color: selectedColor || '',
+                            size: selectedSize || 0,
+                            quantity,
+                            voucherCode: voucher?.code || '',
+                            paymentType: paymentType,
+                            address: address,
+                        };
+                        console.log('NowCreation:', nowCreation);
+                        if (!selectedColor || !selectedSize) {
+                            toast.error('Vui lòng chọn màu sắc và kích thước');
+                            return;
+                        } else {
+                            const response = await createOrderNow(nowCreation);
+                            if (response) {
+                                addItemToCart();
+                                handleCloseProductDialog();
+                                window.location.href = response.vnpayUrl;
+                            } else {
+                                toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
+                            }
+                        }
+                    } else {
+                        const nowCreation = {
+                            productId: productDetail?.product.id,
+                            color: selectedColor || '',
+                            size: selectedSize || 0,
+                            quantity,
+                            voucherCode: voucher?.code || '',
+                            paymentType: paymentType,
+                            address: address,
+                        };
+                        console.log('NowCreation:', nowCreation);
+                        if (!selectedColor || !selectedSize) {
+                            toast.error('Vui lòng chọn màu sắc và kích thước');
+                            return;
+                        } else {
+                            const response = await createOrderNow(nowCreation);
+                            if (response) {
+                                addItemToCart();
+                                handleCloseProductDialog();
+                                toast.success('Đã tạo đơn hàng thành công');
+                                getProductDetailAndRelated(3);
+                            } else {
+                                toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            handleSubmitByNowNoVoucher();
         }
-        });
     }
 
     const handleOpenProductDialog = () => {
         setOpenProductDialog(true);
     };
 
-    const handleCloseProductDialog = () => {        
+    const handleCloseProductDialog = () => {
         setOpenProductDialog(false);
-        console.log('close dialog', isOpenProductDialog); 
+        console.log('close dialog', isOpenProductDialog);
     };
 
     const handleQuantityChange = (type: 'increment' | 'decrement') => {
@@ -134,9 +275,13 @@ const ProductDetail: React.FC = () => {
         console.log('Quantity:', quantity);
     };
 
-    const handleSizeSelect = (size: number) => {
+    const handleSizeSelect = async (size: number) => {
         setSelectedSize(size);
         console.log('Size:', size);
+        if (selectedColor) {
+            const response = await getVariantByColorAndSize(size, selectedColor, Number(productDetail?.product.id));
+            setProductDetail(response.data);
+        }
     };
 
     const handleAddToCartNow = async () => {
@@ -148,6 +293,7 @@ const ProductDetail: React.FC = () => {
                 quantity: quantity,
                 voucherCode: "",
                 paymentType: paymentType,
+                address: address,
             };
             console.log('NowCreation:', nowCreation);
             if (!selectedColor || !selectedSize) {
@@ -186,36 +332,52 @@ const ProductDetail: React.FC = () => {
     };
 
     const handleVoucherDialogOpen = async () => {
-        const profile = await getProfile();
-        const primaryAddress = await getMyPrimaryAddress();
-        if (primaryAddress.data && profile.phoneNumber) {
-            if (isAuthenticated()) {
-                setVoucherDialogOpen(true);
+        if (isAuthenticated()) {
+            const profile = await getProfile();
+            const primaryAddress = await getMyPrimaryAddress();
+            if (primaryAddress.data && profile.phoneNumber) {
+                if (isAuthenticated()) {
+                    setVoucherDialogOpen(true);
+                } else {
+                    handleCloseProductDialog();
+                    Swal.fire({
+                        title: 'Vui lòng đăng nhập',
+                        text: 'Bạn cần đăng nhập để mua hàng',
+                        icon: 'info',
+                        showCancelButton: true,
+                        confirmButtonText: 'Đăng nhập',
+                        cancelButtonText: 'Hủy',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            navigate('/login');
+                        }
+                    });
+                }
             } else {
-                handleCloseProductDialog();
                 Swal.fire({
-                    title: 'Vui lòng đăng nhập',
-                    text: 'Bạn cần đăng nhập để mua hàng',
+                    title: 'Vui lòng cập nhật thông tin cá nhân và địa chỉ giao hàng',
                     icon: 'info',
                     showCancelButton: true,
-                    confirmButtonText: 'Đăng nhập',
+                    confirmButtonText: 'Cập nhật',
                     cancelButtonText: 'Hủy',
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        navigate('/login');
+                        navigate('/manager/profile');
                     }
                 });
             }
         } else {
+            handleCloseProductDialog();
             Swal.fire({
-                title: 'Vui lòng cập nhật thông tin cá nhân và địa chỉ giao hàng',
+                title: 'Vui lòng đăng nhập',
+                text: 'Bạn cần đăng nhập để mua hàng',
                 icon: 'info',
                 showCancelButton: true,
-                confirmButtonText: 'Cập nhật',
+                confirmButtonText: 'Đăng nhập',
                 cancelButtonText: 'Hủy',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    navigate('/manager/profile');
+                    navigate('/login');
                 }
             });
         }
@@ -230,6 +392,8 @@ const ProductDetail: React.FC = () => {
             const response = await getProductVariantResponseAndRelated(Number(param.id), size);
             setProductDetail(response.data.productVariantDetailsResponse);
             setProductRelated(response.data.productVariantDetailsResponses);
+            // setSelectedColor(response.data.productVariantDetailsResponse.color);
+            // setSelectedSize(response.data.productVariantDetailsResponse.size);
         } catch (error) {
             console.error('Error fetching product detail:', error);
         }
@@ -240,20 +404,46 @@ const ProductDetail: React.FC = () => {
     };
 
     const handleColorSelect = async (color: string) => {
+        setSelectedSize(null);
+        setListSizeAvailable([]);
         setSelectedColor((prevColor) => (prevColor === color ? null : color));
-        // console.log('Color:', color);
-        const response = await getVariantByColor(color, Number(productDetail?.product.id))
-        setProductDetail(response.data);
+        const response = await getAllVariantByColor(color, Number(productDetail?.product.id))
+        response.data.map((variant: Variant) => {
+            setListSizeAvailable((prev: number[]) => [...prev, variant.size]);
+        });
     };
 
     useEffect(() => {
         getProductDetailAndRelated(3);
+        fetchMyAddress();
+        fetchMyPrimaryAddress();
+        fetchAllProvince();
     }, [param.id]);
 
     useEffect(() => {
         if (productDetail) {
             setMainImage(`${process.env.REACT_APP_BASE_URL}/files/preview/${productDetail.imageAvatar}`);
         }
+    }, [productDetail]);
+
+    useEffect(() => {
+        const fetchValidColors = async () => {
+            if (productDetail) {
+                const valid = await Promise.all(
+                    productDetail.colors.map(async (color) => {
+                        try {
+                            const isValid = await checkVariantColor(color);
+                            return isValid ? color : null;
+                        } catch (error) {
+                            return null;
+                        }
+                    })
+                );
+                setValidColors(valid.filter((color) => color !== null) as string[]);
+            }
+        };
+
+        fetchValidColors();
     }, [productDetail]);
 
     return (
@@ -308,36 +498,41 @@ const ProductDetail: React.FC = () => {
                                 <Box mt={2} sx={{ display: 'flex', alignItems: 'center' }}>
                                     <Typography variant="subtitle1">Màu:</Typography>
                                     <Box display="flex" gap={1} sx={{ marginLeft: 2 }}>
-                                        {productDetail.colors.map((color, index) => (
-                                            <Box
-                                                key={index}
-                                                sx={{
-                                                    position: 'relative',
-                                                    width: '24px',
-                                                    height: '24px',
-                                                    cursor: 'pointer',
-                                                }}
-                                                onClick={() => handleColorSelect(color)}
-                                            >
-                                                <FaCircle style={{ color, fontSize: '24px' }} />
-                                                {selectedColor === color && (
-                                                    <Box
-                                                        sx={{
-                                                            position: 'absolute',
-                                                            top: 0,
-                                                            left: 0,
-                                                            width: '24px',
-                                                            height: '24px',
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
-                                                            color: 'white',
-                                                            fontSize: '16px',
-                                                        }}
-                                                    >
-                                                        ✓
-                                                    </Box>
-                                                )}
+                                        {validColors.map((color, index) => (
+                                            <Box key={index}>
+                                                <Box
+                                                    sx={{
+                                                        position: 'relative',
+                                                        width: '24px',
+                                                        height: '24px',
+                                                        cursor: 'pointer',
+                                                        display: 'block',
+                                                    }}
+                                                    onClick={() => handleColorSelect(color)}
+                                                >
+                                                    <FaCircle style={{ color, fontSize: '24px' }} />
+                                                    {selectedColor === color && (
+                                                        <Box
+                                                            sx={{
+                                                                position: 'absolute',
+                                                                top: 0,
+                                                                left: 0,
+                                                                width: '24px',
+                                                                height: '24px',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                color: 'white',
+                                                                fontSize: '16px',
+                                                            }}
+                                                        >
+                                                            ✓
+                                                        </Box>
+                                                    )}
+                                                </Box>
+                                                <Box>
+                                                    <Typography variant="caption">{ntc.name(color)[1]}</Typography>
+                                                </Box>
                                             </Box>
                                         ))}
                                     </Box>
@@ -351,6 +546,7 @@ const ProductDetail: React.FC = () => {
                                                 key={index}
                                                 variant={selectedSize === size ? 'contained' : 'outlined'}
                                                 onClick={() => handleSizeSelect(size)}
+                                                disabled={selectedColor === null || !listSizeAvailable.includes(size)}
                                             >
                                                 {size}
                                             </Button>
@@ -363,19 +559,36 @@ const ProductDetail: React.FC = () => {
                                         <Typography variant="subtitle1">Số lượng:</Typography>
                                         <Button variant="outlined" onClick={() => handleQuantityChange('decrement')}>-</Button>
                                         <Typography>{quantity}</Typography>
-                                        <Button 
-                                            variant="outlined" 
+                                        <Button
+                                            variant="outlined"
                                             onClick={() => handleQuantityChange('increment')}
                                             disabled={quantity >= productDetail.stockQuantity}
                                         >+</Button>
                                     </Box>
                                     {
-                                        quantity >= productDetail.stockQuantity && (
+                                        (quantity >= productDetail.stockQuantity && selectedColor && selectedSize) && (
                                             <Typography variant="caption" color="error" className="mt-1">
                                                 Hiện còn {productDetail.stockQuantity} sản phẩm
                                             </Typography>
                                         )
                                     }
+                                </Box>
+
+                                <Box mt={2}>
+                                    <Box display="flex" alignItems="center" gap={4}>
+                                        <Typography sx={{ minWidth: 70 }} variant="subtitle1">Giao đến:</Typography>
+                                        <Typography
+                                            sx={{ minWidth: 290 }}
+                                        >
+                                            {address ? address : 'Chưa có địa chỉ phù hợp'}
+                                        </Typography>
+
+                                        <Button
+                                            onClick={() => setIsWantChange(true)}
+                                        >
+                                            Thay đổi
+                                        </Button>
+                                    </Box>
                                 </Box>
 
                                 <Box display={'flex'} gap={2}>
@@ -385,6 +598,7 @@ const ProductDetail: React.FC = () => {
                                         fullWidth
                                         sx={{ mt: 3 }}
                                         onClick={handleAddToCartNow}
+                                        disabled={quantity > productDetail.stockQuantity || !selectedColor || !selectedSize || productDetail.stockQuantity === 0}
                                     >
                                         Thêm vào giỏ hàng
                                     </Button>
@@ -394,6 +608,7 @@ const ProductDetail: React.FC = () => {
                                         fullWidth
                                         sx={{ mt: 3 }}
                                         onClick={handleVoucherDialogOpen}
+                                        disabled={quantity > productDetail.stockQuantity || !selectedColor || !selectedSize || productDetail.stockQuantity === 0}
                                     >
                                         Mua ngay
                                     </Button>
@@ -409,7 +624,7 @@ const ProductDetail: React.FC = () => {
                             />
 
                             <Typography variant="h5" mt={5}>Danh sách sản phẩm liên quan</Typography>
-                            
+
                             <div className='mt-10 mb-4'>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                                     {productRelated.length > 0 ? productRelated.map((product) => (
@@ -525,26 +740,87 @@ const ProductDetail: React.FC = () => {
                             )
                         }
                     </Box>
+
+                    <Box sx={{ mt: 2 }}>
+                        <Typography variant="subtitle1" sx={{ mb: 1 }}>Phương thức thanh toán:</Typography>
+                        <Box className="space-y-2">
+                            <Box className="flex items-center space-x-2">
+                                <input
+                                    type="radio"
+                                    id="transfer"
+                                    name="paymentType"
+                                    value="transfer"
+                                    checked={paymentType === 'transfer'}
+                                    onChange={(e) => setPaymentType(e.target.value)}
+                                />
+                                <label htmlFor="transfer">Thanh toán trực tuyến</label>
+                            </Box>
+                            <Box className="flex items-center space-x-2">
+                                <input
+                                    type="radio"
+                                    id="card"
+                                    name="paymentType"
+                                    value="card"
+                                    checked={paymentType === 'card'}
+                                    onChange={(e) => setPaymentType(e.target.value)}
+                                />
+                                <label htmlFor="card">Thanh toán khi nhận hàng</label>
+                            </Box>
+                        </Box>
+                    </Box>
+
+                    <Box sx={{ mt: 2, ml: '31%' }}>
+                        <Box display="flex" justifyContent="space-between" sx={{ mb: 1 }}>
+                            <Typography variant="subtitle1">Tổng cộng:</Typography>
+                            <Typography variant="subtitle1">
+                                <p>{totalAmount.toLocaleString()} VNĐ</p>
+                            </Typography>
+                        </Box>
+                        <Box display="flex" justifyContent="space-between" sx={{ mb: 1 }}>
+                            <Typography variant="subtitle1">Giảm giá:</Typography>
+                            <Typography variant="subtitle1">
+                                <p>{totalReducedAmount.toLocaleString()} VNĐ</p>
+                            </Typography>
+                        </Box>
+                        <Box display="flex" justifyContent="space-between" sx={{ mb: 1 }}>
+                            <Typography variant="subtitle1">Thanh toán:</Typography>
+                            <Typography variant="subtitle1" sx={{ color: 'red' }}>
+                                <p>{paymentAmount.toLocaleString()} VNĐ</p>
+                            </Typography>
+                        </Box>
+                    </Box>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleVoucherDialogClose} color="info">
+                    <Button onClick={handleVoucherDialogClose} color="error">
                         Đóng
-                    </Button>
-                    <Button
-                        onClick={handleSubmitByNowNoVoucher}
-                        color="error"
-                    >
-                        Không áp dụng
                     </Button>
                     <Button
                         onClick={handleSubmitByNow}
                         color="primary"
-                        disabled={!voucher}
                     >
-                        Áp dụng
+                        Xác nhận
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            <AddressDialog
+                isWantChange={isWantChange}
+                setIsWantChange={setIsWantChange}
+                addresses={addresses}
+                provinces={provinces}
+                districts={districts}
+                setDistricts={setDistricts}
+                wards={wards}
+                setWards={setWards}
+                selectedProvince={selectedProvince}
+                setSelectedProvince={setSelectedProvince}
+                selectedDistrict={selectedDistrict}
+                setSelectedDistrict={setSelectedDistrict}
+                selectedWard={selectedWard}
+                setSelectedWard={setSelectedWard}
+                setAddress={setAddress}
+                handleCloseAddressDialog={() => setIsWantChange(false)}
+            />
             <ToastContainer />
         </Box>
     )

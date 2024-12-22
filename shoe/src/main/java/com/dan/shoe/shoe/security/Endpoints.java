@@ -12,6 +12,7 @@ public class Endpoints {
             "/orders/**",
             "/cart/**",
             "/addresses/**",
+            "/colors/create",
     };
 
     public static final String[] ADMIN_POST_ENDPOINTS = {
@@ -26,6 +27,7 @@ public class Endpoints {
 
     public static final String[] STAFF_POST_ENDPOINTS = {
             "/products/staff/**",
+            "/histories/**",
     };
 
     public static final String[] PUBLIC_GET_ENDPOINTS = {
@@ -37,7 +39,8 @@ public class Endpoints {
             "/products/**",
             "/brands/all",
             "/discounts/public/**",
-            "/payment"
+            "/payment",
+            "/colors/**"
     };
 
     public static final String[] PRIVATE_GET_ENDPOINTS = {
@@ -71,6 +74,7 @@ public class Endpoints {
 
     public static final String[] STAFF_GET_ENDPOINTS = {
         "/accounts/admin/**",
+        "/histories/**",
     };
 
     public static final String[] STAFF_PUT_ENDPOINTS = {

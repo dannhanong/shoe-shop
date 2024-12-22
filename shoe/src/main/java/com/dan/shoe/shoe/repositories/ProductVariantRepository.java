@@ -79,4 +79,5 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     Page<ProductVariant> findTopSellingProducts(Pageable pageable);
 
     ProductVariant findByProductAndDefaultVariantTrue(Product product);
+    List<ProductVariant> findByProduct_IdAndColor(Long productId, String color);
 }

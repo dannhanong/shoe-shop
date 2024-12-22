@@ -56,6 +56,10 @@ public class OrderServiceImpl implements OrderService {
     private AddressRepository addressRepository;
     @Autowired
     private AddressService addressService;
+    @Autowired
+    private StaffRepository staffRepository;
+    @Autowired
+    private HistoryUpdateOrderRepository historyUpdateOrderRepository;
 
     @Override
     public Order createOrder(String username, String voucherCode, PaymentType paymentType) {
@@ -284,13 +288,14 @@ public class OrderServiceImpl implements OrderService {
         }
 
         User user = userRepository.findByUsername(username);
-        Address address = addressService.getPrimaryAddress(username);
+        // Address address = addressService.getPrimaryAddress(username);
         Order order = new Order();
         order.setUser(user);
         order.setOrderType(OrderType.ONLINE);
         order.setPaymentType(PaymentType.valueOf(orderNowCreation.getPaymentType().toUpperCase()));
         order.setStatus(OrderStatus.CREATED);
-        order.setAddress(address.getProvince() + " - " + address.getDistrict() + " - " + address.getWard());
+        // order.setAddress(address.getProvince() + " - " + address.getDistrict() + " - " + address.getWard());
+        order.setAddress(orderNowCreation.getAddress());
         OrderItem orderItem = new OrderItem(productVariant, orderNowCreation.getQuantity(), productVariant.getPrice() * orderNowCreation.getQuantity());
         orderItem.setOrder(order); // Set the Order reference in OrderItem
         order.setOrderItems(Set.of(orderItem));
@@ -333,7 +338,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order switchOrderStatus(Long orderId) {
+    public Order switchOrderStatus(Long orderId, String username) {
+        Staff staff = staffRepository.findByUser_Username(username);
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
         if (order.getStatus() == OrderStatus.CREATED) {
@@ -345,7 +351,24 @@ public class OrderServiceImpl implements OrderService {
             order.setPaid(true);
             order.setPaymentTime(LocalDateTime.now());
         }
-        return orderRepository.save(order);
+        Order updatedOrder = orderRepository.save(order);
+        HistoryUpdateOrder historyUpdateOrder = new HistoryUpdateOrder();
+        historyUpdateOrder.setOrder(updatedOrder);
+        if (staff != null) {
+            historyUpdateOrder.setStaff(staff);
+        }
+        historyUpdateOrder.setStatus(updatedOrder.getStatus());
+        if (updatedOrder.getStatus() == OrderStatus.PROCESSING) {
+            historyUpdateOrder.setDescription("đã xử lý");
+        } else if (updatedOrder.getStatus() == OrderStatus.SHIPPING) {
+            historyUpdateOrder.setDescription("đã vận chuyển");
+        } else if (updatedOrder.getStatus() == OrderStatus.DONE) {
+            historyUpdateOrder.setDescription("đã hoàn thành");
+        } else if (updatedOrder.getStatus() == OrderStatus.CANCELLED) {
+            historyUpdateOrder.setDescription("đã hủy");
+        }
+        historyUpdateOrderRepository.save(historyUpdateOrder);
+        return updatedOrder;
     }
 
     @Override

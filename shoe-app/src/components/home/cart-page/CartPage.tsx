@@ -11,7 +11,7 @@ import { useCart } from '../../../contexts/CartContext';
 import VoucherDialog from '../dialogs/VoucherDialog';
 import { Voucher } from '../../../models/Voucher';
 import { createOrder } from '../../../services/order.service';
-import { debounce } from 'lodash';
+import { debounce, set, sum } from 'lodash';
 import { getMyPrimaryAddress } from '../../../services/address.service';
 
 const CartPage: FC = () => {
@@ -23,6 +23,11 @@ const CartPage: FC = () => {
     const [voucher, setVoucher] = useState<Voucher | null>(null);
     const [paymentType, setPaymentType] = useState<string>('transfer');
     const [hasInsufficientStock, setHasInsufficientStock] = useState<boolean>(false);
+
+    const ntc = require('ntcjs');
+
+    const totalAmount: number = cart?.cartItemResponses.reduce((sum, item) => sum + item.quantity * item.productVariantDetailsResponse.price, 0) || 0;
+    // const totalDiscount = totalAmount - intoMoney > 0 ? totalAmount - intoMoney : 0;
 
     const handleSubmitOrder = async (voucherCode: string) => {
         const profile = await getProfile();
@@ -213,7 +218,13 @@ const CartPage: FC = () => {
                                                 </div>
                                             </TableCell>
                                             <TableCell align="center">
-                                                <div style={{ width: 20, height: 20, backgroundColor: item.productVariantDetailsResponse.color, borderRadius: '50%', marginLeft: "36%" }}></div>
+                                                <div className="flex flex-col items-center">
+                                                    <div
+                                                    className="w-5 h-5 rounded-full"
+                                                    style={{ backgroundColor: item.productVariantDetailsResponse.color }}
+                                                    ></div>
+                                                    <div>{ntc.name(item.productVariantDetailsResponse.color)[1]}</div>
+                                                </div>
                                             </TableCell>
                                             <TableCell align="center">{item.productVariantDetailsResponse.size}</TableCell>
                                             {
@@ -244,7 +255,6 @@ const CartPage: FC = () => {
                                                         <Button
                                                             variant="outlined" 
                                                             onClick={() => handleDecrease(item.id)}
-                                                            // disabled={hasInsufficientStock}
                                                         >-</Button>
                                                         <input
                                                             type="number"
@@ -323,22 +333,52 @@ const CartPage: FC = () => {
             {
                 cart && cart.cartItemResponses.length > 0 && (
                     <Box className="w-full md:w-1/4 md:h-1/2 bg-white p-6 shadow rounded mt-4 md:mt-0 ml-10">
-                        <Box display={'flex'} justifyContent={'space-between'}>
-                            <Typography variant="h6" className="text-right mb-4">
-                                Tổng cộng:
-                            </Typography>
-                            <Typography variant="h6" className="text-right text-red-500 mb-4">
+                        <Box display="flex" flexDirection="column" className="gap-4 p-4 rounded-md shadow-md">
+                            {/* Tổng cộng */}
+                            <Box display="flex" justifyContent="space-between" className="border-b pb-2">
+                                <Typography variant="h6" className="font-medium">
+                                    Tổng cộng:
+                                </Typography>
+                                <Typography variant="h6" className="font-medium">
+                                    {' ' + totalAmount.toLocaleString()} VNĐ
+                                </Typography>
+                            </Box>
+
+                            <Box display="flex" justifyContent="space-between" className="border-b pb-2">
+                                <Typography variant="h6" className="font-medium">
+                                    Giảm giá: 
+                                </Typography>
+                                <Typography variant="h6" className="font-medium">
                                 {
-                                    voucher ? 
-                                    (Math.max(
-                                        voucher.discountAmount > 100 ? 
-                                            intoMoney - voucher.discountAmount 
-                                            : intoMoney * (1 - voucher.discountAmount / 100),
-                                        0
-                                    )).toLocaleString()
-                                    : intoMoney.toLocaleString()
+                                    voucher
+                                        ? ' ' + Math.max(
+                                            voucher.discountAmount > 100
+                                                ? totalAmount - (intoMoney - voucher.discountAmount)
+                                                : totalAmount - intoMoney * (1 - voucher.discountAmount / 100),
+                                            0
+                                        ).toLocaleString()
+                                        : ' ' + (totalAmount - intoMoney > 0 ? totalAmount - intoMoney : 0).toLocaleString()
                                 } VNĐ
-                            </Typography>
+                                </Typography>
+                            </Box>
+
+                            {/* Thanh toán */}
+                            <Box display="flex" justifyContent="space-between">
+                                <Typography variant="h6" className="font-medium">
+                                    Thanh toán:
+                                </Typography>
+                                <Typography variant="h6" className="font-medium text-red-500">
+                                    {voucher
+                                        ? Math.max(
+                                            voucher.discountAmount > 100
+                                                ? intoMoney - voucher.discountAmount
+                                                : intoMoney * (1 - voucher.discountAmount / 100),
+                                            0
+                                        ).toLocaleString()
+                                        : intoMoney.toLocaleString()
+                                    } VNĐ
+                                </Typography>
+                            </Box>
                         </Box>
                         <Box display={'flex'} justifyContent={'space-between'} marginY={2} height={50}>
                             <input
