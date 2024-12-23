@@ -28,6 +28,7 @@ import { getMyAddress, getMyPrimaryAddress } from '../../../services/address.ser
 import { Address } from '../../../models/Address';
 import AddressDialog from '../dialogs/AddressDialog';
 import axios from 'axios';
+import DiscountLabel from '../../common/DiscountLabel';
 
 interface ProductDialogProps {
   isOpen: boolean;
@@ -39,10 +40,10 @@ interface ProductDialogProps {
 
 const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose, handleCloseProductDialog, setProduct }) => {
   const navigate = useNavigate();
-  const [selectedSize, setSelectedSize] = useState<number | null>(null);
+  const [selectedSize, setSelectedSize] = useState<number | null>(product.size);
   const [quantity, setQuantity] = useState<number>(1);
   const [mainImage, setMainImage] = useState<string>('');
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [selectedColor, setSelectedColor] = useState<string | null>(product.color);
   const { addItemToCart } = useCart();
   const [voucherDialogOpen, setVoucherDialogOpen] = useState(false);
   const [isShowVoucherDialog, setIsShowVoucherDialog] = useState<boolean>(false);
@@ -431,6 +432,9 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose,
             </Box>
           </Grid>
           <Grid item xs={12} md={6}>
+            <div className='relative mr-[5%]'>
+              {product.price !== product.priceAfterDiscount && <DiscountLabel discount={product.discountRate} />}
+            </div>
             <Typography variant="h6">Tên sản phẩm: <strong>{product.product.name}</strong></Typography>
             <Typography variant="subtitle1">Thương hiệu: <strong>{product.product.brand.name}</strong></Typography>
             <Typography variant="h5" color="red" mt={2}>
@@ -462,6 +466,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose,
                         height: '24px',
                         cursor: 'pointer',
                         display: 'block',
+                        minWidth: '36px',
                       }}
                       onClick={() => handleColorSelect(color)}
                     >
@@ -569,6 +574,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose,
           </Grid>
         </Grid>
       </DialogContent>
+      
       <VoucherDialog
         isShowVoucherDialog={isShowVoucherDialog}
         handleCloseVoucherDialog={() => setIsShowVoucherDialog(false)}

@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -172,5 +173,25 @@ public class ProductController {
     @GetMapping("/public/top-selling")
     public ResponseEntity<?> getTopSellingProducts(@RequestParam(defaultValue = "4") int limit) {
         return ResponseEntity.ok(productService.getTopSellingProducts(limit));
+    }
+
+    @DeleteMapping("/staff/delete-avatar/{id}")
+    public ResponseEntity<?> deleteAvatarVariant(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.deleteAvatar(id));
+    }
+
+    @PutMapping("/staff/add-avatar/{id}")
+    public ResponseEntity<?> addAvatarVariant(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(productService.addAvatar(id, file));
+    }
+
+    @DeleteMapping("/staff/delete-other-image/{id}/{fileCode}")
+    public ResponseEntity<?> deleteOtherImageVariant(@PathVariable Long id, @PathVariable String fileCode) {
+        return ResponseEntity.ok(productService.deleteOtherImage(id, fileCode));
+    }
+
+    @PutMapping("/staff/add-other-image/{id}")
+    public ResponseEntity<?> addOtherImageVariant(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(productService.addOtherImage(id, file));
     }
 }

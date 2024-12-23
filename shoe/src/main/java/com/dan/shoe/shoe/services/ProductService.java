@@ -10,6 +10,7 @@ import com.dan.shoe.shoe.models.Product;
 import com.dan.shoe.shoe.models.ProductVariant;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -35,4 +36,8 @@ public interface ProductService {
     List<ProductVariantDetailsResponse> getTopSellingProducts(int limit);
     Page<Product> getProductByKeywordAndStatus(String keyword, String status, Pageable pageable);
     List<ProductVariantDetailsResponse> getAllVariantByProductAndColor(Long productId, String color);
+    ProductVariant deleteAvatar(Long id);
+    ProductVariant addAvatar(Long id, MultipartFile file);
+    ProductVariant deleteOtherImage(Long id, String fileCode);
+    ProductVariant addOtherImage(Long id, MultipartFile file);
 }

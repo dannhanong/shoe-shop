@@ -189,7 +189,7 @@ const VariantForm: React.FC<VariantFormProps> = ({
                                             </Box>
                                         ))}
                                     </Box>
-                                    {/* Ẩn nút tải lên nếu đã có đủ 6 ảnh */}
+                                    {/* Ẩn nút tải lên nếu đã có đủ 5 ảnh */}
                                     {variantsInGroup[0].relatedImagesPreviews.length < 5 && (
                                         <IconButton color="secondary" component="label">
                                             <FaRegFileImage color="blue" />

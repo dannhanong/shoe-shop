@@ -5,7 +5,6 @@ import { Brand } from '../../../models/Brand';
 import { Category } from '../../../models/Category';
 import { getAllBrands } from '../../../services/brand.service';
 import { getAllCategorieList } from '../../../services/category.service';
-import { FaRegFileImage } from "react-icons/fa";
 import Swal from 'sweetalert2';
 import { createProduct } from '../../../services/product.service';
 import VariantForm from './VariantForm';
@@ -345,7 +344,7 @@ const CreateProductWithVariants: React.FC = () => {
                 <DialogTitle>Thêm Mã Màu Mới</DialogTitle>
                 <DialogContent>
                     <TextField
-                        label="Mã Màu (Hex)"
+                        label="Mã Màu (Hex: #FFD700)"
                         value={newColor}
                         onChange={(e) => setNewColor(e.target.value)}
                         fullWidth

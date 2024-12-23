@@ -202,3 +202,33 @@ export const updateVariantApi = async (id: number, size: number, color: string, 
 export const getTopSellingProducts = async () => {
     return axios.get(`${BASE_URL}/products/public/top-selling`);
 }
+
+export const addAvaterImage = async (id: number, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return axios.put(`${BASE_URL}/products/staff/add-avatar/${id}`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data', 
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+    });
+}
+
+export const deleteOtherImage = async (id: number, fileCode: string) => {
+    return axios.delete(`${BASE_URL}/products/staff/delete-other-image/${id}/${fileCode}`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+    });
+}
+
+export const addOtherImage = async (id: number, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return axios.put(`${BASE_URL}/products/staff/add-other-image/${id}`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data', 
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+    });
+}

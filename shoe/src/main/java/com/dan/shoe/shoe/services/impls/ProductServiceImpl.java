@@ -418,4 +418,64 @@ public class ProductServiceImpl implements ProductService {
             .map(this::fromProductVariantToProductVariantDetailsResponse)
             .collect(Collectors.toList());
     }
+
+    @Override
+    public ProductVariant deleteAvatar(Long id) {
+        ProductVariant productVariant = productVariantRepository.findById(id).get();
+        if(productVariant != null) {
+            productVariant.setImageAvatar(null);
+            return productVariantRepository.save(productVariant);
+        } else {
+            throw new RuntimeException("Không tìm thấy sản phẩm");
+        }
+    }
+
+    @Override
+    public ProductVariant addAvatar(Long id, MultipartFile file) {
+        ProductVariant productVariant = productVariantRepository.findById(id).get();
+        if(productVariant != null) {
+            String fileCode = null;
+            try {
+                fileCode = fileUploadService.uploadFile(file).getFileCode();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            productVariant.setImageAvatar(fileCode);
+            return productVariantRepository.save(productVariant);
+        } else {
+            throw new RuntimeException("Không tìm thấy sản phẩm");
+        }
+    }
+
+    @Override
+    public ProductVariant deleteOtherImage(Long id, String fileCode) {
+        ProductVariant productVariant = productVariantRepository.findById(id).get();
+        if (productVariant != null) {
+            List<String> imageOthers = productVariant.getImageOthers();
+            imageOthers.remove(fileCode);
+            productVariant.setImageOthers(imageOthers);
+            return productVariantRepository.save(productVariant);
+        } else {
+            throw new RuntimeException("Không tìm thấy sản phẩm");
+        }
+    }
+
+    @Override
+    public ProductVariant addOtherImage(Long id, MultipartFile file) {
+        ProductVariant productVariant = productVariantRepository.findById(id).get();
+        if (productVariant != null) {
+            List<String> imageOthers = productVariant.getImageOthers();
+            String fileCode = null;
+            try {
+                fileCode = fileUploadService.uploadFile(file).getFileCode();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            imageOthers.add(fileCode);
+            productVariant.setImageOthers(imageOthers);
+            return productVariantRepository.save(productVariant);
+        } else {
+            throw new RuntimeException("Không tìm thấy sản phẩm");
+        }
+    }
 }

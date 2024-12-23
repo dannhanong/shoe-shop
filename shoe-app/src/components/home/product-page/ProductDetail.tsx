@@ -392,8 +392,8 @@ const ProductDetail: React.FC = () => {
             const response = await getProductVariantResponseAndRelated(Number(param.id), size);
             setProductDetail(response.data.productVariantDetailsResponse);
             setProductRelated(response.data.productVariantDetailsResponses);
-            // setSelectedColor(response.data.productVariantDetailsResponse.color);
-            // setSelectedSize(response.data.productVariantDetailsResponse.size);
+            setSelectedColor(response.data.productVariantDetailsResponse.color);
+            setSelectedSize(response.data.productVariantDetailsResponse.size);
         } catch (error) {
             console.error('Error fetching product detail:', error);
         }
@@ -414,6 +414,7 @@ const ProductDetail: React.FC = () => {
     };
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         getProductDetailAndRelated(3);
         fetchMyAddress();
         fetchMyPrimaryAddress();
@@ -476,6 +477,9 @@ const ProductDetail: React.FC = () => {
                                 </div>
                             </Box>
                             <Grid item xs={12} md={6}>
+                                <div className='relative mr-[5%]'>
+                                    {productDetail.price !== productDetail.priceAfterDiscount && <DiscountLabel discount={productDetail.discountRate} />}
+                                </div>
                                 <Typography variant="h6">Tên sản phẩm: <strong>{productDetail.product.name}</strong></Typography>
                                 <Typography variant="subtitle1">Thương hiệu: <strong>{productDetail.product.brand.name}</strong></Typography>
                                 <Typography variant="h5" color="red" mt={2}>
@@ -507,6 +511,7 @@ const ProductDetail: React.FC = () => {
                                                         height: '24px',
                                                         cursor: 'pointer',
                                                         display: 'block',
+                                                        minWidth: '44px',
                                                     }}
                                                     onClick={() => handleColorSelect(color)}
                                                 >
@@ -531,7 +536,7 @@ const ProductDetail: React.FC = () => {
                                                     )}
                                                 </Box>
                                                 <Box>
-                                                    <Typography variant="caption">{ntc.name(color)[1]}</Typography>
+                                                    <Typography marginRight={3} variant="caption">{ntc.name(color)[1]}</Typography>
                                                 </Box>
                                             </Box>
                                         ))}

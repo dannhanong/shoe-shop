@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ManagerHeader from '../manager/ManagerHeader';
 import Header from '../../layouts/Header';
 import Footer from '../../layouts/Footer';
@@ -15,6 +15,10 @@ const Home: React.FC<HomeProps> = ({ children }) => {
 
   // Kiểm tra xem có cần ẩn Header hay không
   const shouldHideHeader = isManager && location.pathname.startsWith('/manager');
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location]);
 
   return (
     <div className="pt-16">
