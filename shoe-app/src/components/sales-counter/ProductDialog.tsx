@@ -17,6 +17,8 @@ interface ProductDialogProps {
 }
 
 const ProductDialog: React.FC<ProductDialogProps> = ({ products, isOpen, onClose, onSelectProduct, currentPage, totalPages, onPageChange, handleCloseProductDialog, keywordP, handleKeywordPChange }) => {
+  const ntc = require('ntcjs');
+
   return (
     <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle>Chọn sản phẩm</DialogTitle>
@@ -60,7 +62,10 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ products, isOpen, onClose
                   <TableCell align="center">{product.stockQuantity}</TableCell>
                   <TableCell align="center">{product.size}</TableCell>
                   <TableCell align="center">
-                    <div style={{ width: 20, height: 20, backgroundColor: product.color, borderRadius: '50%' }} />
+                    <div className="flex flex-col items-center">
+                      <div style={{ width: 20, height: 20, backgroundColor: product.color, borderRadius: '50%' }} />
+                      <div>{ntc.name(product.color)[1]}</div>
+                    </div>
                   </TableCell>
                   <TableCell align="center">
                     <Button variant="contained" color="primary" onClick={() => onSelectProduct(product)}>

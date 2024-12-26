@@ -394,6 +394,11 @@ const ProductDetail: React.FC = () => {
             setProductRelated(response.data.productVariantDetailsResponses);
             setSelectedColor(response.data.productVariantDetailsResponse.color);
             setSelectedSize(response.data.productVariantDetailsResponse.size);
+            setListSizeAvailable((prev: number[]) => [...prev, response.data.productVariantDetailsResponse.size]);
+            const res = await getAllVariantByColor(response.data.productVariantDetailsResponse.color, response.data.productVariantDetailsResponse.id);
+            res.data.map((variant: Variant) => {
+                setListSizeAvailable((prev: number[]) => [...prev, variant.size]);
+            });
         } catch (error) {
             console.error('Error fetching product detail:', error);
         }
@@ -406,7 +411,8 @@ const ProductDetail: React.FC = () => {
     const handleColorSelect = async (color: string) => {
         setSelectedSize(null);
         setListSizeAvailable([]);
-        setSelectedColor((prevColor) => (prevColor === color ? null : color));
+        // setSelectedColor((prevColor) => (prevColor === color ? null : color));
+        setSelectedColor(color);
         const response = await getAllVariantByColor(color, Number(productDetail?.product.id))
         response.data.map((variant: Variant) => {
             setListSizeAvailable((prev: number[]) => [...prev, variant.size]);
@@ -418,7 +424,7 @@ const ProductDetail: React.FC = () => {
         getProductDetailAndRelated(3);
         fetchMyAddress();
         fetchMyPrimaryAddress();
-        fetchAllProvince();
+        fetchAllProvince();        
     }, [param.id]);
 
     useEffect(() => {

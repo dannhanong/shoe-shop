@@ -304,7 +304,8 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose,
   const handleColorSelect = async (color: string) => {
     setSelectedSize(null);
     setListSizeAvailable([]);
-    setSelectedColor((prevColor) => (prevColor === color ? null : color));
+    // setSelectedColor((prevColor) => (prevColor === color ? null : color));
+    setSelectedColor(color);
     const response = await getAllVariantByColor(color, Number(product.product.id))
     response.data.map((variant: Variant) => {
       setListSizeAvailable((prev: number[]) => [...prev, variant.size]);
@@ -373,23 +374,32 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose,
     }
   }
 
-  useEffect(() => {
-    const fetchValidColors = async () => {
-      if (product) {
-        const valid = await Promise.all(
-          product.colors.map(async (color) => {
-            try {
-              const isValid = await checkVariantColor(color);
-              return isValid ? color : null;
-            } catch (error) {
-              return null;
-            }
-          })
-        );
-        setValidColors(valid.filter((color) => color !== null) as string[]);
+  const fetchValidColors = async () => {
+    if (product) {
+      console.log('product:', product);
+      console.log('product.colors:', selectedColor);
+      console.log('product.id:', product.product.id);      
+      const valid = await Promise.all(
+        product.colors.map(async (color) => {
+          try {
+            const isValid = await checkVariantColor(color);
+            return isValid ? color : null;
+          } catch (error) {
+            return null;
+          }
+        })
+      );
+      setValidColors(valid.filter((color) => color !== null) as string[]);
+      if (selectedColor) {
+        const response = await getAllVariantByColor(selectedColor, product.product.id);
+        response.data.map((variant: Variant) => {
+          setListSizeAvailable((prev: number[]) => [...prev, variant.size]);
+        });
       }
-    };
+    }
+  };
 
+  useEffect(() => {
     fetchValidColors();
   }, [product]);
 

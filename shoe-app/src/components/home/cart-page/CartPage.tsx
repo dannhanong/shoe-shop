@@ -12,7 +12,10 @@ import VoucherDialog from '../dialogs/VoucherDialog';
 import { Voucher } from '../../../models/Voucher';
 import { createOrder } from '../../../services/order.service';
 import { debounce, set, sum } from 'lodash';
-import { getMyPrimaryAddress } from '../../../services/address.service';
+import { getMyAddress, getMyPrimaryAddress } from '../../../services/address.service';
+import AddressDialog from '../dialogs/AddressDialog';
+import { Address } from '../../../models/Address';
+import axios from 'axios';
 
 const CartPage: FC = () => {
     const navigate = useNavigate();
@@ -23,11 +26,56 @@ const CartPage: FC = () => {
     const [voucher, setVoucher] = useState<Voucher | null>(null);
     const [paymentType, setPaymentType] = useState<string>('transfer');
     const [hasInsufficientStock, setHasInsufficientStock] = useState<boolean>(false);
+    const [address, setAddress] = useState<string>('');
+    const [isWantChange, setIsWantChange] = useState<boolean>(false);
 
     const ntc = require('ntcjs');
 
+    const [addresses, setAddresses] = useState<Address[]>([]);
+    const [provinces, setProvinces] = useState<{ name: string; code: number }[]>([]);
+    const [districts, setDistricts] = useState<{ name: string; code: number }[]>([]);
+    const [wards, setWards] = useState<{ name: string; code: number }[]>([]);
+    const [selectedProvince, setSelectedProvince] = useState<number | null>(null);
+    const [selectedDistrict, setSelectedDistrict] = useState<number | null>(null);
+    const [selectedWard, setSelectedWard] = useState<number | null>(null);
+
     const totalAmount: number = cart?.cartItemResponses.reduce((sum, item) => sum + item.quantity * item.productVariantDetailsResponse.price, 0) || 0;
     // const totalDiscount = totalAmount - intoMoney > 0 ? totalAmount - intoMoney : 0;
+
+    const fetchMyAddress = async () => {
+        try {
+            const response = await getMyAddress();
+            setAddresses(response.data);
+        } catch (error) {
+            console.error('Lỗi khi tải thông tin người dùng:', error);
+        }
+    }
+
+    const fetchMyPrimaryAddress = async () => {
+        try {
+            const response = await getMyPrimaryAddress();
+            response.data && setAddress(response.data.province + ' - ' + response.data.district + ' - ' + response.data.ward);
+        } catch (error) {
+            console.error('Lỗi khi tải thông tin người dùng:', error);
+        }
+    }
+    
+    const fetchAllProvince = async () => {
+        try {
+            axios
+                .get("https://provinces.open-api.vn/api/p/")
+                .then((response) => {
+                    const formattedProvinces = response.data.map((province: any) => ({
+                        name: province.name,
+                        code: province.code,
+                    }));
+                    setProvinces(formattedProvinces);
+                })
+                .catch((error) => console.error("Error fetching provinces:", error));
+        } catch (error) {
+            console.error('Lỗi khi tải thông tin người dùng:', error);
+        }
+    }
 
     const handleSubmitOrder = async (voucherCode: string) => {
         const profile = await getProfile();
@@ -42,14 +90,14 @@ const CartPage: FC = () => {
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     if (paymentType === 'transfer') {
-                        const response = await createOrder(voucherCode, paymentType);
+                        const response = await createOrder(voucherCode, paymentType, address);
                         if (response) {
                             window.location.href = response.vnpayUrl;
                         } else {
                             toast.error('Đã xảy ra lỗi, vui lòng thử lại sau');
                         }
                     } else {
-                        const response = await createOrder(voucherCode, paymentType);
+                        const response = await createOrder(voucherCode, paymentType, address);
                         if (response) {
                             getMyCart();
                             toast.success('Đặt hàng thành công');
@@ -172,6 +220,9 @@ const CartPage: FC = () => {
     useEffect(() => {
         if (isAuthenticated()) {
             getMyCart();
+            fetchAllProvince();
+            fetchMyAddress();
+            fetchMyPrimaryAddress();
         }
     }, []);
 
@@ -332,7 +383,7 @@ const CartPage: FC = () => {
             {/* Cart Total */}
             {
                 cart && cart.cartItemResponses.length > 0 && (
-                    <Box className="w-full md:w-1/4 md:h-1/2 bg-white p-6 shadow rounded mt-4 md:mt-0 ml-10">
+                    <Box className="w-full md:w-2/6 md:h-1/2 bg-white p-6 shadow rounded mt-4 md:mt-0 ml-10">
                         <Box display="flex" flexDirection="column" className="gap-4 p-4 rounded-md shadow-md">
                             {/* Tổng cộng */}
                             <Box display="flex" justifyContent="space-between" className="border-b pb-2">
@@ -432,6 +483,24 @@ const CartPage: FC = () => {
                                 </Box>
                             </Box>
                         </Box>
+
+                        <Box my={2}>
+                            <Box display="flex" alignItems="center" gap={2}>
+                                <Typography sx={{ minWidth: 70 }} variant="subtitle1">Giao đến:</Typography>
+                                <Typography
+                                    sx={{ minWidth: 150 }}
+                                >
+                                    {address ? address : 'Chưa có địa chỉ phù hợp'}
+                                </Typography>
+
+                                <Button
+                                    onClick={() => setIsWantChange(true)}
+                                >
+                                    Thay đổi
+                                </Button>
+                            </Box>
+                        </Box>
+                        
                         <Button 
                             variant="contained" 
                             color="primary" 
@@ -441,6 +510,25 @@ const CartPage: FC = () => {
                         >
                             {hasInsufficientStock ? 'VƯỢT QUÁ SỐ LƯỢNG TỒN KHO' : 'THANH TOÁN'}
                         </Button>
+
+                        <AddressDialog
+                            isWantChange={isWantChange}
+                            setIsWantChange={setIsWantChange}
+                            addresses={addresses}
+                            provinces={provinces}
+                            districts={districts}
+                            setDistricts={setDistricts}
+                            wards={wards}
+                            setWards={setWards}
+                            selectedProvince={selectedProvince}
+                            setSelectedProvince={setSelectedProvince}
+                            selectedDistrict={selectedDistrict}
+                            setSelectedDistrict={setSelectedDistrict}
+                            selectedWard={selectedWard}
+                            setSelectedWard={setSelectedWard}
+                            setAddress={setAddress}
+                            handleCloseAddressDialog={() => setIsWantChange(false)}
+                        />
                     </Box>
                 )
             }

@@ -62,15 +62,15 @@ public class OrderServiceImpl implements OrderService {
     private HistoryUpdateOrderRepository historyUpdateOrderRepository;
 
     @Override
-    public Order createOrder(String username, String voucherCode, PaymentType paymentType) {
+    public Order createOrder(String username, String voucherCode, PaymentType paymentType, String address) {
         User user = userRepository.findByUsername(username);
-        Address address = addressService.getPrimaryAddress(username);
+        // Address address = addressService.getPrimaryAddress(username);
         Order order = new Order();
         order.setUser(user);
         order.setOrderType(OrderType.ONLINE);
         order.setStatus(OrderStatus.CREATED);
         order.setPaymentType(paymentType);
-        order.setAddress(address.getProvince() + " - " + address.getDistrict() + " - " + address.getWard());
+        order.setAddress(address);
         Cart cart = cartRepository.findByUser(user);
 
         // Sao chép các CartItem thành OrderItem và thiết lập Order cho mỗi OrderItem

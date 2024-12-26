@@ -4,9 +4,9 @@ import { NowCreation } from '../models/request/NowCreation';
 
 const BASE_URL = process.env.REACT_APP_BASE_URL
 
-export const createOrder = async (voucherCode: string, paymentType: string) => {
+export const createOrder = async (voucherCode: string, paymentType: string, address: string) => {
     try {
-        const response = await axios.post(`${BASE_URL}/orders/create?voucherCode=${voucherCode}&paymentType=${paymentType}`,
+        const response = await axios.post(`${BASE_URL}/orders/create?voucherCode=${voucherCode}&paymentType=${paymentType}&address=${address}`,
             {},
             {
                 headers: {

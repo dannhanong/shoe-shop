@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface OrderService {
-    Order createOrder(String username, String voucherCode, PaymentType paymentType);
+    Order createOrder(String username, String voucherCode, PaymentType paymentType, String address);
     Order getOrderById(Long id);
     Page<Order> getOrdersByUser(Pageable pageable, String username);
     void updateOrderStatus(Long orderId, String status);

@@ -242,7 +242,7 @@ const OrderDetails: React.FC = () => {
                   Tên khách hàng: {order?.user?.name}
                 </Typography>
                 <Typography variant="body1">
-                  Địa chỉ: {order?.address !== "undefined - undefined - undefined" ? order?.address : "Chưa có dữ liệu"}
+                  Địa chỉ giao hàng: {order?.address !== "undefined - undefined - undefined" ? order?.address : "Chưa có dữ liệu"}
                 </Typography>
                 <Typography variant="body1">
                   Số điện thoại: {order?.user?.phoneNumber}
@@ -333,7 +333,7 @@ const OrderDetails: React.FC = () => {
                                   <strong>{item.staff ? item.staff.name : 'Admin'}</strong> 
                                   {" cập nhật " }
                                   <span className="text-red-600">{ item.description }</span>
-                                  { " vào "}
+                                  { " vào lúc "}
                                   {format(new Date(item.updateAt), 'dd/MM/yyyy HH:mm:ss')}
                               </>
                           }

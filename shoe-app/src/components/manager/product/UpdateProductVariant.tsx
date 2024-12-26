@@ -47,6 +47,8 @@ const UpdateProductVariant: React.FC = () => {
     const [brands, setBrands] = useState<Brand[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
 
+    const ntc = require('ntcjs');
+
     const handleDeleteVariant = (id: number) => {
         Swal.fire({
             title: 'Xác nhận',
@@ -303,6 +305,7 @@ const UpdateProductVariant: React.FC = () => {
                             <td className="border p-2">{variant.product.name}</td>
                             <td className="border p-2 text-center">
                                 <div style={{ width: 20, height: 20, backgroundColor: variant.color, borderRadius: '50%', marginLeft: '38%' }} />
+                                <div>{ntc.name(variant.color)[1]}</div>
                             </td>
                             <td className="border p-2">{variant.size}</td>
                             <td className="border p-2 flex justify-center">

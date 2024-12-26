@@ -42,10 +42,11 @@ public class OrderController {
     @PostMapping("/create")
     public ResponseEntity<?> createOrder(HttpServletRequest request,
                                                     @RequestParam(value = "voucherCode", defaultValue = "") String voucherCode,
-                                                    @RequestParam(value = "paymentType", defaultValue = "TRANSFER") String paymentType) {
+                                                    @RequestParam(value = "paymentType", defaultValue = "TRANSFER") String paymentType,
+                                                    @RequestParam String address) {
         String token = getTokenFromRequest(request);
         String username = jwtService.extractUsername(token);
-        Order order = orderService.createOrder(username, voucherCode, PaymentType.valueOf(paymentType.toUpperCase()));
+        Order order = orderService.createOrder(username, voucherCode, PaymentType.valueOf(paymentType.toUpperCase()), address);
 
         if (order.getPaymentType() == PaymentType.TRANSFER) {
             String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
