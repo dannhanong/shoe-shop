@@ -651,6 +651,10 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose,
                 />
                 <label htmlFor="card">Thanh toán khi nhận hàng</label>
               </Box>
+              <Box my={2} display={'flex'} justifyContent={'space-between'}>
+                  <Typography variant="subtitle1">Phí vận chuyển:</Typography>
+                  <Typography variant="body1" className="text-red-500 font-medium">50,000 VNĐ</Typography>
+              </Box>
               <Box sx={{ mt: 2, ml: '31%' }}>
                 <Box display="flex" justifyContent="space-between" sx={{ mb: 1 }}>
                   <Typography variant="subtitle1">Tổng cộng:</Typography>
@@ -667,7 +671,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ isOpen, product, onClose,
                 <Box display="flex" justifyContent="space-between" sx={{ mb: 1 }}>
                   <Typography variant="subtitle1">Thanh toán:</Typography>
                   <Typography variant="subtitle1" sx={{ color: 'red' }}>
-                    <p>{paymentAmount.toLocaleString()} VNĐ</p>
+                    <p>{(paymentAmount + 50000).toLocaleString()} VNĐ</p>
                   </Typography>
                 </Box>
               </Box>

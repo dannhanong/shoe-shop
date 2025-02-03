@@ -50,7 +50,7 @@ public class OrderController {
 
         if (order.getPaymentType() == PaymentType.TRANSFER) {
             String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
-            String vnpayUrl = vnPayService.createOrder(order.getTotalPrice(), order.getId().toString(), baseUrl);
+            String vnpayUrl = vnPayService.createOrder(order.getTotalPrice() + 50000, order.getId().toString(), baseUrl);
 
             VNPayMessage VNPayMessage = new VNPayMessage("payment", vnpayUrl);
             return ResponseEntity.ok(VNPayMessage);
@@ -81,7 +81,7 @@ public class OrderController {
 
         if (order.getPaymentType() == PaymentType.TRANSFER) {
             String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
-            String vnpayUrl = vnPayService.createOrder(order.getTotalPrice(), order.getId().toString(), baseUrl);
+            String vnpayUrl = vnPayService.createOrder(order.getTotalPrice() + 50000, order.getId().toString(), baseUrl);
             System.out.println("id" + order.getId());
             VNPayMessage VNPayMessage = new VNPayMessage("payment", vnpayUrl);
             return ResponseEntity.ok(VNPayMessage);

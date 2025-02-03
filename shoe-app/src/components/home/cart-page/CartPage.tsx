@@ -484,6 +484,11 @@ const CartPage: FC = () => {
                             </Box>
                         </Box>
 
+                        <Box my={2} display={'flex'} justifyContent={'space-between'}>
+                            <Typography variant="subtitle1">Phí vận chuyển:</Typography>
+                            <Typography variant="body1" className="text-red-500 font-medium">50,000 VNĐ</Typography>
+                        </Box>
+
                         <Box my={2}>
                             <Box display="flex" alignItems="center" gap={2}>
                                 <Typography sx={{ minWidth: 70 }} variant="subtitle1">Giao đến:</Typography>
