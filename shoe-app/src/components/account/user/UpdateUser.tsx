@@ -32,16 +32,22 @@ const UpdateUser: React.FC = () => {
 
     // Handle form submission
     const handleSubmit = async () => {
-        const response = await updateAccount(Number(param.id), name, username, email, phoneNumber, account?.enabled || false);
+        try {
+            const response = await updateAccount(Number(param.id), name, username, email, phoneNumber, account?.enabled || false);
 
-        if (response) {
-            toast.success(response.message, {
+            if (response) {
+                toast.success(response.message, {
+                    autoClose: 3000,
+                });
+                fethchUser();
+            }
+        } catch (error) {
+            toast.error("Cập nhật tài khoản thất bại, vui lòng kiểm tra lại thông tin", {
                 autoClose: 3000,
             });
-            fethchUser();
         }
-    }
-
+    };
+    
     const fethchUser = async () => {
         try {
             const response = await getAccountById(Number(param.id));

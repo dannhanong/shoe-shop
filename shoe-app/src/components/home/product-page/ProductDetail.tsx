@@ -22,6 +22,7 @@ import { Address } from '../../../models/Address';
 import AddressDialog from '../dialogs/AddressDialog';
 import axios from 'axios';
 import { add } from 'lodash';
+import { motion } from 'framer-motion';
 
 const ProductDetail: React.FC = () => {
     const navigate = useNavigate();
@@ -120,10 +121,26 @@ const ProductDetail: React.FC = () => {
     }
 
     const addProductToCart = async (productVariantId: number) => {
-        const response = await addToCart(productVariantId, 1);
-        if (response) {
-            await addItemToCart();
-            toast.success('Thêm vào giỏ hàng thành công');
+        if (isAuthenticated()) {
+            const response = await addToCart(productVariantId, 1);
+            if (response) {
+                await addItemToCart();
+                toast.success('Thêm vào giỏ hàng thành công');
+            }
+        } else {
+            handleCloseProductDialog();
+            Swal.fire({
+                title: 'Vui lòng đăng nhập',
+                text: 'Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Đăng nhập',
+                cancelButtonText: 'Hủy',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    navigate('/login');
+                }
+            });
         }
     }
 
@@ -150,7 +167,7 @@ const ProductDetail: React.FC = () => {
                     };
                     console.log('NowCreation:', nowCreation);
                     if (!selectedColor || !selectedSize) {
-                        toast.error('Vui lòng chọn màu sắc và kích thước');
+                        toast.error('Vui lòng chọn năm xuất / tái bản');
                         return;
                     } else {
                         const response = await createOrderNow(nowCreation);
@@ -173,7 +190,7 @@ const ProductDetail: React.FC = () => {
                     };
                     console.log('NowCreation:', nowCreation);
                     if (!selectedColor || !selectedSize) {
-                        toast.error('Vui lòng chọn màu sắc và kích thước');
+                        toast.error('Vui lòng chọn năm xuất / tái bản');
                         return;
                     } else {
                         const response = await createOrderNow(nowCreation);
@@ -216,7 +233,7 @@ const ProductDetail: React.FC = () => {
                         };
                         console.log('NowCreation:', nowCreation);
                         if (!selectedColor || !selectedSize) {
-                            toast.error('Vui lòng chọn màu sắc và kích thước');
+                            toast.error('Vui lòng chọn năm xuất / tái bản');
                             return;
                         } else {
                             const response = await createOrderNow(nowCreation);
@@ -240,7 +257,7 @@ const ProductDetail: React.FC = () => {
                         };
                         console.log('NowCreation:', nowCreation);
                         if (!selectedColor || !selectedSize) {
-                            toast.error('Vui lòng chọn màu sắc và kích thước');
+                            toast.error('Vui lòng chọn năm xuất / tái bản');
                             return;
                         } else {
                             const response = await createOrderNow(nowCreation);
@@ -297,7 +314,7 @@ const ProductDetail: React.FC = () => {
             };
             console.log('NowCreation:', nowCreation);
             if (!selectedColor || !selectedSize) {
-                toast.error('Vui lòng chọn màu sắc và kích thước');
+                toast.error('Vui lòng chọn năm xuất / tái bản');
                 return;
             } else {
                 const response = await addCartNow(nowCreation);
@@ -419,12 +436,27 @@ const ProductDetail: React.FC = () => {
         });
     };
 
+    const container = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    };
+
+    const item = {
+        hidden: { opacity: 0, y: 20 },
+        show: { opacity: 1, y: 0 }
+    };
+
     useEffect(() => {
         window.scrollTo(0, 0);
         getProductDetailAndRelated(3);
         fetchMyAddress();
         fetchMyPrimaryAddress();
-        fetchAllProvince();        
+        fetchAllProvince();
     }, [param.id]);
 
     useEffect(() => {
@@ -464,8 +496,8 @@ const ProductDetail: React.FC = () => {
                                     src={mainImage}
                                     alt={productDetail.product.name}
                                     style={{
-                                        width: '390px', // Đặt kích thước cố định
-                                        height: '310px', // Đặt kích thước cố định
+                                        width: '390px', // Đặt Năm xuất / tái bản cố định
+                                        height: '310px', // Đặt Năm xuất / tái bản cố định
                                         borderRadius: '8px',
                                         objectFit: 'cover', // Đảm bảo không bị méo hình
                                     }}
@@ -487,7 +519,7 @@ const ProductDetail: React.FC = () => {
                                     {productDetail.price !== productDetail.priceAfterDiscount && <DiscountLabel discount={productDetail.discountRate} />}
                                 </div>
                                 <Typography variant="h6">Tên sản phẩm: <strong>{productDetail.product.name}</strong></Typography>
-                                <Typography variant="subtitle1">Thương hiệu: <strong>{productDetail.product.brand.name}</strong></Typography>
+                                <Typography variant="subtitle1">Nhà xuất bản: <strong>{productDetail.product.brand.name}</strong></Typography>
                                 <Typography variant="h5" color="red" mt={2}>
                                     {productDetail.priceAfterDiscount.toLocaleString()}  VNĐ
                                 </Typography>
@@ -505,52 +537,8 @@ const ProductDetail: React.FC = () => {
                                 {/* <Typography variant="body2" mt={2}>{productDetail.product.description}</Typography> */}
                                 <Typography variant="subtitle1">Số lượng còn: <strong>{productDetail.stockQuantity}</strong></Typography>
 
-                                <Box mt={2} sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <Typography variant="subtitle1">Màu:</Typography>
-                                    <Box display="flex" gap={1} sx={{ marginLeft: 2 }}>
-                                        {validColors.map((color, index) => (
-                                            <Box key={index}>
-                                                <Box
-                                                    sx={{
-                                                        position: 'relative',
-                                                        width: '24px',
-                                                        height: '24px',
-                                                        cursor: 'pointer',
-                                                        display: 'block',
-                                                        minWidth: '44px',
-                                                    }}
-                                                    onClick={() => handleColorSelect(color)}
-                                                >
-                                                    <FaCircle style={{ color, fontSize: '24px' }} />
-                                                    {selectedColor === color && (
-                                                        <Box
-                                                            sx={{
-                                                                position: 'absolute',
-                                                                top: 0,
-                                                                left: 0,
-                                                                width: '24px',
-                                                                height: '24px',
-                                                                display: 'flex',
-                                                                alignItems: 'center',
-                                                                justifyContent: 'center',
-                                                                color: 'white',
-                                                                fontSize: '16px',
-                                                            }}
-                                                        >
-                                                            ✓
-                                                        </Box>
-                                                    )}
-                                                </Box>
-                                                <Box>
-                                                    <Typography marginRight={3} variant="caption">{ntc.name(color)[1]}</Typography>
-                                                </Box>
-                                            </Box>
-                                        ))}
-                                    </Box>
-                                </Box>
-
                                 <Box mt={2} display={'flex'} alignItems={'center'}>
-                                    <Typography variant="subtitle1">Kích thước:</Typography>
+                                    <Typography variant="subtitle1">Năm xuất / tái bản:</Typography>
                                     <Box display="flex" gap={1} marginLeft={2}>
                                         {productDetail.sizes.map((size, index) => (
                                             <Button
@@ -639,51 +627,68 @@ const ProductDetail: React.FC = () => {
                             <div className='mt-10 mb-4'>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                                     {productRelated.length > 0 ? productRelated.map((product) => (
-                                        <div
+                                        <motion.div
                                             key={product.id}
-                                            className="relative border rounded-lg shadow-md overflow-hidden"
+                                            variants={item}
+                                            className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 relative group"
+                                            whileHover={{ y: -5 }}
                                             onMouseEnter={() => setHoveredProductId(product.id)}
                                             onMouseLeave={() => setHoveredProductId(null)}
                                         >
-                                            <img
-                                                src={`${process.env.REACT_APP_BASE_URL}/files/preview/${product.imageAvatar}`}
-                                                alt={product.product.name}
-                                                className="w-full h-48 object-cover md:h-64 cursor-pointer"
-                                                onClick={() => navigate(`/product-detail/${product.id}`)}
-                                            />
+                                            <div className="relative overflow-hidden hover:cursor-pointer">
+                                                <img
+                                                    src={`${process.env.REACT_APP_BASE_URL}/files/preview/${product.imageAvatar}`}
+                                                    alt={product.product.name}
+                                                    className="w-full h-48 object-cover md:h-64 cursor-pointer"
+                                                    onClick={() => navigate(`/product-detail/${product.id}`)}
+                                                />
+                                                <div className="absolute inset-0 bg-black bg-opacity-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                            </div>
                                             {product.price !== product.priceAfterDiscount && <DiscountLabel discount={product.discountRate} />}
                                             <div className="p-4">
                                                 <h3 className="text-lg font-semibold mb-2">{product.product.name}</h3>
-                                                <div className="flex items-center mb-2">
-                                                    {
-                                                        product.discountRate > 0 ? (
-                                                            <span className="text-gray-400 line-through mr-2">{product.price.toLocaleString()} VNĐ</span>
-                                                        ) : (
-                                                            <span className="text-gray-400 mr-2">{product.price.toLocaleString()} VNĐ</span>
-                                                        )
-                                                    }
-                                                    {
-                                                        product.discountRate > 0 && (
-                                                            <span className="text-red-600 font-bold absolute right-4">{product.priceAfterDiscount.toLocaleString()} VNĐ</span>
-                                                        )
-                                                    }
+                                                <div className="mt-4">
+                                                    {product.discountRate > 0 ? (
+                                                        <div className="flex flex-col justify-end">
+                                                            <span className="text-gray-400 line-through text-end">
+                                                                {product.price.toLocaleString()} VNĐ
+                                                            </span>
+                                                            <span className="text-red-600 font-bold text-end text-lg">
+                                                                {product.priceAfterDiscount.toLocaleString()} VNĐ
+                                                            </span>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex flex-col justify-end">
+                                                            <span className="text-gray-700 font-semibold text-end text-lg mt-5">
+                                                                {product.price.toLocaleString()} VNĐ
+                                                            </span>
+                                                        </div>
+                                                    )}
                                                 </div>
                                                 {/* <div className="flex items-center">
                                                     <span className="text-sm text-gray-600 absolute right-4">{product.id} đã bán</span>
                                                 </div> */}
                                             </div>
                                             {hoveredProductId === product.id && (
-                                                <div className="absolute top-24 right-2">
-                                                    <button className="bg-white p-2 rounded-full shadow hover:bg-gray-200 mb-1" onClick={() => addProductToCart(product.id)}>
-                                                        <FaCartPlus size={22} />
-                                                    </button>
-                                                    <br />
-                                                    <button className="bg-white p-2 rounded-full shadow hover:bg-gray-200 mt-1" onClick={() => {
-                                                        setSelectedProduct(product);
-                                                        handleOpenProductDialog();
-                                                    }}>
-                                                        <CgDetailsMore size={22} />
-                                                    </button>
+                                                <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 scale-0 group-hover:opacity-100 group-hover:scale-100 transform transition-all duration-200">
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.1 }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                        className="bg-white p-2.5 rounded-full shadow-lg hover:bg-blue-50 text-blue-600"
+                                                        onClick={() => addProductToCart(product.id)}
+                                                    >
+                                                        <FaCartPlus size={20} />
+                                                    </motion.button>
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.1 }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                        className="bg-white p-2.5 rounded-full shadow-lg hover:bg-blue-50 text-blue-600"
+                                                        onClick={() => {
+                                                            setSelectedProduct(product);
+                                                            handleOpenProductDialog();
+                                                        }}>
+                                                        <CgDetailsMore size={20} />
+                                                    </motion.button>
                                                 </div>
                                             )}
 
@@ -697,7 +702,7 @@ const ProductDetail: React.FC = () => {
                                                     setProduct={setSelectedProduct}
                                                 />
                                             )}
-                                        </div>
+                                        </motion.div>
                                     )) : (
                                         <div>
                                             <br />

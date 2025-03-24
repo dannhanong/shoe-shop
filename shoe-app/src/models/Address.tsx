@@ -5,6 +5,7 @@ export interface Address {
     province: string;
     district: string;
     ward: string;
+    street: string;
     user: User;
     primaryAddress: boolean;
 }

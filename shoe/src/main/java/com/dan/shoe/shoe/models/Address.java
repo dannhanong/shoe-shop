@@ -25,6 +25,9 @@ public class Address {
     @Column(columnDefinition = "nvarchar(255)")
     String ward; // Phường/Xã
 
+    @Column(columnDefinition = "nvarchar(255)")
+    String street; // Đường
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     User user; // Tham chiếu đến người dùng

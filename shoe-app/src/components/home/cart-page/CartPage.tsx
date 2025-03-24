@@ -54,7 +54,7 @@ const CartPage: FC = () => {
     const fetchMyPrimaryAddress = async () => {
         try {
             const response = await getMyPrimaryAddress();
-            response.data && setAddress(response.data.province + ' - ' + response.data.district + ' - ' + response.data.ward);
+            response.data && setAddress(response.data.province + ' - ' + response.data.district + ' - ' + response.data.ward + ' - ' + response.data.street);
         } catch (error) {
             console.error('Lỗi khi tải thông tin người dùng:', error);
         }

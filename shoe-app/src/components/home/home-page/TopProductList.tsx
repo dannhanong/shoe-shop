@@ -11,6 +11,7 @@ import ProductDialog from '../product-page/ProductDialog';
 import { useCart } from '../../../contexts/CartContext';
 import { isAuthenticated } from '../../../services/auth.service';
 import Swal from 'sweetalert2';
+import { motion } from 'framer-motion';
 
 const TopProductList: React.FC = () => {
     const [hoveredProductId, setHoveredProductId] = useState<number | null>(null);
@@ -25,11 +26,13 @@ const TopProductList: React.FC = () => {
     const getAllProductVariant = async () => {
         const response = await getTopSellingProducts();
         console.log(response.data);
-        
+
         setProducts(response.data);
     }
 
-    const addProductToCart = async (productVariantId: number) => {
+    const addProductToCart = async (productVariantId: number, e: React.MouseEvent) => {
+        e.stopPropagation();
+
         if (isAuthenticated()) {
             const response = await addToCart(productVariantId, 1);
             if (response) {
@@ -37,7 +40,7 @@ const TopProductList: React.FC = () => {
                 toast.success('Thêm vào giỏ hàng thành công');
             }
         } else {
-            setOpenProductDialog(false);
+            handleCloseProductDialog();
             Swal.fire({
                 title: 'Vui lòng đăng nhập',
                 text: 'Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng',
@@ -51,15 +54,17 @@ const TopProductList: React.FC = () => {
                 }
             });
         }
-    }
+    };
 
-    const handleOpenProductDialog = () => {
+    const handleOpenProductDialog = (product: Variant, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setSelectedProduct(product);
         setOpenProductDialog(true);
     };
 
-    const handleCloseProductDialog = () => {        
+    const handleCloseProductDialog = () => {
         setOpenProductDialog(false);
-        console.log('close dialog', isOpenProductDialog); 
+        console.log('close dialog', isOpenProductDialog);
     };
 
     const handleChangePadding = () => {
@@ -74,6 +79,21 @@ const TopProductList: React.FC = () => {
         }
     };
 
+    const container = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    };
+
+    const item = {
+        hidden: { opacity: 0, y: 20 },
+        show: { opacity: 1, y: 0 }
+    };
+
     useEffect(() => {
         getAllProductVariant();
         handleChangePadding();
@@ -82,63 +102,81 @@ const TopProductList: React.FC = () => {
     }, []);
 
     return (
-        <section className="mt-10 mb-10">
+        <section className="py-12 px-4">
             <h2 className="text-2xl font-bold mb-4">SẢN PHẨM BÁN CHẠY</h2>
-            <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-${padding}`}>
+            <div className="container mx-auto">                <motion.div
+                variants={container}
+                initial="hidden"
+                animate="show"
+                className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-${padding} hover:cursor-pointer`}
+            >
                 {products.map((product) => (
-                    <div
+                    <motion.div
                         key={product.id}
-                        className="relative border rounded-lg shadow-md overflow-hidden"
-                        onMouseEnter={() => setHoveredProductId(product.id)}
-                        onMouseLeave={() => setHoveredProductId(null)}
+                        variants={item}
+                        className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 relative group"
+                        whileHover={{ y: -5 }}
+                        onClick={() => navigate(`/product-detail/${product.id}`)}
                     >
-                        <img
-                            src={`${process.env.REACT_APP_BASE_URL}/files/preview/${product.imageAvatar}`}
-                            alt={product.product.name}
-                            className="w-full h-48 object-cover md:h-64 cursor-pointer"
-                            onClick={() => navigate(`/product-detail/${product.id}`)}
-                        />
-                        {product.price !== product.priceAfterDiscount && <DiscountLabel discount={product.discountRate} />}
-                        <h3 className="text-lg font-semibold my-2">{product.product.name}</h3>
-                        <div className='px-4 py-2'>
-                            {product.discountRate > 0 ? (
-                                <div className='flex flex-col justify-end'>
-                                    <span className="text-gray-400 line-through text-end">{product.price.toLocaleString()} VNĐ</span>
-                                    <span className="text-red-600 font-bold text-end">{product.priceAfterDiscount.toLocaleString()} VNĐ</span>
-                                </div>
-                            ) : (
-                                <div className='flex flex-col justify-end'>
-                                    <span className="text-gray-400 text-end mt-5">{product.price.toLocaleString()} VNĐ</span>
-                                </div>
-                            )}
+                        <div className="relative overflow-hidden">
+                            <img
+                                src={`${process.env.REACT_APP_BASE_URL}/files/preview/${product.imageAvatar}`}
+                                alt={product.product.name}
+                                className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                            <div className="absolute inset-0 bg-black bg-opacity-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         </div>
-                        {hoveredProductId === product.id && (
-                            <div className="absolute top-24 right-2">
-                                <button className="bg-white p-2 rounded-full shadow hover:bg-gray-200 mb-1" onClick={() => addProductToCart(product.id)}>
-                                    <FaCartPlus size={22} />
-                                </button>
-                                <br />
-                                <button className="bg-white p-2 rounded-full shadow hover:bg-gray-200 mt-1" onClick={() => {
-                                    setSelectedProduct(product);
-                                    handleOpenProductDialog();
-                                }}>
-                                    <CgDetailsMore size={22} />
-                                </button>
-                            </div>
+
+                        {product.price !== product.priceAfterDiscount && (
+                            <DiscountLabel discount={product.discountRate} />
                         )}
 
-                        {/* ProductDialog should be outside the map loop */}
-                        {selectedProduct && (
-                            <ProductDialog
-                                isOpen={isOpenProductDialog}
-                                onClose={handleCloseProductDialog}
-                                handleCloseProductDialog={handleCloseProductDialog}
-                                product={selectedProduct}
-                                setProduct={setSelectedProduct}
-                            />
-                        )}
-                    </div>
+                        <div className="p-4">
+                            <h3 className="text-lg font-semibold text-gray-800 line-clamp-2 min-h-[3rem]">
+                                {product.product.name}
+                            </h3>
+                            <div className="mt-4">
+                                {product.discountRate > 0 ? (
+                                    <div className="flex flex-col justify-end">
+                                        <span className="text-gray-400 line-through text-end">
+                                            {product.price.toLocaleString()} VNĐ
+                                        </span>
+                                        <span className="text-red-600 font-bold text-end text-lg">
+                                            {product.priceAfterDiscount.toLocaleString()} VNĐ
+                                        </span>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col justify-end">
+                                        <span className="text-gray-700 font-semibold text-end text-lg mt-5">
+                                            {product.price.toLocaleString()} VNĐ
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 scale-0 group-hover:opacity-100 group-hover:scale-100 transform transition-all duration-200">
+                            <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="bg-white p-2.5 rounded-full shadow-lg hover:bg-blue-50 text-blue-600"
+                                onClick={(e) => addProductToCart(product.id, e)}
+                            >
+                                <FaCartPlus size={20} />
+                            </motion.button>
+
+                            <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="bg-white p-2.5 rounded-full shadow-lg hover:bg-blue-50 text-blue-600"
+                                onClick={(e) => handleOpenProductDialog(product, e)}
+                            >
+                                <CgDetailsMore size={20} />
+                            </motion.button>
+                        </div>
+                    </motion.div>
                 ))}
+            </motion.div>
             </div>
             <ToastContainer />
         </section>

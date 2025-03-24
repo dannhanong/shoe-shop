@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Card, TextField, Typography, Avatar, Grid, Dialog, DialogTitle, TableContainer, DialogContent, Table, TableHead, TableCell, TableRow, Paper, TableBody, DialogActions, Chip, SelectChangeEvent, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Box, Button, Card, TextField, Typography, Avatar, Grid, Dialog, DialogTitle, TableContainer, DialogContent, Table, TableHead, TableCell, TableRow, Paper, TableBody, DialogActions, Chip, SelectChangeEvent, FormControl, InputLabel, Select, MenuItem, OutlinedInput } from '@mui/material';
 import { useProfile } from '../../contexts/ProfileContext';
 import { updateProfile } from '../../services/profile.service';
 import { toast, ToastContainer } from 'react-toastify';
@@ -21,6 +21,7 @@ const EditProfile: React.FC = () => {
     const [provinces, setProvinces] = useState<{ name: string; code: number }[]>([]);
     const [districts, setDistricts] = useState<{ name: string; code: number }[]>([]);
     const [wards, setWards] = useState<{ name: string; code: number }[]>([]);
+    const [streetAddress, setStreetAddress] = useState<string>("");
     const [selectedProvince, setSelectedProvince] = useState<number | null>(null);
     const [selectedDistrict, setSelectedDistrict] = useState<number | null>(null);
     const [selectedWard, setSelectedWard] = useState<number | null>(null);
@@ -184,11 +185,26 @@ const EditProfile: React.FC = () => {
 
     const handleAddAddress = async () => {
         try {
+            if (!selectedProvince || !selectedDistrict || !selectedWard || !streetAddress) {
+                toast.error('Vui lòng điền đầy đủ thông tin địa chỉ');
+                return;
+            }
+    
             const selectAdr = {
                 province: provinces.find((p) => p.code === selectedProvince)?.name || "",
                 district: districts.find((d) => d.code === selectedDistrict)?.name || "",
                 ward: wards.find((w) => w.code === selectedWard)?.name || "",
+                street: streetAddress
+            };
+            
+            // Kiểm tra lại một lần nữa trước khi gửi
+            for (const [key, value] of Object.entries(selectAdr)) {
+                if (!value) {
+                    toast.error(`Thông tin ${key} không hợp lệ`);
+                    return;
+                }
             }
+            
             const response = await addAddress(selectAdr);
             if (response.status === 200) {
                 toast.success('Thêm địa chỉ thành công');
@@ -197,11 +213,12 @@ const EditProfile: React.FC = () => {
                 setSelectedProvince(null);
                 setSelectedDistrict(null);
                 setSelectedWard(null);
+                setStreetAddress("");
             }
         } catch (error) {
             toast.error('Thêm địa chỉ thất bại');
         }
-    }
+    };
 
     const handleDeletedr = async (addressId: number) => {
         try {
@@ -269,9 +286,9 @@ const EditProfile: React.FC = () => {
                                     />
                                 )}
                             />
-                            <Button 
-                                variant="contained" 
-                                color="primary" 
+                            <Button
+                                variant="contained"
+                                color="primary"
                                 type="submit"
                             >
                                 Lưu thay đổi
@@ -306,7 +323,7 @@ const EditProfile: React.FC = () => {
             <Dialog open={isWantChange} onClose={handleCloseAddressDialog} fullWidth maxWidth='md'>
                 <Box display={'flex'} justifyContent={'space-between'}>
                     <DialogTitle>Thay đổi địa chỉ mặc định</DialogTitle>
-                    <Button 
+                    <Button
                         sx={{ marginRight: 3, marginTop: 2 }}
                         onClick={() => setIsWantAdd(!isWantAdd)}
                     >
@@ -319,16 +336,16 @@ const EditProfile: React.FC = () => {
                             <TableHead>
                                 <TableRow>
                                     <TableCell align="center">STT</TableCell>
-                                    <TableCell align="center">Mô tả</TableCell>
+                                    <TableCell align="center">Địa chỉ</TableCell>
                                     <TableCell align="center">Trạng thái</TableCell>
                                     <TableCell align="center"></TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {addresses.length > 0 ? addresses.map((adr) => (
+                                {addresses.length > 0 ? addresses.map((adr, index) => (
                                     <TableRow key={adr.id} className="hover:bg-gray-100">
-                                        <TableCell align="center">{adr.id}</TableCell>
-                                        <TableCell align="center">{adr.province + ' - ' + adr.district + ' - ' + adr.ward}</TableCell>
+                                        <TableCell align="center">{index + 1}</TableCell>
+                                        <TableCell align="center">{adr.province + ' - ' + adr.district + ' - ' + adr.ward + ' - ' + adr.street}</TableCell>
                                         {
                                             adr.primaryAddress ? (
                                                 <TableCell align="center">
@@ -373,7 +390,7 @@ const EditProfile: React.FC = () => {
                     isWantAdd && (
                         <Box component={'form'} marginX={3} marginBottom={3}>
                             <Grid container spacing={3}>
-                                <Grid item xs={12} sm={3.5}>
+                                <Grid item xs={12} sm={5.3}>
                                     <FormControl fullWidth>
                                         <InputLabel>Tỉnh/Thành phố</InputLabel>
                                         <Select
@@ -388,7 +405,7 @@ const EditProfile: React.FC = () => {
                                         </Select>
                                     </FormControl>
                                 </Grid>
-                                <Grid item xs={12} sm={3.5}>
+                                <Grid item xs={12} sm={5.3}>
                                     <FormControl fullWidth>
                                         <InputLabel>Quận/Huyện</InputLabel>
                                         <Select
@@ -404,7 +421,7 @@ const EditProfile: React.FC = () => {
                                         </Select>
                                     </FormControl>
                                 </Grid>
-                                <Grid item xs={12} sm={3.5}>
+                                <Grid item xs={12} sm={5.3}>
                                     <FormControl fullWidth>
                                         <InputLabel>Phường/Xã</InputLabel>
                                         <Select
@@ -418,6 +435,17 @@ const EditProfile: React.FC = () => {
                                                 </MenuItem>
                                             ))}
                                         </Select>
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={12} sm={5.3}>
+                                    <FormControl fullWidth variant="outlined">
+                                        <InputLabel>Đường/Số nhà</InputLabel>
+                                        <OutlinedInput
+                                            placeholder="Nhập chi tiết đường/số nhà"
+                                            value={streetAddress || ""}
+                                            onChange={(e) => setStreetAddress(e.target.value)}
+                                            label="Đường/Số nhà"
+                                        />
                                     </FormControl>
                                 </Grid>
                                 <Grid item xs={12} sm={1}>

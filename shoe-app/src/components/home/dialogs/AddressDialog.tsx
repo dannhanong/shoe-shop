@@ -1,7 +1,8 @@
-import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, Grid, InputLabel, MenuItem, Paper, Select, SelectChangeEvent, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
+import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, Grid, InputLabel, MenuItem, OutlinedInput, Paper, Select, SelectChangeEvent, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
 import React, { Dispatch, SetStateAction, useState } from 'react'
 import { Address } from '../../../models/Address';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 interface AddressDialogProps {
     isWantChange: boolean;
@@ -41,10 +42,18 @@ const AddressDialog: React.FC<AddressDialogProps> = ({
     handleCloseAddressDialog
 }) => {
     const [isWantAdd, setIsWantAdd] = useState(false);
+    const [streetAddress, setStreetAddress] = useState<string>("");
 
     const handleSelectOtherAddress = () => {
+        if (!selectedProvince || !selectedDistrict || !selectedWard || !streetAddress) {
+            toast.error("Vui lòng chọn đầy đủ thông tin địa chỉ", {
+                autoClose: 3000,
+            });
+            return;
+        }
+
         handleCloseAddressDialog();
-        setAddress(`${provinces.find((p) => p.code === selectedProvince)?.name} - ${districts.find((d) => d.code === selectedDistrict)?.name} - ${wards.find((w) => w.code === selectedWard)?.name}`);
+        setAddress(`${provinces.find((p) => p.code === selectedProvince)?.name} - ${districts.find((d) => d.code === selectedDistrict)?.name} - ${wards.find((w) => w.code === selectedWard)?.name} - ${streetAddress}`);
     }
 
     const handleChangeAddress = (id: number) => {
@@ -123,16 +132,16 @@ const AddressDialog: React.FC<AddressDialogProps> = ({
                             <TableHead>
                                 <TableRow>
                                     <TableCell align="center">STT</TableCell>
-                                    <TableCell align="center">Mô tả</TableCell>
+                                    <TableCell align="center">Địa chỉ</TableCell>
                                     <TableCell align="center">Trạng thái</TableCell>
                                     <TableCell align="center"></TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {addresses.length > 0 ? addresses.map((adr) => (
+                                {addresses.length > 0 ? addresses.map((adr, index) => (
                                     <TableRow key={adr.id} className="hover:bg-gray-100">
-                                        <TableCell align="center">{adr.id}</TableCell>
-                                        <TableCell align="center">{adr.province + ' - ' + adr.district + ' - ' + adr.ward}</TableCell>
+                                        <TableCell align="center">{index + 1}</TableCell>
+                                        <TableCell align="center">{adr.province + ' - ' + adr.district + ' - ' + adr.ward + ' - ' + adr.street}</TableCell>
                                         {
                                             adr.primaryAddress ? (
                                                 <TableCell align="center">
@@ -176,7 +185,7 @@ const AddressDialog: React.FC<AddressDialogProps> = ({
                     isWantAdd && (
                         <Box component={'form'} marginX={3} marginBottom={3}>
                             <Grid container spacing={3}>
-                                <Grid item xs={12} sm={3.5}>
+                                <Grid item xs={12} sm={5.3}>
                                     <FormControl fullWidth>
                                         <InputLabel>Tỉnh/Thành phố</InputLabel>
                                         <Select
@@ -191,7 +200,7 @@ const AddressDialog: React.FC<AddressDialogProps> = ({
                                         </Select>
                                     </FormControl>
                                 </Grid>
-                                <Grid item xs={12} sm={3.5}>
+                                <Grid item xs={12} sm={5.3}>
                                     <FormControl fullWidth>
                                         <InputLabel>Quận/Huyện</InputLabel>
                                         <Select
@@ -207,7 +216,7 @@ const AddressDialog: React.FC<AddressDialogProps> = ({
                                         </Select>
                                     </FormControl>
                                 </Grid>
-                                <Grid item xs={12} sm={3.5}>
+                                <Grid item xs={12} sm={5.3}>
                                     <FormControl fullWidth>
                                         <InputLabel>Phường/Xã</InputLabel>
                                         <Select
@@ -221,6 +230,17 @@ const AddressDialog: React.FC<AddressDialogProps> = ({
                                                 </MenuItem>
                                             ))}
                                         </Select>
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={12} sm={5.3}>
+                                    <FormControl fullWidth variant="outlined">
+                                        <InputLabel>Đường/Số nhà</InputLabel>
+                                        <OutlinedInput
+                                            placeholder="Nhập chi tiết đường/số nhà"
+                                            value={streetAddress || ""}
+                                            onChange={(e) => setStreetAddress(e.target.value)}
+                                            label="Đường/Số nhà"
+                                        />
                                     </FormControl>
                                 </Grid>
                                 <Grid item xs={12} sm={1}>

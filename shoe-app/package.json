@@ -20,6 +20,7 @@
     "chart.js": "^4.4.6",
     "color-name-list": "^11.0.0",
     "date-fns": "^2.30.0",
+    "framer-motion": "^12.5.0",
     "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",
     "nearest-color": "^0.4.4",

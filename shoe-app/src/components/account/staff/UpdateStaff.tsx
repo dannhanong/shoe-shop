@@ -172,9 +172,14 @@ const UpdateStaff: React.FC = () => {
       staffAddress,
       staffImage: selectedFile,
     };
-    const response = await updateStaff(staffAccountSignup, Number(param.id));
-    if (response) {
-      toast.success("Cập nhật thông tin nhân viên thành công");
+    try {
+      const response = await updateStaff(staffAccountSignup, Number(param.id));
+      if (response) {
+        toast.success("Cập nhật thông tin nhân viên thành công");
+      }
+    } catch (error) {
+      console.error("Error updating staff:", error);
+      toast.error("Cập nhật thông tin nhân viên thất bại, vui lòng kiểm tra lại thông tin");
     }
   };
 
