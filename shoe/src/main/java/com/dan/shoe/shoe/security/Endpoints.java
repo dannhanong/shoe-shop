@@ -4,7 +4,8 @@ public class Endpoints {
     public static final String[] PUBLIC_POST_ENDPOINTS = {
             "/auth/login",
             "/auth/signup",
-            "/auth/forgot-password"
+            "/auth/forgot-password",
+            "/histories/**",
     };
 
     public static final String[] PRIVATE_POST_ENDPOINTS = {
@@ -27,7 +28,6 @@ public class Endpoints {
 
     public static final String[] STAFF_POST_ENDPOINTS = {
             "/products/staff/**",
-            "/histories/**",
     };
 
     public static final String[] PUBLIC_GET_ENDPOINTS = {
@@ -40,7 +40,8 @@ public class Endpoints {
             "/brands/all",
             "/discounts/public/**",
             "/payment",
-            "/colors/**"
+            "/colors/**",
+            "/histories/**",
     };
 
     public static final String[] PRIVATE_GET_ENDPOINTS = {
@@ -74,7 +75,6 @@ public class Endpoints {
 
     public static final String[] STAFF_GET_ENDPOINTS = {
         "/accounts/admin/**",
-        "/histories/**",
     };
 
     public static final String[] STAFF_PUT_ENDPOINTS = {

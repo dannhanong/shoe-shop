@@ -635,12 +635,14 @@ const ProductDetail: React.FC = () => {
                                             onMouseEnter={() => setHoveredProductId(product.id)}
                                             onMouseLeave={() => setHoveredProductId(null)}
                                         >
-                                            <div className="relative overflow-hidden hover:cursor-pointer">
+                                            <div 
+                                                className="relative overflow-hidden hover:cursor-pointer"
+                                                onClick={() => navigate(`/product-detail/${product.id}`)}
+                                            >
                                                 <img
                                                     src={`${process.env.REACT_APP_BASE_URL}/files/preview/${product.imageAvatar}`}
                                                     alt={product.product.name}
                                                     className="w-full h-48 object-cover md:h-64 cursor-pointer"
-                                                    onClick={() => navigate(`/product-detail/${product.id}`)}
                                                 />
                                                 <div className="absolute inset-0 bg-black bg-opacity-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                             </div>

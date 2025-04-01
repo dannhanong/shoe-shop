@@ -157,7 +157,7 @@ const UserManagement: React.FC = () => {
                                 <td className="border p-2 text-center">
                                     <div className="flex justify-center items-center space-x-3">
                                         <CiEdit size={25} className='cursor-pointer' color='blue' onClick={() => navigate(`/manager/update-user/${user.id}`)}/>
-                                        <MdDeleteForever size={25} className='cursor-pointer' color='red' onClick={() => handleDelete(user.id)} />
+                                        {/* <MdDeleteForever size={25} className='cursor-pointer' color='red' onClick={() => handleDelete(user.id)} /> */}
                                     </div>
                                 </td>
                             </tr>

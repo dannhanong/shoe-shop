@@ -6,12 +6,13 @@ import { getOrderInfor, updateOrderPaid } from '../../services/order.service';
 
 const PaymentReturn: React.FC = () => {
     const [order, setOrder] = useState<any>(null);
+    const [isTransactioned, setIsTransactioned] = useState(false);
 
     const getReturnOrderInfo = async (orderId: string) => {
         try {
             console.log('Order ID:', orderId);
             const response = await getOrderInfor(Number(orderId));
-            setOrder(response.data);            
+            setOrder(response.data);
         } catch (error) {
             console.error('Error getting order info:', error);
         }
@@ -36,13 +37,6 @@ const PaymentReturn: React.FC = () => {
             console.error('Error updating order paid:', error);
         }
     };
-
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const orderId = params.get("vnp_OrderInfo");
-        // const orderId = new URLSearchParams(window.location.search).get('vnp_OrderInfo');
-        updateOrderPaidReturn(Number(orderId));
-    }, []);
 
     const printReceipt = () => {
         if (!order) return;
@@ -141,20 +135,38 @@ const PaymentReturn: React.FC = () => {
 
     useEffect(() => {
         const orderId = new URLSearchParams(window.location.search).get('vnp_OrderInfo');
-        getReturnOrderInfo(orderId || '');
+        const transactionId = new URLSearchParams(window.location.search).get('vnp_TransactionNo');
+        transactionId !== '0' && setIsTransactioned(true);
+        transactionId !== '0' && getReturnOrderInfo(orderId || '');
     }, []);
 
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const orderId = params.get("vnp_OrderInfo");
+        // const orderId = new URLSearchParams(window.location.search).get('vnp_OrderInfo');
+        isTransactioned && updateOrderPaidReturn(Number(orderId));
+    }, [isTransactioned]);
+
     return (
-        <div className='text-center'>
-            <h1 className='text-green-600'>Thanh toán thành công</h1>
-            {
-                <button onClick={printReceipt}>In hóa đơn</button>
-            }
-            <br />
-            <button>
-                <Link to={'/'}>Quay về trang chủ</Link>
-            </button>
-        </div>
+        isTransactioned ? (
+            <div className='text-center'>
+                <h1 className='text-green-600'>Thanh toán thành công</h1>
+                {
+                    <button onClick={printReceipt}>In hóa đơn</button>
+                }
+                <br />
+                <button>
+                    <Link to={'/'}>Quay về trang chủ</Link>
+                </button>
+            </div>
+        ) : (
+            <div>
+                <h1>Đã hủy thanh toán</h1>
+                <button>
+                    <Link to={'/'}>Quay về trang chủ</Link>
+                </button>
+            </div>
+        )
     );
 };
 

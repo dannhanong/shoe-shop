@@ -130,7 +130,7 @@ const AllProdduct: React.FC = () => {
     };
 
     return (
-        <Box sx={{ display: 'flex', backgroundColor: '#f9fafb' }}>
+        <Box sx={{ display: 'flex', backgroundColor: '#f9fafb', width: '100%' }}>
             <ProductFilters onFilterChange={handleFilterChange} />
 
             {/* Danh sách sản phẩm */}
